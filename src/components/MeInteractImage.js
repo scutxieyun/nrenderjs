@@ -8,7 +8,7 @@ var ReactDOM = require("react-dom");
 			this.lastDeltaTime = 0;
 			return {
 				x_offset:0,
-				y_offset:0,
+				y_offset:0
 			}
 		},
 		getDefaultProps:function(){

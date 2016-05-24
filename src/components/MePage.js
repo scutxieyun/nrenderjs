@@ -3,6 +3,7 @@ var ReactDOM = require("react-dom");
 define("MePage",function(){
 	var MePage  = React.createClass({
 		getInitialState:function(){
+			this.compRegisters = {};//让页面内的组件进行注册
 			this.pageListener = [];
 			return{
 				active:false

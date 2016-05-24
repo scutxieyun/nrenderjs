@@ -42,15 +42,21 @@ var cxt = {
 			</MePage>,
 			<MePage idx={4} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
 				<MeAnimation cxt={cxt} listenEvt={{active:"page[4]:active",deactive:"page[4]:deactive"}} normalStyle={{top:"20px",height:"100px"}}><div style={{fontSize:"30px"}}>Hello the animation</div></MeAnimation>
+			</MePage>,
+			
+			/***第二篇文章*/
+			
+			<MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
+				<MeAnimation cxt={cxt} listenEvt={{active:"page[4]:active",deactive:"page[4]:deactive"}} normalStyle={{top:"20px",height:"100px"}}><div style={{fontSize:"30px"}}>Hello the animation</div></MeAnimation>
 			</MePage>],
 		"toolBar":
 			<MeToolBar>
 				<MeMusic id="magazine-music" src="http://ac-hf3jpeco.clouddn.com/154478292068657d.mp3"></MeMusic>
 			</MeToolBar>,
 
-		"layout":[//注意，这里安排是描述每一个page的相邻页面索引，page0对应着这个数组的第二个,即page0的上一页是4，下一页是1
-			-1,0,1,2,3,4,-1
-		],
+		"layout":
+			[-1,[-1,2,3,4,-1],[1,2,3],4,0,-1]
+		,
 		"cxt":cxt
 	};
 	return article;
