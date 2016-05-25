@@ -1,37 +1,21 @@
 define("MeAnimation",function(){
 var React = require("react");
 var ReactDOM = require("react-dom");
-var _assign = require("object-assign");	
+var _assign = require("object-assign");
+var MeComponentMixin = require("../src/MeComponentMixin.js");	
+var MeAnimationMxin = require("../src/MeAnimationMixin.js");
 	var MeAnimation  = React.createClass({
-		getInitialState:function(){
-			return{
-				animationState:"no start"
-			}
-		},
+		mixins:[MeComponentMixin,MeAnimationMxin],
 		getDefaultProps:function(){
 			return {
 				listenEvt:{//字符串，定义哪些事件触发动画启动
 					active:null,
 					deactive:null
 				},
-				className_Active:"animated",
-				className_Deactive:"hidden",
-				animationClass:"fadeIn",
-				animation:{
-					animationIterationCount:"1",
-					animationDelay:"0s",
-					animationDuration:"1s"
-				},
 				normalStyle:{
 					position:"absolute",
 				}
 			}
-		},
-		animationActive:function(evt){
-			this.setState({animationState:"start"});
-		},
-		animationDeactive:function(evt){
-			this.setState({animationState:"no start"});
 		},
 		componentWillMount:function(){
 			if(this.props.listenEvt.active != null)
@@ -46,7 +30,8 @@ var _assign = require("object-assign");
 				this.props.cxt.ee.removeListener(this.props.listenEvt.deactive,this.animationDeactive);
 		},
 		render:function(){
-			var className = (this.state.animationState == "start" ? this.props.className_Active + " " + this.props.animationClass:this.props.className_Deactive);
+			var className = this.getAnimationClass();
+			//处理display属性
 			return <div className={className} style={_assign(this.props.animation,this.props.normalStyle)}> {this.props.children}</div>
 		}});
 	return MeAnimation;

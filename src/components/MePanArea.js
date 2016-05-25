@@ -1,7 +1,10 @@
-define("MeInteractImage",function(){
+define("MePanArea",function(){
 var React = require("react");
 var ReactDOM = require("react-dom");
-	var MeInteractImage  = React.createClass({
+var MeComponentMixin = require("../src/MeComponentMixin");
+	var MePanArea  = React.createClass({
+		displayName:"MePanArea",
+		mixins:[MeComponentMixin],
 		getInitialState:function(){
 			this.xBeforePan = 0;
 			this.yBeforePan = 0;
@@ -13,11 +16,9 @@ var ReactDOM = require("react-dom");
 		},
 		getDefaultProps:function(){
 			return {
+				id:this.displayName + MeComponentMixin.getIncId(),//因为这个控件需要pageActive，为了减少应用的麻烦，自己先定义一个id
 				normalStyle:{}
 			};
-		},
-		componentDidMount:function(){
-			this.props.cxt.pageMgr.addPageListener(this.props.pageIdx,this); 
 		},
 		interactHandle:function(evt){
 			if(evt.type == "pan"){
@@ -53,8 +54,8 @@ var ReactDOM = require("react-dom");
 		render:function(){
 			var  transform = "translate3d(" + this.state.x_offset +"px," + this.state.y_offset + "px,0px)";
 			this.props.normalStyle.transform = transform;
-			return(<img ref="interactArea" src={this.props.src} style={this.props.normalStyle}></img>);
+			return(<div ref="interactArea" style={this.props.normalStyle}>{this.props.children}</div>);
 		}
 	});
-	return MeInteractImage;
+	return MePanArea;
 });

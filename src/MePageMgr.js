@@ -25,5 +25,10 @@ define("MePageMgr",function(){
 		if(idx < this.pageArr.length) return this.pageArr[idx];
 		return null;
 	};
+	MePageMgr.prototype.registerComponent = function(idx,compId,comRef){
+		if(idx < this.pageArr.length && this.pageArr[idx] != null){
+			this.pageArr[idx].registerComponent(compId,comRef);
+		}
+	};
 	return MePageMgr;
 });

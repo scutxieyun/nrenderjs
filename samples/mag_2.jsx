@@ -8,7 +8,7 @@ var MeTouchTrigger = Renderjs.MeTouchTrigger;
 var MeMusic = Renderjs.MeMusic;
 var MeToolBar = Renderjs.MeToolBar;
 var MePageMgr = Renderjs.MePageMgr;
-var MeInteractImage = Renderjs.MeInteractImage;
+var MePanArea = Renderjs.MePanArea;
 var EventEmitter = Renderjs.EventEmitter;
 var pageMgr = new MePageMgr(5);	//4 is the number of page
 var cxt = {
@@ -38,7 +38,9 @@ var cxt = {
 			<MePage idx={2} cxt={cxt} normalStyle= {{backgroundColor:"gray",backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/312ab77435c7d2b06bad.jpg?imageView2/2/format/jpg/w/600/h/800")'}}></MePage>,
 			<MePage idx={3} cxt={cxt} normalStyle={{backgroundColor:"pink",backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/3c2d462ae56458d68746.jpg")'}}>
 				<MeAnimation cxt={cxt} listenEvt={{active:"page[3]:active",deactive:"page[3]:deactive"}} normalStyle={{top:"20px",height:"100px"}}><div>Hello the animation</div></MeAnimation>
-				<MeInteractImage cxt={cxt} pageIdx={3} normalStyle={{height:"2000px"} }src="http://www.sinaimg.cn/dy/slidenews/1_img/2016_20/2841_694470_324642.jpg"></MeInteractImage>
+				<MePanArea cxt={cxt} pageIdx={3} normalStyle={{height:"2000px"} }>
+				<img src="http://www.sinaimg.cn/dy/slidenews/1_img/2016_20/2841_694470_324642.jpg"></img>
+				</MePanArea>
 			</MePage>,
 			<MePage idx={4} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
 				<MeAnimation cxt={cxt} listenEvt={{active:"page[4]:active",deactive:"page[4]:deactive"}} normalStyle={{top:"20px",height:"100px"}}><div style={{fontSize:"30px"}}>Hello the animation</div></MeAnimation>

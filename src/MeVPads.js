@@ -55,7 +55,7 @@ var MeHammer = function(hammer,default_handler){
 	this.defaultHandler = default_handler;
 	this.listeners = {};
 	//this.hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL }); it doesn't work???
-	this.hammer.on("swipeleft swiperight swipeup swipedown pan",function(evt){self.handleHammerEvent(evt);});
+	this.hammer.on("swipeleft swiperight swipeup swipedown pan tap",function(evt){self.handleHammerEvent(evt);});
 	this.hammer.on("tap",function(evt){self.handleHammerEvent(evt);});
 }
 MeHammer.prototype.handleHammerEvent = function(evt){

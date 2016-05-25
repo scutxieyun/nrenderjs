@@ -10,6 +10,7 @@ var each = require("gulp-foreach");
 var babel = require('gulp-babel');
 var webpack = require('gulp-webpack');
 var rename = require("gulp-rename");
+const exec = require('child_process').exec;
 
 var dest_dir = "dist";
 var obfuscate_tag = true;
@@ -21,7 +22,7 @@ jsx = ["src/MeVPads.js",
 	"src/components/MeTouchTrigger.js",
 	"src/components/MeToolBar.js",
 	"src/components/MeMusic.js",
-	"src/components/MeInteractImage.js",
+	"src/components/MePanArea.js",
 	"samples/mag_1.jsx",
 	"samples/mag_2.jsx",
 	"samples/mag_page_test.jsx",
@@ -42,3 +43,13 @@ gulp.task("pack",["babel"],function(){
 });
 
 gulp.task("default",["pack"]);
+
+gulp.task("test",function(){
+	exec('git --help', (err, stdout, stderr) => {
+		if (err) {
+			console.error(err);
+			return;
+		}	
+		console.log(stdout);
+	});
+});
