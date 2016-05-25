@@ -45,9 +45,9 @@ var cxt = {
 			<MePage idx={4} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
 				<MeAnimation cxt={cxt} listenEvt={{active:"page[4]:active",deactive:"page[4]:deactive"}} normalStyle={{top:"20px",height:"100px"}}><div style={{fontSize:"30px"}}>Hello the animation</div></MeAnimation>
 			</MePage>,
-			
+
 			/***第二篇文章*/
-			
+
 			<MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
 				<MeAnimation cxt={cxt} listenEvt={{active:"page[4]:active",deactive:"page[4]:deactive"}} normalStyle={{top:"20px",height:"100px"}}><div style={{fontSize:"30px"}}>Hello the animation</div></MeAnimation>
 			</MePage>],
