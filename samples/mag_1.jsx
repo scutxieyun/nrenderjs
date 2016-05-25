@@ -42,6 +42,9 @@ var cxt = {
 			</MePage>,
 			<MePage idx={4} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
 				<MeAnimation cxt={cxt} listenEvt={{active:"page[4]:active",deactive:"page[4]:deactive"}} normalStyle={{top:"20px",height:"100px"}}><div style={{fontSize:"30px"}}>Hello the animation</div></MeAnimation>
+			</MePage>,
+			<MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
+				<div style={{fontSize:"30px",height:"100px",backgroundColor:"#f00"}}>ddddddddddddd</div>
 			</MePage>],
 		"toolBar":
 			<MeToolBar>
@@ -49,7 +52,7 @@ var cxt = {
 			</MeToolBar>,
 
 		"layout":[//注意，这里安排是描述每一个page的相邻页面索引，page0对应着这个数组的第二个,即page0的上一页是4，下一页是1
-			4,0,1,2,3,4,0
+			4,0,1,2,3,4,5,0
 		],
 		"cxt":cxt
 	};
