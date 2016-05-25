@@ -43,10 +43,11 @@ gulp.task("pack",["babel"],function(){
 	.pipe(gulp.dest("lib"));
 });
 
-
 gulp.task("default",["pack"],function(){
 	watch('src/**/**',['pack']);
 	watch('samples/**',function(){
 		gulp.start('pack')
 	})
+
 });
+
