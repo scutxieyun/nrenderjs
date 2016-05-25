@@ -3,10 +3,26 @@ var ReactDOM = require("react-dom");
 define("MePage",function(){
 	var MePage  = React.createClass({
 		getInitialState:function(){
+			this.container = {};//让页面内的组件进行注册
 			this.pageListener = [];
 			return{
 				active:false
 			};
+		},
+		registerComponent:function(compId,comRef){
+			if(compId != undefined){
+				if(this.container.hasOwnProperty(compId)){
+					console.log("warning the name may duplicate");
+				}
+				this.container[compId] = comRef;
+			}
+			return this;
+		},
+		getComponent:function(compId){
+			if(this.container.hasOwnProperty(compId)){
+				return this.container[compId];
+			}
+			return null;
 		},
 		addListener:function(comRef){
 			if(comRef != null){// @todo 应该做重复检查
@@ -32,6 +48,15 @@ define("MePage",function(){
 						this.pageListener[i].pageActive(this);
 					}else{
 						this.pageListener[i].pageDeactive(this);
+					}
+				}
+			}
+			var _method = this.state.active ? "pageActive" : "pageDeactive"; 
+			for(var compid in this.container){
+				if(this.container[compid].hasOwnProperty(_method)){
+					var compMethod = this.container[compid][_method];
+					if(!!(compMethod && compMethod.constructor && compMethod.call && compMethod.apply)){
+						compMethod.apply(null,{page:this});
 					}
 				}
 			}

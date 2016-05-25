@@ -11,6 +11,7 @@ var babel = require('gulp-babel');
 var webpack = require('gulp-webpack');
 var watch=require("gulp-watch");
 var rename = require("gulp-rename");
+const exec = require('child_process').exec;
 
 var dest_dir = "dist";
 var obfuscate_tag = true;
@@ -22,12 +23,13 @@ jsx = ["src/MeVPads.js",
 	"src/components/MeTouchTrigger.js",
 	"src/components/MeToolBar.js",
 	"src/components/MeMusic.js",
-	"src/components/MeInteractImage.js",
+	"src/components/MePanArea.js",
 	"samples/mag_1.jsx",
+	"samples/mag_2.jsx",
+	"samples/mag_page_test.jsx",
 	"index.js"
 ];
 gulp.task("babel", function(){
-	console.log("build");
 	return gulp.src(jsx).
         pipe(babel({
             plugins: ['transform-react-jsx']
@@ -36,16 +38,15 @@ gulp.task("babel", function(){
 });
 
 gulp.task("pack",["babel"],function(){
-	console.log("222");
 	return gulp.src("dist/index.js")
 	.pipe(webpack(require("./webpack.config.js")))
 	.pipe(gulp.dest("lib"));
 });
 
+
 gulp.task("default",["pack"],function(){
 	watch('src/**/**',['pack']);
-	watch('samples/mag_1.jsx',function(){
+	watch('samples/**',function(){
 		gulp.start('pack')
-		console.log(111);
 	})
 });

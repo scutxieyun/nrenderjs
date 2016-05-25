@@ -3,15 +3,53 @@ define("MeArtical",[],function(){
 		this.article = art;
 	};
 	
+	
+	MeArticle.prototype.getPageIdxInLayout = function(posXIdx,posYIdx){
+		var innerXId = posXIdx + 1;
+		if(innerXId < this.article.layout.length){
+			var xPages = this.article.layout[innerXId];
+			if(xPages instanceof Array){
+				var innerYId = posYIdx + 1;
+				if(innerYId < xPages.length){
+					return xPages[innerYId];
+				}
+			}else{
+				return xPages;//忽略Y
+			}
+		}
+		return -1;
+	}
 	MeArticle.prototype.getNbrPageIdx = function(dir,idx,idy){
-		if(idy == undefined){
-		//一维结构，二维结构稍后
-			var innerIdx = idx + 1;		//layout数组比较特殊
-			if(innerIdx <= 0 || innerIdx >= this.article.layout.length) return -1;//超出边界
-			if(dir === "right")
-				return this.article.layout[innerIdx+1];
-			if(dir === "left")
-				return this.article.layout[innerIdx-1];
+		var innerIdx = idx + 1;				//避免边界检查
+		if(innerIdx <= 0 || innerIdx >= this.article.layout.length) return -1;//超出边界
+		var L1Data = null;
+		var result = -1;
+		if(dir === "L1Next"){
+			L1Data = this.article.layout[innerIdx+1];
+		}
+		if(dir === "L1Prev"){
+			L1Data = this.article.layout[innerIdx-1];
+		}
+		if(L1Data != null){
+			if(L1Data instanceof Array){
+				result = L1Data[1];		//切换到新作品的第一页,也是避免边界检查，从1开始
+			}else{
+				result = L1Data;//单页模式
+			}
+			return result;
+		}
+		//二级翻页
+		L1Data = this.article.layout[innerIdx];
+		if(L1Data instanceof Array){
+			var innerIdy = idy + 1;
+			if(innerIdy <= 0 || innerIdy >= L1Data.length) return -1;
+			if(dir == "L2Prev"){
+				result = L1Data[innerIdy - 1];
+			}
+			if(dir == "L2Next"){
+				result = L1Data[innerIdy + 1];
+			}
+			return result;
 		}
 		return -1;
 	};

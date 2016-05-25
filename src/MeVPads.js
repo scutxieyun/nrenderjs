@@ -55,7 +55,7 @@ var MeHammer = function(hammer,default_handler){
 	this.defaultHandler = default_handler;
 	this.listeners = {};
 	//this.hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL }); it doesn't work???
-	this.hammer.on("swipeleft swiperight swipeup swipedown pan",function(evt){self.handleHammerEvent(evt);});
+	this.hammer.on("swipeleft swiperight swipeup swipedown pan tap",function(evt){self.handleHammerEvent(evt);});
 	this.hammer.on("tap",function(evt){self.handleHammerEvent(evt);});
 }
 MeHammer.prototype.handleHammerEvent = function(evt){
@@ -114,7 +114,8 @@ var MeVPads = React.createClass({
 		this.lastTouchX = null;
 		this.lastDeltaX = 0;
 		this.pageCache = [];
-		this.pageIdx = -1;
+		this.posXIdx = -1;
+		this.posYIdx = -1;
 		return {
 		};
 	},
@@ -166,6 +167,10 @@ var MeVPads = React.createClass({
 			this.pageCacheIdx[pageIdx] = cacheIdx;
 		}
 		var cache = this.pageCache[cacheIdx];
+		if(cache == null){
+			console.log("critical error...");
+		}
+		if(cache.lock) return;//这个cache已经被激活，不用再次激活，，，通常是页面定义有冲突，比如page1的下一页也是page1
 		cache.lock = true;
 		if(state == "active") cache.rate += 2;
 		else cache.rate += 1;
@@ -177,23 +182,25 @@ var MeVPads = React.createClass({
 		}
 		
 	},
-	loadPage:function(idx){//显示article.pages中的某一页
+	loadPageByPos:function(posXIdx,posYIdx){//显示指定位置的页，对应的页在layout中定义
 		var article = this.props.article;
-		if(idx < 0 || idx > this.pageCacheIdx.length) return;
+		var pageIdx = article.getPageIdxInLayout(posXIdx,posYIdx);
 		
-		this._cachePage(idx,"active","middle");
+		if(pageIdx < 0 || pageIdx > this.pageCacheIdx.length) return;
+		
+		this._cachePage(pageIdx,"active","middle");
 		
 		/*预加载相邻页*/
-		var up = article.getNbrPageIdx("up",idx);
+		var up = article.getNbrPageIdx("L2Prev",posXIdx,posYIdx);
 		this._cachePage(up,"standby","up");
 		
-		var down = article.getNbrPageIdx("down",idx);
+		var down = article.getNbrPageIdx("L2Next",posXIdx,posYIdx);
 		this._cachePage(down,"standby","down");
 		
-		var left = article.getNbrPageIdx("left",idx);
+		var left = article.getNbrPageIdx("L1Prev",posXIdx,posYIdx);
 		this._cachePage(left,"standby","left");
 		
-		var right = article.getNbrPageIdx("right",idx);
+		var right = article.getNbrPageIdx("L1Next",posXIdx,posYIdx);
 		this._cachePage(right,"standby","right");
 		
 		for(var i = 0;i < this.pageCache.length;i ++){
@@ -214,15 +221,27 @@ var MeVPads = React.createClass({
 		//console.log(this.pageCache);
 		
 	},
-	moveNext:function(){
-		this.pageIdx ++;
-		if(this.pageIdx >= this.props.article.getNumOfPage()) this.pageIdx = 0;
-		this.loadPage(this.pageIdx);
+	moveXNext:function(){
+		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return;//翻到尽头
+		this.posXIdx ++;
+		this.posYIdx = 0;	//这是由作品的结构决定的，横向，作品有可能是单页，posYIdx位置失效
+		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
-	movePrev:function(){
-		this.pageIdx --;
-		if(this.pageIdx < 0) this.pageIdx = this.props.article.getNumOfPage() - 1;
-		this.loadPage(this.pageIdx);
+	moveXPrev:function(){
+		if(this.props.article.getPageIdxInLayout(this.posXIdx - 1,0) == -1) return;//翻到尽头
+		this.posXIdx --;
+		this.posYIdx = 0;
+		this.loadPageByPos(this.posXIdx,this.posYIdx);
+	},
+	moveYNext:function(){
+		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx + 1) == -1) return;//翻到尽头
+		this.posYIdx ++;
+		this.loadPageByPos(this.posXIdx,this.posYIdx);
+	},
+	moveYPrev:function(){
+		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx - 1) == -1) return;//翻到尽头
+		this.posYIdx --;
+		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
 	handleSwipe:function(evt){
 		console.log("swipe ",evt);
@@ -236,15 +255,18 @@ var MeVPads = React.createClass({
 		console.log("get tap in pad ",evt);
 	},
 	componentDidMount:function(){
-		this.pageIdx = 0;
-		this.loadPage(this.pageIdx);
+		this.posXIdx = 0;
+		this.posYIdx = 0;
+		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
 	_registerBuffer:function(ref){
 		this.pageCache[ref.props.id].reactInstance = ref;
 	},
 	_registerHammer:function(ref){
 		//this.hammer = ref;
-		this.props.article.getCxt().interactHandler = new MeHammer(ref.hammer,{"swipeleft":this.moveNext,"swiperight":this.movePrev});
+		this.props.article.getCxt().interactHandler = 
+					new MeHammer(ref.hammer,{"swipeleft":this.moveXNext,"swiperight":this.moveXPrev,
+											"swipedown":this.moveYPrev,"swipeup":this.moveYNext});
 	},
 	render:function(){
 		
