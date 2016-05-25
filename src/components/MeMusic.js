@@ -2,6 +2,7 @@ define("MeMusic",function(){
 var React = require("react");
 var ReactDOM = require("react-dom");
 var MeMusic = React.createClass({
+	displayName:"MeMusic",
 	getDefaultProps:function(){
 		return {
 			autoplay:true

@@ -5,6 +5,7 @@ var _assign = require("object-assign");
 var MeComponentMixin = require("../src/MeComponentMixin.js");	
 var MeAnimationMxin = require("../src/MeAnimationMixin.js");
 	var MeAnimation  = React.createClass({
+		displayName:"MeAnimation",
 		mixins:[MeComponentMixin,MeAnimationMxin],
 		getDefaultProps:function(){
 			return {

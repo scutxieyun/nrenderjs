@@ -22,10 +22,13 @@ define([],function(){
 				}
 			}
 		},
+		"sendEvent":function(cxt,callee,args){
+			
+		},
 		"openlink":function(cxt,callee,args){
 			
 		},
-		"saveParis":function(cxt,callee,args){
+		"savePairs":function(cxt,callee,args){
 			
 		},
 		"submit":function(cxt,callee,args){
