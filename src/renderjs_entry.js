@@ -7,6 +7,7 @@ var MeVPads = require("../dist/MeVPads.js");
 var MePanArea = require("../dist/MePanArea.js");
 var MeArticle = require("../src/me-article.js");
 var MePageMgr = require("../src/MePageMgr.js");
+var MeSvg = require("../dist/MeSvg.js");
 
 var EventEmitter = require("wolfy87-eventemitter");
 var React = require("react");
@@ -23,6 +24,7 @@ module.exports = {
 	MeTouchTrigger:MeTouchTrigger,
 	MePanArea:MePanArea,
 	MePageMgr:MePageMgr,
+	MeSvg:MeSvg,
 	EventEmitter:EventEmitter,
 	React:React,
 	ReactDOM:ReactDOM
