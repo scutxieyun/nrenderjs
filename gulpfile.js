@@ -9,6 +9,7 @@ var fs = require("fs");
 var each = require("gulp-foreach");
 var babel = require('gulp-babel');
 var webpack = require('gulp-webpack');
+var watch=require("gulp-watch");
 var rename = require("gulp-rename");
 const exec = require('child_process').exec;
 
@@ -29,7 +30,8 @@ jsx = ["src/MeVPads.js",
 	"index.js"
 ];
 gulp.task("babel", function(){
-    return gulp.src(jsx).
+	console.log("build");
+	return gulp.src(jsx).
         pipe(babel({
             plugins: ['transform-react-jsx']
         })).
@@ -37,19 +39,16 @@ gulp.task("babel", function(){
 });
 
 gulp.task("pack",["babel"],function(){
+	console.log("222");
 	return gulp.src("dist/index.js")
 	.pipe(webpack(require("./webpack.config.js")))
 	.pipe(gulp.dest("lib"));
 });
 
-gulp.task("default",["pack"]);
-
-gulp.task("test",function(){
-	exec('git --help', (err, stdout, stderr) => {
-		if (err) {
-			console.error(err);
-			return;
-		}	
-		console.log(stdout);
-	});
+gulp.task("default",["pack"],function(){
+	watch('src/**/**',['pack']);
+	watch('samples/mag_1.jsx',function(){
+		gulp.start('pack')
+		console.log(111);
+	})
 });
