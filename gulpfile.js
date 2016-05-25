@@ -30,7 +30,6 @@ jsx = ["src/MeVPads.js",
 	"index.js"
 ];
 gulp.task("babel", function(){
-	console.log("build");
 	return gulp.src(jsx).
         pipe(babel({
             plugins: ['transform-react-jsx']
@@ -39,7 +38,6 @@ gulp.task("babel", function(){
 });
 
 gulp.task("pack",["babel"],function(){
-	console.log("222");
 	return gulp.src("dist/index.js")
 	.pipe(webpack(require("./webpack.config.js")))
 	.pipe(gulp.dest("lib"));
@@ -47,8 +45,9 @@ gulp.task("pack",["babel"],function(){
 
 gulp.task("default",["pack"],function(){
 	watch('src/**/**',['pack']);
-	watch('samples/mag_1.jsx',function(){
+	watch('samples/**',function(){
 		gulp.start('pack')
-		console.log(111);
 	})
+
 });
+
