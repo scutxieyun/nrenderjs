@@ -28,11 +28,9 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 				repeat:false,
 				evtName:"trigger1",			//检测到交互事件后，发送的事件
 				normalStyle:{},
-				listenEvt:{//
-					active:null,				//激活检测的事件
-					triggerEvt:"swipeleft",		//需要检测的交互事件
-				},
-				id:this.displayName + MeComponentMixin.getIncId(),//因为这个控件需要pageActive，为了减少应用的麻烦，自己先定义一个id
+				autoActive:true,
+				//所有对象都引用同一个defaultProps，所以不要试图在这里初始化动态的prop
+				//id:this.displayName + MeComponentMixin.getIncId(),//因为这个控件需要pageActive，为了减少应用的麻烦，自己先定义一个id
 			}
 		},
 		_triggerEvent:function(evt){//发送事件
