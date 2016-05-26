@@ -8,6 +8,12 @@ define("MePageMgr",function(){
 			if(idx < this.pageArr.length){//Page的对象可能会被重新创建(因为render)，所有存在覆盖,检查是不是重复设置
 				if((this.pageArr[idx] != null || this.pageArr[idx] != undefined) && (this.pageArr[idx] != pageInstance)) console.log("warning a new page instance replaced");
 				this.pageArr[idx] = pageInstance;
+			}else{
+			//调整数组长度
+				for(var i = this.pageArr.length ;i < idx; i ++){
+					this.pageArr.push(null);
+				}
+				this.pageArr.push(pageInstance);
 			}
 		}
 	};
