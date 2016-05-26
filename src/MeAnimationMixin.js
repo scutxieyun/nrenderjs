@@ -7,13 +7,12 @@ define("MeAnimationMixin",function(){
 		},
 		getDefaultProps:function(){
 			return{
-				auto:true
 			}
 		},
 		getDefaultProps:function(){
 			return {
 				animationClass:"fadeIn",
-				animation:{
+				item_animation:{
 					animationIterationCount:"1",
 					animationDelay:"0s",
 					animationDuration:"1s"
@@ -21,7 +20,7 @@ define("MeAnimationMixin",function(){
 			};
 		},
 		pageActive:function(){
-			if(this.props.auto)
+			if(this.props.autoActive)
 				this.animationActive();
 		},
 		pageDeactive:function(){

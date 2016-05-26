@@ -15,7 +15,8 @@ var MeAnimationMxin = require("../src/MeAnimationMixin.js");
 				},
 				normalStyle:{
 					position:"absolute",
-				}
+				},
+				autoActive:true
 			}
 		},
 		componentWillMount:function(){

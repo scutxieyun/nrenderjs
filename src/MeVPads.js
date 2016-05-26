@@ -151,7 +151,7 @@ var MeVPads = React.createClass({
 		var found = -1;
 		for(var i = 0;i < this.pageCache.length;i ++){
 			if(this.pageCache[i].rate < smallestRate && !this.pageCache[i].lock){
-				smallestRate = this.pageCache[i];
+				smallestRate = this.pageCache[i].rate;
 				found = i;
 			}
 		}
@@ -172,8 +172,8 @@ var MeVPads = React.createClass({
 		}
 		if(cache.lock) return;//这个cache已经被激活，不用再次激活，，，通常是页面定义有冲突，比如page1的下一页也是page1
 		cache.lock = true;
-		if(state == "active") cache.rate += 2;
-		else cache.rate += 1;
+		if(state == "active") cache.rate += 4;
+		else cache.rate += 2;
 		cache.pageIdx = pageIdx;
 		cache.state = state;
 		cache.loc = loc;

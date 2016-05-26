@@ -17,7 +17,8 @@ var MeComponentMixin = require("../src/MeComponentMixin");
 		getDefaultProps:function(){
 			return {
 				id:this.displayName + MeComponentMixin.getIncId(),//因为这个控件需要pageActive，为了减少应用的麻烦，自己先定义一个id
-				normalStyle:{}
+				normalStyle:{},
+				autoActive:true
 			};
 		},
 		interactHandle:function(evt){

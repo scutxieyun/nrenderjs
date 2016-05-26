@@ -33,6 +33,9 @@ define([],function(){
 		},
 		"submit":function(cxt,callee,args){
 			
+		},
+		"systemCall":function(){
+			
 		}
 	};
 	var MeCommandMixin ={
