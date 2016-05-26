@@ -9,7 +9,9 @@ var MePageT = _.template("<MePage idx={<%= idx %>} cxt={cxt} >\n<%= children%>\n
 var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
 var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>');
 var sizeStyleTemplate = _.template('height:"<%= item_height%>px",width:"<%= item_width%>px",position:"absolute"');
+var fontStyleTemplate = _.template('fontSize:"<%= font_size%>", color:"<%= item_color%>",fontFamily:"<%= font_family %>"');
 var imgTemplate = _.template('<img src="<%= src%>" style={{<%= style %>}}></img>');
+var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>')
 var animationTemplate = _.template('<MeAnimation pageIdx={<%= pageIdx %>} cxt={cxt} animationClass="<%= animationClass%>" animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>')	
 
 var itemFuncMap = {
@@ -51,6 +53,9 @@ function noTypeDefined(page,item){
 
 function imgRenderItem(page,item){
 	var _style = [posStyleTemplate(item),sizeStyleTemplate(item)];
+	var otherStyle = [];
+	if(item.item_opacity != 100){}
+	
 	if(item.item_animation == null || item.item_animation === "" || item.item_animation === "none"){
 		return imgTemplate({src:item.item_val,style:_style.join(",")});
 	}else{
@@ -69,7 +74,24 @@ function imgRenderItem(page,item){
 }
 
 function textRenderItem(page,item){
-	
+	var _style = [posStyleTemplate(item),sizeStyleTemplate(item)];
+	if(item.item_opacity != 100){}
+	if(item.item_animation == null || item.item_animation === "" || item.item_animation === "none"){
+		_stype.push(fontStyleTemplate(item));
+		return divTemplate({content:item.item_val,style:_style.join(",")});
+	}else{
+		var animation = item.item_animation_val != "" ? item.item_animation_val
+				.replace(/delay/,"animationDelay")
+				.replace(/duration/,"animationDuration")
+				.replace(/infinite/,"animationIterationCount") : defaultAnimation;
+		children = divTemplate({content:item.item_val,style:fontStyleTemplate(item)});
+		return animationTemplate({animationClass:item.item_animation,
+								  chilren:children,
+								  animation:animation,
+								  normalStyle:_style.join(","),
+								  pageIdx:page.idx,
+								  id:gId ++});
+	}
 }
 function renderItem(page,item){
 
