@@ -45,10 +45,10 @@ gulp.task("pack",["babel"],function(){
 });
 
 gulp.task("default",["pack"],function(){
-	watch('src/**/**',['pack']);
-	watch('samples/**',function(){
-		gulp.start('pack')
-	})
+//	watch('src/**/**',['pack']);
+//	watch('samples/**',function(){
+//		gulp.start('pack')
+//	})
 
 });
 
