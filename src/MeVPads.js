@@ -27,7 +27,7 @@ var PadBuffer = React.createClass({
 		if(this.state.pageIdx == null) return null;
 		return this.props.article.getPageInstanceByIdx(this.state.pageIdx);
 	},	
-	componentDidUpdate(prevProps,prevState){
+	componentDidUpdate:function(prevProps,prevState){
 		var react_page = this._getPageInstance();
 		var old_active = prevState.state == "active" ? true : false;
 		var cur_active = this.state.state == "active" ? true : false;

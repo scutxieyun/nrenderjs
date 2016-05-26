@@ -65,10 +65,11 @@ define([], function () {
                 </MeAnimation>
             </MePage>,
             <MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}} listenEvt={{active:"page[5]:active",deactive:"page[5]:deactive"}}>
-                <MeSvg></MeSvg>
+                	<MeSvg dynamicStyle={{width: '320px', height: '320px'}}></MeSvg>
             </MePage>],
         "toolBar": <MeToolBar>
             <MeMusic id="magazine-music" src="http://ac-hf3jpeco.clouddn.com/154478292068657d.mp3"></MeMusic>
+
         </MeToolBar>,
 
         "layout": [//注意，这里安排是描述每一个page的相邻页面索引，page0对应着这个数组的第二个,即page0的上一页是4，下一页是1
