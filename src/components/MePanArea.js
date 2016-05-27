@@ -31,7 +31,7 @@ var MeComponentMixin = require("../src/MeComponentMixin");
 					this.lastDeltaTime = evt.deltaTime;
 					this.setState({
 						x_offset:0,//this.state.x_offset + evt.deltaX,
-						y_offset:this.yBeforePan + evt.deltaY
+						y_offset:this.yBeforePan + evt.deltaYgit
 					});
 				}else{
 					//this.props.cxt.interactHandler.stop();
