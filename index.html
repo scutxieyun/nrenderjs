@@ -78,7 +78,7 @@ body{
 </body>
 <script type="text/javascript">
 	$(function(){
-		var article_file = "mag_1.js"
+		var article_file = "mag_lf.js"
 		var _xparam = /article=([^&]+)/.exec(location.href);
 		if(_xparam != null){article_file = _xparam[1];}
 		require(["dist/" + article_file],function(mag_1){

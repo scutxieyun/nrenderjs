@@ -24,8 +24,10 @@ jsx = ["src/MeVPads.js",
 	"src/components/MeToolBar.js",
 	"src/components/MeMusic.js",
 	"src/components/MePanArea.js",
+	"src/components/MeSvg.js",
 	"samples/mag_1.jsx",
 	"samples/mag_2.jsx",
+	"samples/mag_lf.jsx",
 	"samples/mag_page_test.jsx",
 	"index.js"
 ];
@@ -44,10 +46,10 @@ gulp.task("pack",["babel"],function(){
 });
 
 gulp.task("default",["pack"],function(){
-	watch('src/**/**',['pack']);
-	watch('samples/**',function(){
-		gulp.start('pack')
-	})
+	//watch('src/**/**',['pack']);
+	//watch('samples/**',function(){
+	//	gulp.start('pack')
+	//})
 
 });
 

@@ -1,6 +1,6 @@
 var MeVPads = require("../dist/MeVPads.js");
 var MeArticle = require("../src/me-article.js");
-var Mag_1 = require("../dist/mag_1.js");
+var Mag_1 = require("../dist/mag_lf.js");
 var React = require("react");
 var ReactDOM = require("react-dom");
 var EventEmitter = require("wolfy87-eventemitter");

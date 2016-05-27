@@ -65,7 +65,7 @@ define([], function () {
                 </MeAnimation>
             </MePage>,
             <MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}} listenEvt={{active:"page[5]:active",deactive:"page[5]:deactive"}}>
-                <MeSvg></MeSvg>
+                <MeSvg>d</MeSvg>
             </MePage>],
         "toolBar": <MeToolBar>
             <MeMusic id="magazine-music" src="http://ac-hf3jpeco.clouddn.com/154478292068657d.mp3"></MeMusic>
