@@ -4445,3 +4445,8 @@ input[data-type="common-check-radio"]:checked + label::before {
     -webkit-transform: translate3d(0, 100%, 0);
     tansform: translate3d(0, 100%, 0);
     visibility: hidden; } }
+.audioWrapper{
+  width: 60px;
+  height: 60px;
+  border-radius:50%;
+}
