@@ -41,8 +41,10 @@ define([], function () {
                 </MeTouchTrigger>
             </MePage>,
             <MePage idx={1} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
-                    <MeAudio  idx={1} pageIdx={1} cxt={cxt}src="http://ac-hf3jpeco.clouddn.com/nBIlyjfSTvnCdXHhCH83hqDyXzxjieKkOiebGolD.mp3" style={{top:100,left:100}}></MeAudio>
-                <MeAudio  idx={2} pageIdx={1} cxt={cxt} src="http://ac-hf3jpeco.clouddn.com/bed3dbebf579cc7e95ac.mp3" style={{top:0,left:0}}></MeAudio>
+                    <MeAudio  id={1} pageIdx={1} cxt={cxt} src="http://ac-hf3jpeco.clouddn.com/nBIlyjfSTvnCdXHhCH83hqDyXzxjieKkOiebGolD.mp3" style={{top:100,left:100}}></MeAudio>
+                <MeAudio  id={2} pageIdx={1} cxt={cxt} src="http://ac-hf3jpeco.clouddn.com/bed3dbebf579cc7e95ac.mp3" style={{top:0,left:0}}></MeAudio>
+                <MeAudio  id={3} pageIdx={1} cxt={cxt} src=" http://ac-hf3jpeco.clouddn.com/BWK3L1AVKw3GCeNGSiYEBFVn6PQK3zv39P3Ncw68.mp3" style={{top:"200px",left:0}}></MeAudio>
+
             </MePage>],
         "toolBar": <MeToolBar>
 
