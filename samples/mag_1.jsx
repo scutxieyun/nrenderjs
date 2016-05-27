@@ -11,7 +11,8 @@ define([], function () {
     var MePanArea = Renderjs.MePanArea;
     var EventEmitter = Renderjs.EventEmitter;
     var MeAudio = Renderjs.MeAudio;
-    var pageMgr = new MePageMgr(5);	//4 is the number of page
+    var MeSvg = Renderjs.MeSvg;
+    var pageMgr = new MePageMgr(6);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
         ee             : new EventEmitter(),
@@ -64,10 +65,9 @@ define([], function () {
                     <div style={{fontSize:"30px"}}>Hello the animation</div>
                 </MeAnimation>
             </MePage>,
-            <MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}} listenEvt={{active:"page[5]:active",deactive:"page[5]:deactive"}}>
-                <MeAudio>d</MeAudio>
-
-                	<MeSvg dynamicStyle={{width: '320px', height: '320px'}}></MeSvg>
+            <MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
+			<MeAudio>d</MeAudio>
+                <MeSvg dynamicStyle={{width: '320px', height: '320px'}} id={"mesvg1111"} pageIdx={5} cxt={cxt} ></MeSvg>
             </MePage>],
         "toolBar": <MeToolBar>
             <MeMusic id="magazine-music" src="http://ac-hf3jpeco.clouddn.com/154478292068657d.mp3"></MeMusic>
