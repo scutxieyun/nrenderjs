@@ -13,6 +13,7 @@ define([], function () {
     var MePageMgr = Renderjs.MePageMgr;
     var MePanArea = Renderjs.MePanArea;
     var EventEmitter = Renderjs.EventEmitter;
+    var MeMedia = Renderjs.MeMedia;
     var MeAudio = Renderjs.MeAudio;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
@@ -38,9 +39,8 @@ define([], function () {
                 </MeTouchTrigger>
             </MePage>,
             <MePage idx={1} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
-                <MeTouchTrigger cxt={cxt} listenEvt={{active:"page[0]:active",triggerEvt:"swiperight"}} evtName="xxxxx">
-                    <MeAudio></MeAudio>
-                </MeTouchTrigger>
+               < MeMedia>
+                    <MeAudio id={1} pageIdx={1} cxt={cxt}></MeAudio></MeMedia>
             </MePage>],
         "toolBar": <MeToolBar>
 

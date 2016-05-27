@@ -23,6 +23,9 @@ define("MeAudio", function () {
         pageActive:function(){
             console.log("audio active");
         },
+        pageDeactive:function(){
+            console.log("audio deactive");
+        },
         render     : function () {
             var style = {width: '40px', height: '40px'};
             var imgUrl = "images/audio-stop.png";

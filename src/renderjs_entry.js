@@ -8,6 +8,7 @@ var MePanArea = require("../dist/MePanArea.js");
 var MeAudio = require("../dist/MeAudio.js");
 var MeArticle = require("../src/me-article.js");
 var MePageMgr = require("../src/MePageMgr.js");
+var MeMedia=require("../src/components/MeMedia.js")
 
 var EventEmitter = require("wolfy87-eventemitter");
 var React = require("react");
@@ -25,6 +26,7 @@ module.exports = {
 	MePanArea:MePanArea,
 	MePageMgr:MePageMgr,
 	MeAudio:MeAudio,
+	MeMedia:MeMedia,
 	EventEmitter:EventEmitter,
 	React:React,
 	ReactDOM:ReactDOM

@@ -7,7 +7,6 @@ define([],function(){
 			
 		},
 		"pageTo:":function(cxt,callee,args){
-			
 		},
 		//componentDo(componentName, method, args...)
 		"componentDo":function(cxt,callee,args){
