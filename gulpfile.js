@@ -18,7 +18,6 @@ var obfuscate_tag = true;
 var zip_tag = true;
 var source_set = null;
 jsx = ["src/MeVPads.js",
-	"src/components/MeMedia.jsx",
 	"src/components/MePage.js",
 	"src/components/MeAnimation.js",
 	"src/components/MeTouchTrigger.js",
@@ -27,7 +26,6 @@ jsx = ["src/MeVPads.js",
 	"src/components/MePanArea.js",
 
 	"src/components/MeAudio.js",
-	"src/components/MeMedia.js",
 	"samples/mag_1.jsx",
 	"samples/mag_2.jsx",
 	"samples/mag_lf.jsx",

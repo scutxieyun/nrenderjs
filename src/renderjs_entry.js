@@ -8,8 +8,7 @@ var MePanArea = require("../dist/MePanArea.js");
 var MeAudio = require("../dist/MeAudio.js");
 var MeArticle = require("../src/me-article.js");
 var MePageMgr = require("../src/MePageMgr.js");
-
-//var MeMedia=require("../dist/MeMedia.js")
+var MeMediaMgr=require("../src/MeMediaMgr.js")
 
 var MeSvg = require("../dist/MeSvg.js");
 
@@ -30,7 +29,7 @@ module.exports = {
 	MePanArea:MePanArea,
 	MePageMgr:MePageMgr,
 	MeAudio:MeAudio,
-//	MeMedia:MeMedia,
+	MeMediaMgr:MeMediaMgr,
 	MeSvg:MeSvg,
 	EventEmitter:EventEmitter,
 	React:React,

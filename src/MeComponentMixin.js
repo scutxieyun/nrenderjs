@@ -1,7 +1,7 @@
 define("MeComponentMixin",function(){
-	/**·ÇPage×é¼þ*/
-	/** ¹ØÓÚdisplayµÄ¿¼ÂÇ£º
-		displayÖ»ÊÇÌá¹©Ò»¸öÐÅÏ¢²Î¿¼£¬ÈçºÎÓ°Ïì¿Ø¼þµÄÏÔÊ¾£¬ÓÉÉÏ²ã¿Ø¼þ¾ö¶¨¡£ÕâÑùÈÃÉÏ²ã¿Ø¼þÈ¥¿¼ÂÇ³åÍ»ÎÊÌâ
+	/**ï¿½ï¿½Pageï¿½ï¿½ï¿½*/
+	/** ï¿½ï¿½ï¿½ï¿½displayï¿½Ä¿ï¿½ï¿½Ç£ï¿½
+		displayÖ»ï¿½ï¿½ï¿½á¹©Ò»ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½Î¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó°ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½Ï²ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï²ï¿½Ø¼ï¿½È¥ï¿½ï¿½ï¿½Ç³ï¿½Í»ï¿½ï¿½ï¿½ï¿½
 	**/
 var selfIncCounter = 0;
 
@@ -13,19 +13,19 @@ var selfIncCounter = 0;
 		getInitialState:function(){
 			return {
 				display:true
-			};//React»á½«µ÷ÓÃchainÖÐµÄÊý¾Ý½øÐÐºÏ²¢
+			};//Reactï¿½á½«ï¿½ï¿½ï¿½ï¿½chainï¿½Ðµï¿½ï¿½ï¿½ï¿½Ý½ï¿½ï¿½ÐºÏ²ï¿½
 		},
 		componentWillMount:function(){
-			if(this.props.id == undefined && this.props.autoActive){  //autoActiveËµÃ÷Õâ¸öÔªËØÐèÒª×¢²ápageActive
+			if(this.props.id == undefined && this.props.autoActive){  //autoActiveËµï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½Òª×¢ï¿½ï¿½pageActive
 				this._cid = "MeComponentMixin" + this.getIncId();
 			}
 		},
 		componentDidMount:function(){
 			//if(this.props.display != )
 			var cId = this.props.id != undefined ? this.props.id : this._cid;
-			if(this.props.pageIdx != undefined && cId != undefined){//Ö»ÓÐ¶¨ÒåÁËid£¬²ÅÐèÒª×¢²á
+			if(this.props.pageIdx != undefined && cId != undefined){//Ö»ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½idï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òª×¢ï¿½ï¿½
 				
-				this.pageInstance = this.props.cxt.pageMgr.registerComponent(this.props.pageIdx,cId,this);	//µÇ¼Ç×é¼þ
+				this.pageInstance = this.props.cxt.pageMgr.registerComponent(this.props.pageIdx,cId,this);	//ï¿½Ç¼ï¿½ï¿½ï¿½ï¿½
 			}
 		},
 		getPageInstance:function(){

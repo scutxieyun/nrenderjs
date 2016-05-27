@@ -1,40 +1,24 @@
 define("MeAnimationMixin",function(){
 	return {
-		getInitialState:function(){
-			return{
-				animationState:"no start"
+		pageActive(){
+			if(this.props.cxt.pageMgr != null){
+				this.props.cxt.mediaMgr.registerPage(this); //开始，将这个操作放在componentDidMount，但是对于后续加载的页面，都没有调用，怀疑react认为是老的页面，只是调用了update
 			}
 		},
-		getDefaultProps:function(){
-			return{
+		pageDeactive(){
+			console.log("media pageDeactive");
+		},
+		togglePlay(){
+			if (this.state.isPlay) {
+				this.pause()
 			}
-		},
-		getDefaultProps:function(){
-			return {
-				animationClass:"fadeIn",
-				item_animation:{
-					animationIterationCount:"1",
-					animationDelay:"0s",
-					animationDuration:"1s"
-				},
-			};
-		},
-		pageActive:function(){
-			if(this.props.autoActive)
-				this.animationActive();
-		},
-		pageDeactive:function(){
-			this.animationDeactive();//无论是否自动启动, 都将动画设为禁止
-		},
-		animationActive:function(evt){
-			this.setState({animationState:"start"});
-		},
-		animationDeactive:function(evt){
-			this.setState({animationState:"no start"});
-		},
-		getAnimationClass:function(){
-			var className = (this.state.animationState == "start" ? "animated " + this.props.animationClass:"hidden");
-			return className;
+			else {
+				this.props.cxt.mediaMgr.pausePageMedia(this);
+				//var pageActEvt = "page[" + this.props.pageIdx+","+this.props.idx+ "]:play";
+				//this.props.cxt.ee.emitEvent(pageActEvt,[{target:this,isPlay:true}]);
+				this.play();
+			}
+			this.setState({isPlay:!this.state.isPlay})
 		}
 	}
 });
