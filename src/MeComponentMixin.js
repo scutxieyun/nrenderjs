@@ -15,10 +15,17 @@ var selfIncCounter = 0;
 				display:true
 			};//React会将调用chain中的数据进行合并
 		},
+		componentWillMount:function(){
+			if(this.props.id == undefined && this.props.autoActive){  //autoActive说明这个元素需要注册pageActive
+				this._cid = "MeComponentMixin" + this.getIncId();
+			}
+		},
 		componentDidMount:function(){
 			//if(this.props.display != )
-			if(this.props.pageIdx != undefined && this.props.id != undefined){//只有定义了id，才需要注册
-				this.pageInstance = this.props.cxt.pageMgr.registerComponent(this.props.pageIdx,this.props.id,this);	//登记组件
+			var cId = this.props.id != undefined ? this.props.id : this._cid;
+			if(this.props.pageIdx != undefined && cId != undefined){//只有定义了id，才需要注册
+				
+				this.pageInstance = this.props.cxt.pageMgr.registerComponent(this.props.pageIdx,cId,this);	//登记组件
 			}
 		},
 		getPageInstance:function(){
