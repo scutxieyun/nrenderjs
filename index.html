@@ -80,11 +80,17 @@ body{
 	$(function(){
 		var article_file = "mag_lf.js"
 		var _xparam = /article=([^&]+)/.exec(location.href);
-		if(_xparam != null){article_file = _xparam[1];}
-		require(["dist/" + article_file],function(mag_1){
+		var magUrl = 'dist/mag_1.js';
+		if(_xparam != null){
+			if(_xparam[1].search(/http/) != -1){
+				magUrl = 'jsx?mag=' + escape(_xparam[1]);
+			}else{
+				magUrl = 'dist/' + _xparam[1];
+			}
+		}
+		require([magUrl],function(mag_1){
 			var _article = new renderjs.MeArticle(mag_1);
 			var pads = renderjs.ReactDOM.render(renderjs.React.createElement(renderjs.MeVPads, { bufferLen: 5, article: _article }), document.getElementById("magazine-container"));
-
 		});
 		
 	});

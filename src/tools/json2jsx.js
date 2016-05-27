@@ -36,7 +36,7 @@ var defaultAnimation = 	'{animationIterationCount:"1",animationDelay:"0s",animat
 		index.push(i);
 	}
 	index.push(-1);
-	return tpl({pages:pageContent.join(","),layout:index.toString(),music_src:mag.tpl_music});
+	return (_.template(tpl))({pages:pageContent.join(","),layout:index.toString(),music_src:mag.tpl_music});
 function renderPage(page){
 	var items = [];
 	for(var i = 0;i < page.item_object.length;i ++){
@@ -106,45 +106,7 @@ function renderItem(page,item){
 	
 }
 
+module.exports = main;
 
-
-function kickoffConvert(tpl,jsonData,cb){
-	var jsStatement = "(function(){return " + jsonData + ";})();";
-	var jsonData = eval(jsStatement);
-	if(jsonData == null) console.log("数据错误");
-	var res = main(_.template(tpl),jsonData.tplData)
-	cb(res);
-}
-
-
-function downloadJson(url,cb){
-	var jsonData = "";
-	http.get(url,function(res){
-		res.on("data",function(data){
-				jsonData = jsonData + data;
-			})
-			.on("end",function(){
-				cb(jsonData);
-			})
-			.on("error",function(){
-				console.log("download data error");
-			});;
-	});
-}
-
-var myArgs = process.argv.slice(2);
-fs.readFile(myArgs[0],'utf8',function(err,tpl){
-	if(!err){
-		downloadJson("http://ac-hf3jpeco.clouddn.com/e3989024061582aebc70.json?1464251726690",function(jsonData){
-			if(jsonData.length > 10){
-				kickoffConvert(tpl,jsonData,function(data){
-					if(myArgs.length >= 2 && data != null){
-						fs.writeFileSync(myArgs[1],data);
-					}
-				});
-			}
-		});
-	}
-});
 
 
