@@ -13,11 +13,13 @@ define([], function () {
     var MePageMgr = Renderjs.MePageMgr;
     var MePanArea = Renderjs.MePanArea;
     var EventEmitter = Renderjs.EventEmitter;
-    var MeMedia = Renderjs.MeMedia;
     var MeAudio = Renderjs.MeAudio;
+    var MeMediaMgr = Renderjs.MeMediaMgr;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
+    var mediaMgr = new MeMediaMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
+        mediaMgr       : mediaMgr,
         ee             : new EventEmitter(),
         interactHandler: null,	//在MeVPads初始化后会制定这个handler
     };
@@ -39,8 +41,8 @@ define([], function () {
                 </MeTouchTrigger>
             </MePage>,
             <MePage idx={1} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
-               < MeMedia>
-                    <MeAudio id={1} pageIdx={1} cxt={cxt}></MeAudio></MeMedia>
+                    <MeAudio  idx={1} pageIdx={1} cxt={cxt}src="http://ac-hf3jpeco.clouddn.com/nBIlyjfSTvnCdXHhCH83hqDyXzxjieKkOiebGolD.mp3" style={{top:100,left:100}}></MeAudio>
+                <MeAudio  idx={2} pageIdx={1} cxt={cxt} src="http://ac-hf3jpeco.clouddn.com/bed3dbebf579cc7e95ac.mp3" style={{top:0,left:0}}></MeAudio>
             </MePage>],
         "toolBar": <MeToolBar>
 

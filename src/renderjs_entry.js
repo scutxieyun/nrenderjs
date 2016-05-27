@@ -8,8 +8,7 @@ var MePanArea = require("../dist/MePanArea.js");
 var MeAudio = require("../dist/MeAudio.js");
 var MeArticle = require("../src/me-article.js");
 var MePageMgr = require("../src/MePageMgr.js");
-
-var MeMedia=require("../dist/MeMedia.js")
+var MeMediaMgr=require("../src/MeMediaMgr.js")
 
 var MeSvg = require("../dist/MeSvg.js");
 
@@ -29,12 +28,10 @@ module.exports = {
 	MeTouchTrigger:MeTouchTrigger,
 	MePanArea:MePanArea,
 	MePageMgr:MePageMgr,
-<<<<<<< HEAD
+	MeMediaMgr:MeMediaMgr,
 	MeAudio:MeAudio,
-	MeMedia:MeMedia,
-=======
+
 	MeSvg:MeSvg,
->>>>>>> b9609dc0442ecb6de2d9ea84bfbf6d0566ac39d6
 	EventEmitter:EventEmitter,
 	React:React,
 	ReactDOM:ReactDOM
