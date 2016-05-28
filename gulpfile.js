@@ -24,12 +24,13 @@ jsx = ["src/MeVPads.js",
 	"src/components/MeToolBar.js",
 	"src/components/MeMusic.js",
 	"src/components/MePanArea.js",
-
+	"src/components/MeDiv.js",
 	"src/components/MeAudio.js",
+	"src/components/MeImage.js",
 	"samples/mag_1.jsx",
 	"samples/mag_2.jsx",
 	"samples/mag_lf.jsx",
-
+	"samples/test1.js",
 	"src/components/MeSvg.js",
 	"samples/test.js",
 

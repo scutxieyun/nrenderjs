@@ -23,8 +23,8 @@ define([], function () {
             <MePage idx={0} cxt={cxt}
                     normalStyle={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/d7f15555aa1d6e94e93f?imageView2/2/w/1128/h/800")'}}>
                 <MeTouchTrigger cxt={cxt} pageIdx={0} triggerActions=
-                    {{"swipeleft":{action:"componentDo(e1,animationActive)",propagate:false},
-                     "tap":{action:"componentDo(e1,animationActive)",propagate:true}
+                    {{"swipeleft":{action:"componentDo(animationActive,e1)",propagate:false},
+                     "tap":{action:"componentDo(animationActive,e1)",propagate:true}
                     }}
                                 normalStyle={{position:"absolute",top:"70px",left:"0px",height:"400px",width:"300px"}}>
                     <MeAnimation id="e1" pageIdx={0} cxt={cxt} listenEvt={{active:"xxxxx",deactive:"page[0]:deactive"}}

@@ -34,16 +34,18 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 			}
 		},
 		_triggerEvent:function(evt){//发送事件
-			/*if(this.props.repeat == false && this.state.triggeredCount > 0){
-			//禁止反复触发
-				this.detectionActive(false);
-				return true;
-			}
-			this.props.cxt.ee.emitEvent(this.props.evtName,this);
-			this.state.triggeredCount ++;*/
 			if(this.props.triggerActions.hasOwnProperty(evt.type)){
-				this.handleCmd(this.props.triggerActions[evt.type].action);
-				return this.props.triggerActions[evt.type].propagate;
+				var actions = [this.props.triggerActions[evt.type]];
+				if(this.props.triggerActions[evt.type] instanceof Array){
+					actions = this.props.triggerActions[evt.type];
+				}
+				var propagate = false;
+				for(var i = 0;i < actions.length; i ++){
+					this.handleCmd(actions[i].action);
+					propagate |= actions[i].propagate;
+					
+				}
+				return propagate;
 			}
 			return true;
 		},
@@ -52,12 +54,12 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 				if(enable == false){ 
 					this.props.cxt.interactHandler.off(
 									MeTouchTrigger.getTriggerEvents(this.props.triggerActions),
-									this.refs.meswipe);
+									this.props.id);
 				}
 				else{
 					this.props.cxt.interactHandler.on(
 									MeTouchTrigger.getTriggerEvents(this.props.triggerActions),
-									this.refs.meswipe,
+									this.props.id,
 									this._triggerEvent);
 				}
 			}
@@ -75,7 +77,9 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 			this.detectionActive(false);
 		},
 		render:function(){
-			return <div ref="meswipe" id="registerTouch" style={this.props.normalStyle}>{this.props.children}</div>
+			var _style = this.props.normalStyle;
+			if(this.props.display == false) _style.display = "none";
+			return <div ref="meswipe" id={this.props.id} style={_style}>{this.props.children}</div>
 		}});
 	return MeTouchTrigger;
 });

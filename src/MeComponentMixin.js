@@ -16,6 +16,8 @@ var selfIncCounter = 0;
 			};//React�Ὣ����chain�е����ݽ��кϲ�
 		},
 		componentWillMount:function(){
+			if(this.props.displayType == 1) 
+				this.setState({display:false});
 			if(this.props.id == undefined && this.props.autoActive){  //autoActive˵�����Ԫ����Ҫע��pageActive
 				this._cid = "MeComponentMixin" + this.getIncId();
 			}
@@ -39,7 +41,6 @@ var selfIncCounter = 0;
 			this.setState({display:true});
 		},
 		hide:function(){
-			
 			this.setState({dislay:false});
 		},
 		addClass:function(str){

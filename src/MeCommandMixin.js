@@ -12,9 +12,9 @@ define([],function(){
 		"componentDo":function(cxt,callee,args){
 			var pageInstance = callee.getPageInstance();
 			if(pageInstance != null && args.length > 1){
-				var el = pageInstance.getComponent(args[0]);
-				if(el != null && el.hasOwnProperty(args[1])){
-					var compMethod = el[args[1]];
+				var el = pageInstance.getComponent(args[1]);
+				if(el != null && el.hasOwnProperty(args[0])){
+					var compMethod = el[args[0]];
 					if(!!(compMethod && compMethod.constructor && compMethod.call && compMethod.apply)){
 						compMethod(args.slice(2));
 					}

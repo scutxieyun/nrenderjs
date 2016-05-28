@@ -65,7 +65,7 @@ MeHammer.prototype.handleHammerEvent = function(evt){
 		//向上遍历数，直到hammer的绑定元素
 		while(curElm != null && curElm != this.hammer.element){
 			for(i = 0;i < evt_listeners.length;i ++){
-				if(evt_listeners[i].elem == curElm){//没能理解apply的机制，按道理，1st参数应该对应this，但不是，严谨的做法应该用bind
+				if(evt_listeners[i].id == curElm.id){//没能理解apply的机制，按道理，1st参数应该对应this，但不是，严谨的做法应该用bind
 					if(evt_listeners[i].func.apply(null,[evt]) == false) return;
 				}
 			}
@@ -83,23 +83,23 @@ MeHammer.prototype.stop = function(){
 	this.hammer.stop();
 };
 
-MeHammer.prototype.on = function(evttype,_elem,_func){
+MeHammer.prototype.on = function(evttype,_id,_func){
 	var evts = evttype.split(" ");
 	for(var i = 0;i < evts.length; i ++){
 		if(!this.listeners.hasOwnProperty(evts[i])) this.listeners[evts[i]] = [];
-		this.listeners[evts[i]].push({elem:_elem,func:_func});
+		this.listeners[evts[i]].push({id:_id,func:_func});
 	}
 
 	return;
 };
-MeHammer.prototype.off = function(evttype,source){
+MeHammer.prototype.off = function(evttype,_id){
 	var evts = evttype.split(" ");
 	for(var i = 0;i < evts.length; i ++){
 		if(!this.listeners.hasOwnProperty(evts[i]))continue;
 		var evt_listeners = this.listeners[evts[i]];
 		var j = 0;
 		for(j = 0;j < evt_listeners.length;j ++){
-			if(evt_listeners[j].elem == source)break;
+			if(evt_listeners[j].id == _id)break;
 		}
 		if(j < evt_listeners.length){
 			evt_listeners.splice(j,1);

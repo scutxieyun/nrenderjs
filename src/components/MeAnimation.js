@@ -33,8 +33,10 @@ var MeAnimationMxin = require("../src/MeAnimationMixin.js");
 		},
 		render:function(){
 			var className = this.getAnimationClass();
+			var _style = _assign(this.props.animation,this.props.normalStyle);
+			if(this.state.display == false)_style.display = "none";
 			//处理display属性
-			return <div className={className} style={_assign(this.props.animation,this.props.normalStyle)}> {this.props.children}</div>
+			return <div className={className} style={_style}> {this.props.children}</div>
 		}});
 	return MeAnimation;
 });

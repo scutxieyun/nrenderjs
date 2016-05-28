@@ -30,7 +30,9 @@ function downloadJson(url,cb){
 var myArgs = process.argv.slice(2);
 fs.readFile(myArgs[0],'utf8',function(err,tpl){
 	if(!err){
+		//http://ac-hf3jpeco.clouddn.com/e3989024061582aebc70.json?1464251726690
 		downloadJson("http://ac-hf3jpeco.clouddn.com/e3989024061582aebc70.json?1464251726690",function(jsonData){
+			debugger;
 			if(jsonData.length > 10){
 				kickoffConvert(tpl,jsonData,function(data){
 					if(myArgs.length >= 2 && data != null){

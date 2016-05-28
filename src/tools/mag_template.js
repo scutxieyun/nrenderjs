@@ -9,8 +9,11 @@ define([], function () {
     var MeToolBar = Renderjs.MeToolBar;
     var MePageMgr = Renderjs.MePageMgr;
     var MePanArea = Renderjs.MePanArea;
+	var MeDiv = Renderjs.MeDiv;
+	var MeAudio = Renderjs.MeAudio;
     var EventEmitter = Renderjs.EventEmitter;
     var MeSvg = Renderjs.MeSvg;
+	var MeImage = Renderjs.MeImage;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器

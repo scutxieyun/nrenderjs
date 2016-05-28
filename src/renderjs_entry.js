@@ -1,6 +1,8 @@
 var MePage = require("../dist/MePage.js");
 var MeAnimation = require("../dist/MeAnimation.js");
 var MeToolBar = require("../dist/MeToolBar.js");
+var MeDiv = require("../dist/MeDiv.js");
+var MeImage = require("../dist/MeImage.js")
 var MeMusic = require("../dist/MeMusic.js")
 var MeTouchTrigger = require("../dist/MeTouchTrigger.js");
 var MeVPads = require("../dist/MeVPads.js");
@@ -29,8 +31,10 @@ module.exports = {
 	MePanArea:MePanArea,
 	MePageMgr:MePageMgr,
 	MeAudio:MeAudio,
+	MeDiv:MeDiv,
 	MeMediaMgr:MeMediaMgr,
 	MeSvg:MeSvg,
+	MeImage:MeImage,
 	EventEmitter:EventEmitter,
 	React:React,
 	ReactDOM:ReactDOM
