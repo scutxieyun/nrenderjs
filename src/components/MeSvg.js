@@ -7,6 +7,7 @@ define("MeSvg", function () {
     var _assign = require("object-assign");
     var MeComponentMixin = require("../src/MeComponentMixin");
     var MeSvg = React.createClass({
+		displayName:"MeSvg",
         getDefaultProps:function(){
             //todo itemVal itemValSub需要动态配置
             return {
@@ -23,6 +24,7 @@ define("MeSvg", function () {
          * 显示当前页的时候
          */
         pageActive:function(){
+			this.componentActive();
             this.addSvgAnimate();
             console.log("get page active svg");
         },
@@ -30,6 +32,7 @@ define("MeSvg", function () {
          * 移除当前页的时候
          */
         pageDeactive:function(){
+			this.componentDeactive();
             this.removeSvgAnimate();
             console.log("get page deactive svg");
         },
@@ -152,7 +155,9 @@ define("MeSvg", function () {
 
         },
         render: function () {
-            return (<div style={_assign(this.props.dynamicStyle,this.props.normalStyle)} ref="myMeSvg" dangerouslySetInnerHTML={{__html:this.props.itemVal}}></div>)
+			var _style = _assign(this.props.dynamicStyle,this.props.normalStyle);
+			this.updateStyleForDisplay(_style);
+            return (<div style={_style} ref="myMeSvg" dangerouslySetInnerHTML={{__html:this.props.itemVal}}></div>)
         },
         componentDidMount: function () {
             this.createSvgAnimate();

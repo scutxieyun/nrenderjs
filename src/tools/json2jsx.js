@@ -11,10 +11,10 @@ var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>p
 var sizeStyleTemplate = _.template('height:"<%= item_height%>px",width:"<%= item_width%>px",position:"absolute"');
 var fontStyleTemplate = _.template('fontSize:"<%= font_size%>px", color:"<%= item_color%>",fontFamily:"<%= font_family %>"');
 var imgTemplate = _.template('<MeImage src="<%= src%>" displayType = {<%= displayType%>} style={{<%= style %>}}></MeImage>');
-var grpTemplate = _.template("<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id={<%= id%>} style={{<%= style %>}}><%= children%></MeDiv>");
+var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" style={{<%= style %>}}><%= children%></MeDiv>');
 var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>')
 var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass="<%= animationClass%>" animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
-var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id={<%= id %>} normalStyle={{<%= style%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.cmds %>}}><%= children %></MeTouchTrigger>');
+var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.cmds %>}}><%= children %></MeTouchTrigger>');
 
 
 var itemFuncMap = {
@@ -36,7 +36,6 @@ var defaultAnimation = 	'{animationIterationCount:"1",animationDelay:"0s",animat
 		pages[i].idx = i;
 		pageContent.push(renderPage(pages[i]));
 		index.push(i);
-		break;
 	}
 	index.push(-1);
 	return (_.template(tpl))({pages:pageContent.join(","),layout:index.toString(),music_src:mag.tpl_music});
@@ -92,7 +91,7 @@ function imgRenderItem(page,item,_style){
 }
 
 function textRenderItem(page,item,_style){
-	_stype.push(fontStyleTemplate(item));
+	_style.push(fontStyleTemplate(item));
 	return divTemplate({content:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
 

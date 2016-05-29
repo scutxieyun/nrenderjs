@@ -8,7 +8,7 @@ define([],function(){
 		},
 		"pageTo:":function(cxt,callee,args){
 		},
-		//componentDo(componentName, method, args...)
+		//componentDo(method, element，args...)
 		"componentDo":function(cxt,callee,args){
 			var pageInstance = callee.getPageInstance();
 			if(pageInstance != null && args.length > 1){

@@ -16,7 +16,6 @@ var MeComponentMixin = require("../src/MeComponentMixin");
 		},
 		getDefaultProps:function(){
 			return {
-				id:this.displayName + MeComponentMixin.getIncId(),//因为这个控件需要pageActive，为了减少应用的麻烦，自己先定义一个id
 				normalStyle:{},
 				autoActive:true
 			};
@@ -35,16 +34,16 @@ var MeComponentMixin = require("../src/MeComponentMixin");
 						y_offset:this.yBeforePan + evt.deltaYgit
 					});
 				}else{
-					//this.props.cxt.interactHandler.stop();
 				}
 			}
-			//console.log("receive ",evt);
 		},
 		pageActive:function(){
+			this.componentPageActive();
 			this.props.cxt.interactHandler.on("pan swipeup swipedown swipeleft swipright",this.refs.interactArea,this.interactHandle)
 			console.log("get page active");
 		},
 		pageDeactive:function(){
+			this.componentPageDeactive();
 			this.setState({
 				x_offset:0,
 				y_offset:0
@@ -54,8 +53,10 @@ var MeComponentMixin = require("../src/MeComponentMixin");
 		},
 		render:function(){
 			var  transform = "translate3d(" + this.state.x_offset +"px," + this.state.y_offset + "px,0px)";
-			this.props.normalStyle.transform = transform;
-			return(<div ref="interactArea" style={this.props.normalStyle}>{this.props.children}</div>);
+			var _stype = this.props.normalStyle;
+			_stype.transform = transform;
+			this.updateStyleForDisplay();
+			return(<div id={this.getId()} ref="interactArea" style={_stype}>{this.props.children}</div>);
 		}
 	});
 	return MePanArea;

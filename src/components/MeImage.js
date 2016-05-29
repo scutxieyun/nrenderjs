@@ -4,12 +4,14 @@ var ReactDOM = require("react-dom");
 var _assign = require("object-assign");
 var MeComponentMixin = require("../src/MeComponentMixin.js");	
 var MeImage  = React.createClass({
+	/** 简单的封装，主要是为了支持hide,show等调用，制作模块，转换程序应该考虑，非必要时，直接使用img
+	**/
 	mixins:[MeComponentMixin],
 	displayName:"MeImage",
 	render:function(){
 		var _style = this.props.style;
-		if(this.state.display == false) _style.display = "none";
-	return <img id={this._cid} src={this.props.src} style={_style}>{this.props.children}</img>
+		this.updateStyleForDisplay(_style);
+		return <img id={this.getId()} src={this.props.src} style={_style}>{this.props.children}</img>
 	}
 });
 return MeImage;

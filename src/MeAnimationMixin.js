@@ -19,13 +19,6 @@ define("MeAnimationMixin",function(){
 				},
 			};
 		},
-		pageActive:function(){
-			if(this.props.autoActive)
-				this.animationActive();
-		},
-		pageDeactive:function(){
-			this.animationDeactive();//无论是否自动启动, 都将动画设为禁止
-		},
 		animationActive:function(evt){
 			this.setState({animationState:"start"});
 		},

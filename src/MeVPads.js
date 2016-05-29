@@ -164,6 +164,11 @@ var MeVPads = React.createClass({
 		if(cacheIdx == -1){
 			cacheIdx = this._findAvailableCache();
 			if(cacheIdx == -1) return;//todo 严重错误
+			/**尝试释放这个buffer*/
+			if(this.pageCache[cacheIdx].reactInstance != null){
+				ReactDOM.unmountComponentAtNode(ReactDOM.findDOMNode(this.pageCache[cacheIdx].reactInstance));
+			}
+			
 			this.pageCacheIdx[pageIdx] = cacheIdx;
 		}
 		var cache = this.pageCache[cacheIdx];

@@ -69,16 +69,16 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 			this.detectionActive(true);
 		},
 		pageActive:function(){
+			this.componentPageActive();
 			this._detectionActive();
 		},
 		pageDeactive:function(){
-			if(this.props.listenEvt.active != null)
-				this.props.cxt.ee.removeListener(this.props.listenEvt.active,this._detectionActive);
+			this.componentPageDeactive();
 			this.detectionActive(false);
 		},
 		render:function(){
 			var _style = this.props.normalStyle;
-			if(this.props.display == false) _style.display = "none";
+			this.updateStyleForDisplay(_style);
 			return <div ref="meswipe" id={this.props.id} style={_style}>{this.props.children}</div>
 		}});
 	return MeTouchTrigger;
