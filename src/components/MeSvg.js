@@ -121,7 +121,7 @@ define("MeSvg", function () {
 
             //代码里面自定义，动态帧动画
             var cssArr = [];
-            var dashName = "dash"+(0|(Math.random()*998));
+            var dashName = "dash"+this.getIncId();
             cssArr.push("@-webkit-keyframes "+dashName+" { " +
                 "to {"+
                 "stroke-dashoffset: -" +p2+ ";"+
@@ -136,7 +136,7 @@ define("MeSvg", function () {
                 "}");
             var styleNode = document.createElement("style");
             styleNode.type = "text/css";
-            styleNode.id = "svg-animation-keyframes" +(0|(Math.random()*998));
+            styleNode.id = "svg-animation-keyframes" +this.getIncId();
             styleNode.innerHTML = cssArr.join("");
             document.head.appendChild(styleNode);
             var newState = {};
