@@ -33,8 +33,9 @@ define("MePageMgr",function(){
 	};
 	MePageMgr.prototype.registerComponent = function(idx,compId,comRef){
 		if(idx < this.pageArr.length && this.pageArr[idx] != null){
-			this.pageArr[idx].registerComponent(compId,comRef);
+			return this.pageArr[idx].registerComponent(compId,comRef);
 		}
+		return null;
 	};
 	return MePageMgr;
 });

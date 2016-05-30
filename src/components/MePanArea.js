@@ -8,12 +8,12 @@ var MeComponentMixin = require("../src/MeComponentMixin");
 		getInitialState:function(){
 			this.xBeforePan = 0;
 			this.yBeforePan = 0;
-			this.lastDeltaTime = 0;
 			return {
 				x_offset:0,
 				y_offset:0
 			}
 		},
+		lastDeltaTime:0,
 		getDefaultProps:function(){
 			return {
 				normalStyle:{},
@@ -39,7 +39,7 @@ var MeComponentMixin = require("../src/MeComponentMixin");
 		},
 		pageActive:function(){
 			this.componentPageActive();
-			this.props.cxt.interactHandler.on("pan swipeup swipedown swipeleft swipright",this.refs.interactArea,this.interactHandle)
+			this.props.cxt.interactHandler.on("pan swipeup swipedown swipeleft swipright",this.getId(),this.interactHandle)
 			console.log("get page active");
 		},
 		pageDeactive:function(){
@@ -48,15 +48,15 @@ var MeComponentMixin = require("../src/MeComponentMixin");
 				x_offset:0,
 				y_offset:0
 			});
-			this.props.cxt.interactHandler.off("pan swipeup swipedown swipeleft swipright",this.refs.interactArea,this.interactHandle)
+			this.props.cxt.interactHandler.off("pan swipeup swipedown swipeleft swipright",this.getId(),this.interactHandle)
 			console.log("get page deactive");
 		},
 		render:function(){
 			var  transform = "translate3d(" + this.state.x_offset +"px," + this.state.y_offset + "px,0px)";
-			var _stype = this.props.normalStyle;
-			_stype.transform = transform;
+			var _style = this.props.normalStyle;
+			_style.transform = transform;
 			this.updateStyleForDisplay();
-			return(<div id={this.getId()} ref="interactArea" style={_stype}>{this.props.children}</div>);
+			return(<div id={this.getId()} ref="interactArea" style={_style}>{this.props.children}</div>);
 		}
 	});
 	return MePanArea;

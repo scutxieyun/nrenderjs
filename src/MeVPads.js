@@ -54,6 +54,7 @@ var PadBuffer = React.createClass({
 		var old_active = prevState.state == "active" ? true : false;
 		var cur_active = this.state.state == "active" ? true : false;
 		if(react_page != null && old_active != cur_active){
+			react_page.setContainerSize(this.props.pageWidth,this.props.pageHeight);
 			react_page.setState({active:cur_active});
 			//console.log("react page update with ",this.state);
 		}

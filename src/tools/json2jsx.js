@@ -5,7 +5,7 @@ var url = require('url');
 var http = require('http')
 
 function main(tpl,mag){
-var MePageT = _.template("<MePage idx={<%= idx %>} cxt={cxt} >\n<%= children%>\n</MePage>");
+var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
 var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
 var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>');
 var sizeStyleTemplate = _.template('height:"<%= item_height%>px",width:"<%= item_width%>px",position:"absolute"');
@@ -40,7 +40,7 @@ var defaultAnimation = 	'{animationIterationCount:"1",animationDelay:"0s",animat
 	for(grpIdx = 0;grpIdx < mag.groups.length; grpIdx ++){
 		var pages = mag.groups[grpIdx].pages;
 		for(var i = 0;i < pages.length;i ++){
-			pages[i].idx = i;
+			pages[i].idx = i + pageNum;
 			pageContent.push(renderPage(pages[i]));
 			index.push(i+pageNum);
 		}
@@ -65,6 +65,7 @@ function renderPage(page){
 		}
 	});
 	page.children = items.join("\n");
+	
 	return (MePageT(page) + "\n");
 }
 
