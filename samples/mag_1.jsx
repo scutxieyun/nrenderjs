@@ -12,7 +12,8 @@ define([], function () {
     var EventEmitter = Renderjs.EventEmitter;
     var MeAudio = Renderjs.MeAudio;
     var MeSvg = Renderjs.MeSvg;
-    var pageMgr = new MePageMgr(6);	//4 is the number of page
+    var MeRadio = Renderjs.MeRadio;
+    var pageMgr = new MePageMgr(7);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
         ee             : new EventEmitter(),
@@ -68,14 +69,31 @@ define([], function () {
             <MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
 			<MeAudio>d</MeAudio>
                 <MeSvg dynamicStyle={{width: '320px', height: '320px'}} id={"mesvg1111"} pageIdx={5} cxt={cxt} ></MeSvg>
-            </MePage>],
+            </MePage>,
+            <MePage idx={6} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
+            	<MeRadio dynamicStyle={{left: "50px", top: "50px", width: '480px', height: '361px', border : "2px solid rgb(0, 0, 0)", borderRadius : "10px"}} id={"meRadio147"}
+            	 dynamicData={{
+					font_size : "30px",
+					bg_color: "#000000",
+					bd_color: "#000000",
+                    bd_radius: "10",
+                    bd_style: "solid",
+                    bd_side: "top,right,bottom,left",
+                    item_color: "#FFFFFF",
+                    item_border: 2,
+                    item_val: '{"title":"测试选项喜欢的蔬菜","options":["萝卜","白菜","莲藕"]}',
+                    objectId: "574b9c1271cfe4005eaae908",
+                    fb_field: "cd_radio"
+            	 }} pageIdx={6} cxt={cxt} ></MeRadio>
+            </MePage>
+            ],
         "toolBar": <MeToolBar>
             <MeMusic id="magazine-music" src="http://ac-hf3jpeco.clouddn.com/154478292068657d.mp3"></MeMusic>
 
         </MeToolBar>,
 
         "layout": [//注意，这里安排是描述每一个page的相邻页面索引，page0对应着这个数组的第二个,即page0的上一页是4，下一页是1
-            -1, 0, 1, 2, 3, 4, 5, -1
+            -1, 0, 1, 2, 3, 4, 5, 6, -1
         ],
         "cxt"   : cxt
     };
