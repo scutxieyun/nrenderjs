@@ -13,7 +13,7 @@ var MeDiv  = React.createClass({
 		this.componentPageDeactive();
 	},
 	render:function(){
-		var _style = this.props.style;
+		var _style = this.props.normalStyle;
 		this.updateStyleForDisplay(_style);
 		return <div id={this.props.id} style={_style}>{this.props.children}</div>
 	}

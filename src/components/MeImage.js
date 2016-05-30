@@ -9,7 +9,7 @@ var MeImage  = React.createClass({
 	mixins:[MeComponentMixin],
 	displayName:"MeImage",
 	render:function(){
-		var _style = this.props.style;
+		var _style = this.props.normalStyle;
 		this.updateStyleForDisplay(_style);
 		return <img id={this.getId()} src={this.props.src} style={_style}>{this.props.children}</img>
 	}

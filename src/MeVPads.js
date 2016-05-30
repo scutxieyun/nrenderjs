@@ -21,6 +21,14 @@ var PadBuffer = React.createClass({
 			loc:"none",
 		};
 	},
+	_getPageElement:function(){
+		if(this.state.pageIdx == -1) return null;
+		return this.props.article.getPageByIdx(this.state.pageIdx);
+	},
+	_getPageInstance:function(){
+		if(this.state.pageIdx == -1) return null;
+		return this.props.article.getPageInstanceByIdx(this.state.pageIdx);
+	},
 	updateBuffer:function(newState){//不能让pads直接设置pageIdx，所以用这个函数过滤一下
 		var _toSet = _assign({},newState);
 		if(this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1){
@@ -29,14 +37,6 @@ var PadBuffer = React.createClass({
 			_toSet.pageIdx = -1;
 		}
 		this.setState(_toSet);
-	},
-	_getPageElement:function(){
-		if(this.state.pageIdx == -1) return null;
-		return this.props.article.getPageByIdx(this.state.pageIdx);
-	},
-	_getPageInstance:function(){
-		if(this.state.pageIdx == -1) return null;
-		return this.props.article.getPageInstanceByIdx(this.state.pageIdx);
 	},
 	tick:function(){
 		if(this.tempPageIdx != -1){

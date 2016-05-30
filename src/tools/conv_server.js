@@ -47,8 +47,13 @@ function convertEntry(req,res,next){
 			if(data == null){
 				res.send("");
 			}else{
-				var jsData = kickoffConvert(tpl,data);
-				res.send(jsData);
+				try{
+					var jsData = kickoffConvert(tpl,data);
+					res.send(jsData);
+				}catch(e){
+					console.log(e);
+					res.send(e.toString());
+				}
 			}
 			next();
 	});

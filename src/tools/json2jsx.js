@@ -10,10 +10,10 @@ var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such T
 var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>');
 var sizeStyleTemplate = _.template('height:"<%= item_height%>px",width:"<%= item_width%>px",position:"absolute"');
 var fontStyleTemplate = _.template('fontSize:"<%= font_size%>px", color:"<%= item_color%>",fontFamily:"<%= font_family %>"');
-var imgTemplate = _.template('<MeImage src="<%= src%>" displayType = {<%= displayType%>} style={{<%= style %>}}></MeImage>');
-var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" style={{<%= style %>}}><%= children%></MeDiv>');
+var imgTemplate = _.template('<MeImage src="<%= src%>" displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
+var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
 var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>')
-var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass="<%= animationClass%>" animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
+var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
 var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.cmds %>}}><%= children %></MeTouchTrigger>');
 
 
@@ -31,11 +31,20 @@ var defaultAnimation = 	'{animationIterationCount:"1",animationDelay:"0s",animat
 	var index = [];
 	index.push(-1);
 	var pageContent = [];
-	var pages = mag.pages;
- 	for(var i = 0;i < pages.length;i ++){
-		pages[i].idx = i;
-		pageContent.push(renderPage(pages[i]));
-		index.push(i);
+	if(mag.groups == undefined){
+		mag.groups = [{
+			pages:mag.pages
+		}];
+	}
+	var pageNum = 0;
+	for(grpIdx = 0;grpIdx < mag.groups.length; grpIdx ++){
+		var pages = mag.groups[grpIdx].pages;
+		for(var i = 0;i < pages.length;i ++){
+			pages[i].idx = i;
+			pageContent.push(renderPage(pages[i]));
+			index.push(i+pageNum);
+		}
+		pageNum += pages.length;
 	}
 	index.push(-1);
 	return (_.template(tpl))({pages:pageContent.join(","),layout:index.toString(),music_src:mag.tpl_music});
@@ -106,45 +115,41 @@ function grpRenderItem(page,item,_style,content){
 function renderItem(page,item,content){
 	var cmds = [];
 	var _style = [posStyleTemplate(item),sizeStyleTemplate(item)];
-	var animation = null;
+	var animationData = null;
 	item.pageIdx = page.idx;
 	if(item.item_href != null && item.item_href != ""){
 		//hide_el:-2|hide_el:65185725
 		cmds = convertOldCmd(item.item_href);
 	}
-	if(!(item.item_animation == null || item.item_animation === "" || item.item_animation === "none")){
-		animation = item.item_animation_val != "" ? item.item_animation_val
-				.replace(/delay/,"animationDelay")
-				.replace(/duration/,"animationDuration")
-				.replace(/infinite/,"animationIterationCount") : defaultAnimation;
-	}
-	
+		
 	var funcKey = item.item_type.toString();
 	var renderFunc = itemFuncMap[funcKey]
+	
+	animationData = animationParse(item);
 	
 	if(renderFunc == undefined ){
 		return NoTypeDefinedT({item_type:item.item_type,style:_style});
 	}
 	
-	if(animation == null && cmds.length == 0){
+	if(animationData == null && cmds.length == 0){
 		return renderFunc(page,item,_style,content)
 	}
 	
 	var _itemContent = renderFunc(page,item,[],content);//_style将放在外围
 	
-	if(cmds.length == 0 && animation != null){
-		return animationTemplate({animationClass:item.item_animation,
+	if(cmds.length == 0 && animationData != null){
+		return animationTemplate({animationClass:animationData.animationClass,
 								  children:_itemContent,
-								  animation:animation,
+								  animation:animationData.animation,
 								  normalStyle:_style.join(","),
 								  pageIdx:page.idx,
 								  displayType:item.item_display_status,
 								  id:item.item_id});
 	}
-	if(animation != null){
-		_itemContent = animationTemplate({animationClass:item.item_animation,
+	if(animationData != null){
+		_itemContent = animationTemplate({animationClass:animationData.animationClass,
 								  children:_itemContent,
-								  animation:animation,
+								  animation:animationData.animation,
 								  normalStyle:"",
 								  pageIdx:page.idx,
 								  displayType:0,
@@ -162,6 +167,46 @@ function renderItem(page,item,content){
 		});
 	}
 	return "";
+	
+	function animationParse(item){
+		var animation = [];
+		var animationClass = [];
+		if(!(item.item_animation == null || item.item_animation === "" || item.item_animation === "none")){
+			var temp = JSON.parse(item.item_animation_val);
+			
+			if(temp != null){
+				if(temp instanceof Array){
+					animation= [];
+					var tempClass = JSON.parse(item.item_animation);
+					_.each(temp,function(a,idx){
+						animation.push({
+							animationDelay:a.delay + "s",
+							animationDuration:a.duration + "s",
+							animationIterationCount:a.infinite,
+						});
+						if(idx < tempClass.length){
+							animationClass.push(tempClass[idx]);
+						}
+					});
+				}else{
+					animation = [{
+						animationDelay:temp.delay + "s",
+						animationDuration:temp.duration + "s",
+						animationIterationCount:temp.infinite,
+					}];
+					animationClass = [item.item_animation];
+				}
+			}else{
+				animation = [defaultAnimation];
+				animationClass = ["fadeIn"];
+			}
+			return {
+				animation:JSON.stringify(animation),
+				animationClass:JSON.stringify(animationClass),
+			};
+		}
+		return null;
+	}
 	
 	function convertOldCmd(item_href){
 		var _cmdMap ={

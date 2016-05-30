@@ -26,9 +26,5 @@ define("MeAnimationMixin",function(){
 			this.setState({animationState:"no start"});
 
 		},
-		getAnimationClass:function(){
-			var className = (this.state.animationState == "start" ? "animated " + this.props.animationClass:"hidden");
-			return className;
-		}
 	}
 });
