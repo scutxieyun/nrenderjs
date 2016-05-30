@@ -1,15 +1,17 @@
 define("MePageMgr",function(){
 	var MePageMgr = function(pageSize){
-		this.pageArr = new Array(pageSize);//Ò³ÃæÈİÆ÷£¬´æ·ÅpageµÄreact¶ÔÏó
+		this.pageArr = new Array(pageSize);//é¡µé¢å®¹å™¨ï¼Œå­˜æ”¾pageçš„reactå¯¹è±¡
 	};
 	MePageMgr.prototype.registerPage = function(pageInstance){
-		if(pageInstance != null){//todo . check ÀàĞÍÊÇ·ñÎªreact class
+		if(pageInstance != null){//todo . check ç±»å‹æ˜¯å¦ä¸ºreact class
 			var idx = pageInstance.props.idx;
-			if(idx < this.pageArr.length){//PageµÄ¶ÔÏó¿ÉÄÜ»á±»ÖØĞÂ´´½¨(ÒòÎªrender)£¬ËùÓĞ´æÔÚ¸²¸Ç,¼ì²éÊÇ²»ÊÇÖØ¸´ÉèÖÃ
-				if((this.pageArr[idx] != null || this.pageArr[idx] != undefined) && (this.pageArr[idx] != pageInstance)) console.log("warning a new page instance replaced");
+			if(idx < this.pageArr.length){//Pageçš„å¯¹è±¡å¯èƒ½ä¼šè¢«é‡æ–°åˆ›å»º(å› ä¸ºrender)ï¼Œæ‰€æœ‰å­˜åœ¨è¦†ç›–,æ£€æŸ¥æ˜¯ä¸æ˜¯é‡å¤è®¾ç½®
+				if((this.pageArr[idx] != null || this.pageArr[idx] != undefined)
+					&& (this.pageArr[idx] != pageInstance))
+					console.log("warning a new page instance replaced");
 				this.pageArr[idx] = pageInstance;
 			}else{
-			//µ÷ÕûÊı×é³¤¶È
+			//è°ƒæ•´æ•°ç»„é•¿åº¦
 				for(var i = this.pageArr.length ;i < idx; i ++){
 					this.pageArr.push(null);
 				}

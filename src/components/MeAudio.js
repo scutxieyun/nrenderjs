@@ -7,22 +7,22 @@ define("MeAudio", function () {
     var MeCommandMixin = require("../src/MeCommandMixin.js");
     var MeComponentMixin = require("../src/MeComponentMixin");
     var MeAudio = React.createClass({
-        getInitialState(){
+        getInitialState:function(){
             return {isPlay: false}
         },
         mixins     : [MeComponentMixin,MeMediaMixin,MeCommandMixin],
-        pause(){
+        pause:function(){
             this.refs.player.pause();
             this.setState({isPlay: false})
             console.log("audio pause:",this.props.id);
         },
-        play(){
+        play:function(){
             this.refs.player.play();
             this.setState({isPlay: true})
             console.log("audio play");
         },
 
-        render     : function () {
+        render: function () {
             var style = {width: '40px', height: '40px'};
             style=Object.assign({},style,this.props.style)
             var imgUrl = "images/audio-stop.png";

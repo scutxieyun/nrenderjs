@@ -6,10 +6,6 @@ define("MeAnimationMixin",function(){
 			}
 		},
 		getDefaultProps:function(){
-			return{
-			}
-		},
-		getDefaultProps:function(){
 			return {
 				animationClass:"fadeIn",
 				item_animation:{

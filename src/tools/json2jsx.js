@@ -136,7 +136,7 @@ function renderItem(page,item,content){
 		return renderFunc(page,item,_style,content)
 	}
 	
-	var _itemContent = renderFunc(page,item,[],content);//_style将放在外围
+	var _itemContent = renderFunc(page,item,['height:"100%",width:"100%"'],content);//_style将放在外围
 	
 	if(cmds.length == 0 && animationData != null){
 		return animationTemplate({animationClass:animationData.animationClass,

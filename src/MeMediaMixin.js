@@ -1,16 +1,16 @@
 define("MeAnimationMixin",function(){
 	return {
-		pageActive(){
+		pageActive:function(){
 			this.componentPageActive();
 			if(this.props.cxt.pageMgr != null){
 				this.props.cxt.mediaMgr.registerPage(this); //开始，将这个操作放在componentDidMount，但是对于后续加载的页面，都没有调用，怀疑react认为是老的页面，只是调用了update
 			}
 		},
-		pageDeactive(){
+		pageDeactive:function(){
 			this.componentPageDeactive();
 			console.log("media pageDeactive");
 		},
-		togglePlay(){
+		togglePlay:function(){
 			if (this.state.isPlay) {
 				this.pause()
 			}

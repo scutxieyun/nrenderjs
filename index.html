@@ -65,12 +65,6 @@ body{
 <body>
 <div id="pageContent">
 	<div id="magazine" class="ui_view_transitioning ui_page">
-		<nav id="magazine-nav">
-		<div id="browse-time-bar"></div>
-		<div id="magazine-back"></div>
-		<div id="magazine-menu-button" class="com-but-active"></div>
-		<div id="magazine-title">十二星座的穿衣风格</div>
-		</nav>
 		<div id="magazine-container" style="height:1192px">
 		</div>
 	</div>
@@ -88,10 +82,13 @@ body{
 				magUrl = 'dist/' + _xparam[1];
 			}
 		}
-		require([magUrl],function(mag_1){
-			var _article = new renderjs.MeArticle(mag_1);
-			var pads = renderjs.ReactDOM.render(renderjs.React.createElement(renderjs.MeVPads, { bufferLen: 5, article: _article }), document.getElementById("magazine-container"));
-		});
+		load();
+		function load(){
+			require([magUrl],function(mag_1){
+				var _article = new renderjs.MeArticle(mag_1);
+				var pads = renderjs.ReactDOM.render(renderjs.React.createElement(renderjs.MeVPads, { 		bufferLen: 5, article: _article }), document.getElementById("magazine-container"));
+			});
+		}
 		
 	});
 	</script>	

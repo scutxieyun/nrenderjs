@@ -33,7 +33,7 @@ var PadBuffer = React.createClass({
 		var _toSet = _assign({},newState);
 		if(this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1){
 		//需要delay修改,先使用无效页，将当前的内容清除，然后再置上新页
-			tempPageIdx = newState.pageIdx;
+			this.tempPageIdx = newState.pageIdx;
 			_toSet.pageIdx = -1;
 		}
 		this.setState(_toSet);
@@ -47,7 +47,7 @@ var PadBuffer = React.createClass({
 
 	componentDidUpdate:function(prevProps,prevState){
 		if(this.tempPageIdx != -1 && this.state.pageIdx == -1){
-			this.setInterval(this.tick,0);
+			setInterval(this.tick,0);
 			return;
 		}
 		var react_page = this._getPageInstance();
@@ -87,7 +87,7 @@ MeHammer.prototype.handleHammerEvent = function(evt){
 		var curElm = evt.target;
 		//向上遍历数，直到hammer的绑定元素
 		while(curElm != null && curElm != this.hammer.element){
-			for(i = 0;i < evt_listeners.length;i ++){
+			for(var i = 0;i < evt_listeners.length;i ++){
 				if(evt_listeners[i].id == curElm.id){//没能理解apply的机制，按道理，1st参数应该对应this，但不是，严谨的做法应该用bind
 					if(evt_listeners[i].func.apply(null,[evt]) == false) return;
 				}
@@ -314,7 +314,7 @@ var MeVPads = React.createClass({
 		var self = this;
 		
 		var items = [];
-		for(i = 0;i < this.props.bufferLen;i++){
+		for(var i = 0;i < this.props.bufferLen;i++){
 			items.push(<PadBuffer id={i} posIdx={i} ref={self._registerBuffer} article = {self.props.article}></PadBuffer>)
 		}
 		return (
