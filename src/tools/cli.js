@@ -35,15 +35,24 @@ if(myArgs.length < 3){
 fs.readFile(myArgs[0],'utf8',function(err,tpl){
 	if(!err){
 		//http://ac-hf3jpeco.clouddn.com/e3989024061582aebc70.json?1464251726690
-		downloadJson(myArgs[1],function(jsonData){
-			debugger;
-			if(jsonData.length > 10){
+		if(myArgs[1].search(/http/) != -1){
+			downloadJson(myArgs[1],parseData);
+		}else{
+			fs.readFile(myArgs[1],function(err,data){
+				debugger;
+				parseData(data);
+			});
+		}
+		
+	}
+	
+	function parseData(jsonData){
+		if(jsonData.length > 10){
 				kickoffConvert(tpl,jsonData,function(data){
 					if(myArgs.length >= 2 && data != null){
 						fs.writeFileSync(myArgs[2],data);
 					}
 				});
 			}
-		});
 	}
 });

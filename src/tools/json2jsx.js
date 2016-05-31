@@ -118,6 +118,11 @@ function renderItem(page,item,content){
 	var _style = [posStyleTemplate(item),sizeStyleTemplate(item)];
 	var animationData = null;
 	item.pageIdx = page.idx;
+	
+	if(item.item_display_status == undefined)item.item_display_status = 0;
+	if(item.item_opacity != 100){
+		_style.push('opacity:' + (item.item_opacity/100));
+	}
 	if(item.item_href != null && item.item_href != ""){
 		//hide_el:-2|hide_el:65185725
 		cmds = convertOldCmd(item.item_href);
@@ -129,6 +134,7 @@ function renderItem(page,item,content){
 	animationData = animationParse(item);
 	
 	if(renderFunc == undefined ){
+		console.log("no render function defined for",item);
 		return NoTypeDefinedT({item_type:item.item_type,style:_style});
 	}
 	
