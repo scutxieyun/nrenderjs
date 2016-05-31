@@ -14,6 +14,7 @@ define([], function () {
     var MeSvg = Renderjs.MeSvg;
 	var MeRadio = Renderjs.MeRadio;
 	var MeCheckbox = Renderjs.MeCheckbox;
+	var MeLabel = Renderjs.MeLabel;
     var pageMgr = new MePageMgr(7);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
@@ -59,7 +60,26 @@ define([], function () {
                 </MeAnimation>
             </MePage>,
             <MePage idx={4} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
-					<div style={{fontSize: "30px", color:"red"}}>test......</div>
+					<MeLabel normalStyle={{left:"224px",top:"361px",width: "190px",height: "52px", borderRadius: "40px", color:"#fff", fontSize:"24px"}}
+						data={{
+							content:"方向左的",
+							type:"地点",
+							typeImg:"http://ac-hf3jpeco.clouddn.com/3bce28861e082296e8b7.png",
+							direction:"left"
+						}}
+					>
+
+					</MeLabel>
+					<MeLabel normalStyle={{left:"90px",top:"572px",width: "285px",height: "52px", borderRadius: "40px", color:"#fff", fontSize:"24px"}}
+						data={{
+							content:"方向右的",
+							type:"地点",
+							typeImg:"http://ac-hf3jpeco.clouddn.com/3bce28861e082296e8b7.png",
+							direction:"right"
+						}}
+					>
+
+					</MeLabel>
 			</MePage>,
 			<MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
 				<MeSvg normalStyle={{left: "50px", top: "50px",width: '320px', height: '320px'}} id={"mesvg1111"} pageIdx={5} cxt={cxt} data={{
