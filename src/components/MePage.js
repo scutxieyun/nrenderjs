@@ -13,7 +13,16 @@ define("MePage",function(){
 				x_offset:0
 			};
 		},
+		getDefaultProps:function(){
+			return {
+				normalStyle:{
+					height:"1008px", //为了兼容老的杂志没有这个信息
+					width:"640px"
+				}
+			};
+		},
 		registerComponent:function(compId,comRef){
+			//Page内的组件登记，为了获得页面状态改变通知和组件间定位
 			if(compId != undefined){
 				if(this.container.hasOwnProperty(compId)){
 					console.log("warning the name may duplicate");
@@ -169,9 +178,9 @@ define("MePage",function(){
 			//	this.props.cxt.pageMgr.registerPage(this); 
 			//}
 			var  transform = "translate3d(" + this.state.x_offset +"px," + this.state.y_offset + "px,0px)";
-			var _stype = this.props.normalStyle != undefined ? this.props.normalStyle:{};
-			_stype.transform = transform;
-			return <div className="me-page" id={this.getId()} style={_stype} >{this.props.children}</div>;
+			var _style = this.props.normalStyle != undefined ? this.props.normalStyle:{};
+			_style.transform = transform;
+			return <div className="me-page" id={this.getId()} style={_style} >{this.props.children}</div>;
 		}});
 	return MePage;
 });

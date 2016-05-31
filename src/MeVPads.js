@@ -5,6 +5,7 @@ var Hammer = require("react-hammerjs");
 var _assign = require("object-assign");
 var PadBuffer = React.createClass({
 	tempPageIdx:-1,
+	delayState:null,
 	getDefaultProps:function(){
 		return {
 			article:null,
@@ -29,24 +30,34 @@ var PadBuffer = React.createClass({
 		if(this.state.pageIdx == -1) return null;
 		return this.props.article.getPageInstanceByIdx(this.state.pageIdx);
 	},
-	updateBuffer:function(newState){//不能让pads直接设置pageIdx，所以用这个函数过滤一下
+	updateBuffer:function(newState){
+	//不能让pads直接设置pageIdx，所以用这个函数过度一下
 		var _toSet = _assign({},newState);
 		if(this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1){
 		//需要delay修改,先使用无效页，将当前的内容清除，然后再置上新页
 			this.tempPageIdx = newState.pageIdx;
 			_toSet.pageIdx = -1;
 		}
+		//if(this.state.state == "active" && this.state.state != _toSet.state)
+		//{
+		//		this.delayState = _toSet.state;
+		//		_toSet.state = this.state.state;
+		//}
 		this.setState(_toSet);
 	},
 	tick:function(){
 		if(this.tempPageIdx != -1){
 			this.setState({pageIdx:this.tempPageIdx});
 		}
+		//if(this.delayState != null){
+		//	this.setState({state:this.delayState});
+		//}
 		this.tempPageIdx = -1;
+		//this.delayState = null;
 	},
 
 	componentDidUpdate:function(prevProps,prevState){
-		if(this.tempPageIdx != -1 && this.state.pageIdx == -1){
+		if((this.tempPageIdx != -1 && this.state.pageIdx == -1)){
 			setInterval(this.tick,0);
 			return;
 		}

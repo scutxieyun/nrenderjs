@@ -22,6 +22,11 @@
 	height:1192;
 	width:720px;
 }
+.active.page_container{
+	transition-property:transform;
+	transition-duration:0.5s;
+}
+
 body{
 	overflow:hidden;
 }
@@ -39,19 +44,19 @@ body{
 	float:right;
 }
 .page_container.up{
-	transform:translate3d(0px,-1192px,0px)
+	transform:translate(0px,-1192px)
 }
 .page_container.down{
-	transform:translate3d(0px,1192px,0px)
+	transform:translate(0px,1192px)
 }
 .page_container.left{
-	transform:translate3d(-720px,0px,0px)
+	transform:translate(-720px,0px)
 }
 .page_container.right{
-	transform:translate3d(720px,0px,0px)
+	transform:translate(720px,0px)
 }
 .page_container.middle:{
-	transform:translate3d(0px,px,0px)
+	transform:translate(0px,0px)
 }
 .page_container.none{
 	display:none

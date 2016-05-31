@@ -4,3 +4,4 @@ test.js
 .idea/
 .git/
 lib/renderjs.js
+__temp.jsx
