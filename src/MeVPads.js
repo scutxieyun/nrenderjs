@@ -330,7 +330,7 @@ var MeVPads = React.createClass({
 		}
 		return (
 	<Hammer ref={this._registerHammer} id="oper-area" className ="magazine-page-container show" vertical={true}>
-			<div>
+			<div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px"}}>
 			
 			{items}
 			{self.props.article.getToolBar()}

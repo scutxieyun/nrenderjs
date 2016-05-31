@@ -102,6 +102,7 @@ function noTypeDefined(page,item){
 }
 
 function renderTransform(item){
+	/**scale 的处理交给转换程序，将scale，修改hieght,和width
 	var scale = "";
 	if(item.x_scale != null && item.x_scale != 1 ){
 		scale = "scale3d(" +item.x_scale;
@@ -111,21 +112,21 @@ function renderTransform(item){
 		scale = scale + "," + item.y_scale + ",1)";
 	}else{
 		if(scale != "") scale = scale + ",1,1)";
-	}
+	}*/
 	//if(scale == "") return "";
 	//return 'transform:"' + scale + '"';
 	return "";
 }
 
 function imgRenderItem(page,item,_style){
-	if(item.item_val.search(/imageView2/) == -1){
-		item.item_val = item.item_val + "?imageView2/2/w/"+Math.floor(item.item_width) + "/h/" + Math.floor(item.item_height);
-	}
-	//人工实现Scale,但不影响图片的获取，为了图片质量
+	//人工实现Scale,
 	if(item.x_scale == null) item.x_scale = 1;
 	if(item.y_scale == null) item.y_scale = 1;
 	item.item_height *= item.y_scale;
-	item.item_width *= item.x_scale;
+	item.item_width *= item.x_scale;	//激进一点，然返回的图片小一些
+	if(item.item_val.search(/imageView2/) == -1){
+		item.item_val = item.item_val + "?imageView2/2/w/"+Math.floor(item.item_width) + "/h/" + Math.floor(item.item_height);
+	}
 	
 	_style.push(sizeStyleTemplate(item));
 	return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
