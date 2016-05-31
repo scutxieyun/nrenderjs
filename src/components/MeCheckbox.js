@@ -1,14 +1,14 @@
-/** 文件名称: MeRadio
+/** 文件名称: MeCheckbox
  *
  * 创 建 人: fishYu
- * 创建日期: 2015/5/27 15:06
- * 描    述: 单选组件  --- 对应 item_type 20
+ * 创建日期: 2015/5/30 16:18
+ * 描    述: 多选组件  --- 对应 item_type 21
  */
-define("MeRadio", function () {
+define("MeCheckbox", function () {
     var React = require("react");
     var _assign = require("object-assign");
     var MeComponentMixin = require("../src/MeComponentMixin");
-    var MeRadio = React.createClass({
+    var MeCheckbox = React.createClass({
         getDefaultProps:function(){
             //todo 需要动态配置
             return {
@@ -23,19 +23,19 @@ define("MeRadio", function () {
          * 显示当前页的时候
          */
         pageActive:function(){
-            console.log("active radio");
+            console.log("active checkbox");
         },
         /**
          * 移除当前页的时候
          */
         pageDeactive:function(){
-            console.log("deactive radio");
+            console.log("deactive checkbox");
         },
         /**
-         * 创建单选组件
+         * 创建多选组件
          * @returns {string}
          */
-        createRadio : function(){
+        createCheckbox : function(){
             var data = this.props.data;
             var temp = "";
             //属性
@@ -48,11 +48,11 @@ define("MeRadio", function () {
             var fontSize = this.props.normalStyle.fontSize;
             //创建标题
             temp += '<div style="width:100%;height:100px;line-height:100px;padding-left:10px;box-sizing:border-box;color:'+color+';font-size:'+fontSize+';background-color:#000;">';
-            temp += title;
+            temp += title+"（可多选）";
             temp += "</div>";
             //创建单选项
             var len =  options.length;
-            var radioName = "radio" + this.getIncId();
+            var checkboxName = "checkbox" + this.getIncId();
             for(var i = 0; i <len; i++){
                 var optionTemp = "";
                 var optionBorder = "";
@@ -62,9 +62,9 @@ define("MeRadio", function () {
                 optionTemp += '<div style="width:100%;height:87px;color:#000;line-height:87px;padding-left:10px;box-sizing:border-box;vertical-align:middle;font-size:'+
                     fontSize+';border-bottom:'+optionBorder+';">';
                 //单选按钮
-                var radioId = "radio" + this.getIncId();
-                optionTemp += '<input data-type="common-check-radio" type="radio" name='+radioName+' id='+radioId+' value='+options[i]+' data-radio="user-radio" data-objectId='+objectId+' style="display:none;" />';
-                optionTemp += '<label for='+radioId+' data-type="common-label"  style="display:inline-block;width:80%;height:100%;" >'+options[i]+'</label>'
+                var checkboxId = "checkbox" + this.getIncId();
+                optionTemp += '<input data-type="common-check-radio" type="checkbox" name='+checkboxName+' id='+checkboxId+' value='+options[i]+' data-checkbox="user-checkbox" data-objectId='+objectId+' style="display:none;" />';
+                optionTemp += '<label for='+checkboxId+' data-type="common-label"  style="display:inline-block;width:80%;height:100%;" >'+options[i]+'</label>'
                 optionTemp +="</div>"
                 temp += optionTemp;
             }
@@ -74,11 +74,11 @@ define("MeRadio", function () {
 
         },
         render: function () {
-            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeRadio" dangerouslySetInnerHTML={{__html:this.createRadio()}}></div>);
+            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeCheckbox" dangerouslySetInnerHTML={{__html:this.createCheckbox()}}></div>);
         },
         componentDidMount: function () {
 
         }
     });
-    return MeRadio;
+    return MeCheckbox;
 });
