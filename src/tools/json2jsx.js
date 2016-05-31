@@ -7,21 +7,23 @@ var http = require('http')
 function main(tpl,mag){
 var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
 var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
-var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>');
-var sizeStyleTemplate = _.template('height:"<%= item_height%>px",width:"<%= item_width%>px",position:"absolute"');
+var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
+var sizeStyleTemplate = _.template('height:"<%= item_height%>px",width:"<%= item_width%>px"');
 var fontStyleTemplate = _.template('fontSize:"<%= font_size%>px", color:"<%= item_color%>",fontFamily:"<%= font_family %>"');
 var imgTemplate = _.template('<MeImage src="<%= src%>" displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
 var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
 var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>')
 var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
-var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.cmds %>}}><%= children %></MeTouchTrigger>');
+var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.cmds %>}}><%= children %></MeTouchTrigger>');
 
 
 var itemFuncMap = {
 	"1":		imgRenderItem,
 	"2":		textRenderItem,
 	"3":		imgRenderItem,
+	"10":		imgRenderItem,
 	"18":		imgRenderItem,
+	"17":		grpRenderItem,
 	"34":		grpRenderItem,
 };
 
@@ -78,14 +80,17 @@ function indexItems(items){
 	for(var i = 0; i < items.length;i ++){
 		if(items[i].group_id == undefined) items[i].group_id = "0";
 		if(grps.hasOwnProperty(items[i].group_id)){
-			if(items[i].item_id == items[i].group_id) grps[items[i].group_id].owner = items[i];
+			if((items[i].item_id == items[i].group_id) || items[i].item_type == 17 || items[i] == 34 ){
+				grps[items[i].group_id].owner = items[i];
+			}
 			else grps[items[i].group_id].items.push(items[i]);
 		}else{
 			grps[items[i].group_id] = {
 				items:[],
 				owner:null
 			}
-			if(items[i].item_id == items[i].group_id) grps[items[i].group_id].owner = items[i];
+			if(items[i].item_id == items[i].group_id || items[i].item_type == 17 || items[i] == 34)
+				grps[items[i].group_id].owner = items[i];
 			else grps[items[i].group_id].items.push(items[i]);
 		}
 	}
@@ -96,33 +101,75 @@ function noTypeDefined(page,item){
 	return NoTypeDefinedT({item_type:item.item_type,style:_style});
 }
 
+function renderTransform(item){
+	var scale = "";
+	if(item.x_scale != null && item.x_scale != 1 ){
+		scale = "scale3d(" +item.x_scale;
+	}
+	if(item.y_scale != null && item.y_scale != 1 ){
+		if(scale == "") scale =  "scale3d(1";
+		scale = scale + "," + item.y_scale + ",1)";
+	}else{
+		if(scale != "") scale = scale + ",1,1)";
+	}
+	//if(scale == "") return "";
+	//return 'transform:"' + scale + '"';
+	return "";
+}
+
 function imgRenderItem(page,item,_style){
+	if(item.item_val.search(/imageView2/) == -1){
+		item.item_val = item.item_val + "?imageView2/2/w/"+item.item_width + "/h/" + item.item_height;
+	}
+	//人工实现Scale,但不影响图片的获取，为了图片质量
+	if(item.x_scale == null) item.x_scale = 1;
+	if(item.y_scale == null) item.y_scale = 1;
+	item.item_height *= item.y_scale;
+	item.item_width *= item.x_scale;
+	
+	_style.push(sizeStyleTemplate(item));
 	return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
 
 function textRenderItem(page,item,_style){
+	var tem = renderTransform(item);
+	if(tem != "")
+		_style.push(tem);
+	_style.push(sizeStyleTemplate(item));	
 	_style.push(fontStyleTemplate(item));
 	return divTemplate({content:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
 
 function grpRenderItem(page,item,_style,content){
-	_style.push(fontStyleTemplate(item));
+	var tem = renderTransform(item);
+	if(tem != "")
+		_style.push(tem);
+	_style.push(sizeStyleTemplate(item));	
+	_style.push('overflow:"hidden"');
 	return grpTemplate({displayType:item.item_display_status,
 						pageIdx:page.idx,
 						id:item.item_id,
 						style:_style,
 						children:content});
 }
+
+
 function renderItem(page,item,content){
 	var cmds = [];
-	var _style = [posStyleTemplate(item),sizeStyleTemplate(item)];
+	var posStyle = posStyleTemplate(item);//位置由最外围决定
+	var genStyle = [];
 	var animationData = null;
+	var transformStyle = renderTransform(item);
+	
+	
 	item.pageIdx = page.idx;
 	
 	if(item.item_display_status == undefined)item.item_display_status = 0;
+	
 	if(item.item_opacity != 100){
-		_style.push('opacity:' + (item.item_opacity/100));
+		genStyle.push('opacity:' + (item.item_opacity/100));
 	}
+	
 	if(item.item_href != null && item.item_href != ""){
 		//hide_el:-2|hide_el:65185725
 		cmds = convertOldCmd(item.item_href);
@@ -135,20 +182,25 @@ function renderItem(page,item,content){
 	
 	if(renderFunc == undefined ){
 		console.log("no render function defined for",item);
-		return NoTypeDefinedT({item_type:item.item_type,style:_style});
+		return NoTypeDefinedT({item_type:item.item_type,style:posStyle});
 	}
 	
 	if(animationData == null && cmds.length == 0){
-		return renderFunc(page,item,_style,content)
+		genStyle.push(posStyle);
+		if(transformStyle != "") genStyle.push(transformStyle);
+		return renderFunc(page,item,genStyle,content)
 	}
 	
-	var _itemContent = renderFunc(page,item,['height:"100%",width:"100%"'],content);//_style将放在外围
+	var _itemContent = renderFunc(page,item,genStyle,content);//内容自己决定大小,位置有容器决定
+		
+	var conStyle = [posStyle];
+	if(transformStyle != "")conStyle.push(transformStyle);
 	
 	if(cmds.length == 0 && animationData != null){
 		return animationTemplate({animationClass:animationData.animationClass,
 								  children:_itemContent,
 								  animation:animationData.animation,
-								  normalStyle:_style.join(","),
+								  normalStyle:conStyle.join(','),
 								  pageIdx:page.idx,
 								  displayType:item.item_display_status,
 								  id:item.item_id});
@@ -164,7 +216,7 @@ function renderItem(page,item,content){
 	}
 	if(cmds.length > 0){
 		return touchTriggerTemplate({
-			style:_style,
+			normalStyle:conStyle.join(','),
 			children:_itemContent,
 			pageIdx:page.idx,
 			id:item.item_id,

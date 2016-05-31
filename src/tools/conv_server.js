@@ -76,7 +76,8 @@ function downloadArticleWithTid(res,tid,next){
         query.equalTo('tpl_id', tid);
         query.first().then(function(results) {
             var url = "";
-            console.log(results.get("json_url"),  results.get("tpl_fbstate"));
+			if(results == null)console.log("bad request for ",tid);
+			else console.log(results.get("json_url"),  results.get("tpl_fbstate"));
             if(results && results.get("json_url") && results.get("tpl_fbstate") != 1) {
                 var jsonurl = results.get("json_url");
                 if (isJsonObject(jsonurl)) {
