@@ -9,7 +9,7 @@ var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{heigh
 var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
 var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
 var sizeStyleTemplate = _.template('height:"<%= item_height%>px",width:"<%= item_width%>px"');
-var fontStyleTemplate = _.template('fontSize:"<%= font_size%>px", color:"<%= item_color%>",fontFamily:"<%= font_family %>"');
+var fontStyleTemplate = _.template('fontSize:"<%= font_size%>", color:"<%= item_color%>",fontFamily:"<%= font_family %>"');
 var imgTemplate = _.template('<MeImage src="<%= src%>" displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
 var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
 var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>')
@@ -135,8 +135,13 @@ function textRenderItem(page,item,_style){
 	var tem = renderTransform(item);
 	if(tem != "")
 		_style.push(tem);
-	_style.push(sizeStyleTemplate(item));	
+	if((item.item_width != undefined && item.item_width) != 0 || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplate(item));	
+	
 	_style.push(fontStyleTemplate(item));
+	//防止react错误，对{}进行替换
+	item.item_val = item.item_val.replace(/[{|}]/g,function(word){
+												return "{'" + word + "'}"
+											});
 	return divTemplate({content:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
 
