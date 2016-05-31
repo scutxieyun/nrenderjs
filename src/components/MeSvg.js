@@ -1,19 +1,19 @@
-/**
- * Created by lifeng on 2016/5/25.
+/** 文件名称: MeSvg
+ *
+ * 创 建 人: fishYu
+ * 创建日期: 2015/5/25 15:06
+ * 描    述: SVG组件  --- 对应 item_type 39
  */
 define("MeSvg", function () {
     var React = require("react");
-    var ReactDOM = require("react-dom");
     var _assign = require("object-assign");
     var MeComponentMixin = require("../src/MeComponentMixin");
     var MeSvg = React.createClass({
-		displayName:"MeSvg",
+        displayName: "MeSvg",
         getDefaultProps:function(){
             //todo itemVal itemValSub需要动态配置
             return {
-                normalStyle : {perspective: '1000px', backfaceVisibility: 'hidden', position: 'relative', border: 'none', boxSizing: 'border-box'},
-                itemVal : "<svg version=\"1.2\" baseProfile=\"tiny\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" width=\"100%\" height=\"100%\" viewBox=\"0 0 320 480\" xml:space=\"preserve\" style=\"height: 100%; width: 100%;\">\n<path fill=\"none\" stroke=\"#FF0000\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-miterlimit=\"10\" d=\"M77-159v304.472\tc0,5.5,4.328,9.528,9.828,9.528H238.5c5.5,0,9.5,4.972,9.5,10.472v5.157c0,5.5-4,10.371-9.5,10.371H86.828\tc-5.5,0-9.828,4.129-9.828,9.629v4.151c0,5.5,4.328,10.22,9.828,10.22H238.5c5.5,0,9.5,4.28,9.5,9.78v5.157\tc0,5.5-4,10.062-9.5,10.062H87.826c-5.5,0-9.826,4.438-9.826,9.938v5.157c0,5.5,4.326,9.905,9.826,9.905H238.5\tc5.5,0,9.5,4.595,9.5,10.095v4.15c0,5.5-4,9.755-9.5,9.755H89.822c-5.5,0-9.822,4.745-9.822,10.245v5.157\tc0,5.5,4.322,9.598,9.822,9.598h147.68c5.5,0,10.498,4.902,10.498,10.402V574\" style=\"transform: matrix(1, 0, 0, 1, 0, 0); stroke-dashoffset: 1e-05px; stroke-dasharray: 1864.11px, 1874.11px;\"></path>",
-                itemValSub : {"delay":0.5,"duration":3.5,"infinite":"1","a1":0,"a2":50,"b1":50,"b2":100}
+                commonStyle : {perspective: '1000px', backfaceVisibility: 'hidden', position: 'relative', border: 'none', boxSizing: 'border-box'}
             }
         },
         getInitialState : function(){
@@ -24,7 +24,6 @@ define("MeSvg", function () {
          * 显示当前页的时候
          */
         pageActive:function(){
-			this.componentActive();
             this.addSvgAnimate();
             console.log("get page active svg");
         },
@@ -32,7 +31,6 @@ define("MeSvg", function () {
          * 移除当前页的时候
          */
         pageDeactive:function(){
-			this.componentDeactive();
             this.removeSvgAnimate();
             console.log("get page deactive svg");
         },
@@ -40,7 +38,6 @@ define("MeSvg", function () {
          * 添加SVG动画
          */
         addSvgAnimate : function (){
-            console.log(this.state);
             var path = this.state.path;
             var length = this.state.length;
             var dashName = this.state.dashName;
@@ -79,36 +76,34 @@ define("MeSvg", function () {
             var mySVG = el.querySelector("svg");
             mySVG.style.height = "100%";
             mySVG.style.width = "100%";
-            var itemValSub = this.props.itemValSub;
-            //转换成JSON对象
-//            itemValSub = dms.toJSON(itemValSub);
+            var data = this.props.data;
             var delay = 0;
-            if(itemValSub.delay){
-                delay = itemValSub.delay
+            if(data.delay){
+                delay = data.delay
             }
             var duration = 1;
-            if(itemValSub.duration){
-                duration = itemValSub.duration;
+            if(data.duration){
+                duration = data.duration;
             }
             var infinite = "1";
-            if(itemValSub.infinite){
-                infinite = itemValSub.infinite;
+            if(data.infinite){
+                infinite = data.infinite;
             }
             var a1 = 0;
-            if(itemValSub.a1){
-                a1 = parseInt(itemValSub.a1);
+            if(data.a1){
+                a1 = parseInt(data.a1);
             }
             var a2 = 0;
-            if(itemValSub.a2){
-                a2 = parseInt(itemValSub.a2);
+            if(data.a2){
+                a2 = parseInt(data.a2);
             }
             var b1 = 0;
-            if(itemValSub.b1){
-                b1 = parseInt(itemValSub.b1);
+            if(data.b1){
+                b1 = parseInt(data.b1);
             }
             var b2 = 0;
-            if(itemValSub.b2){
-                b2 = parseInt(itemValSub.b2);
+            if(data.b2){
+                b2 = parseInt(data.b2);
             }
             //获取SVG的路径
             //TODO 目前只支持路径的绘制动画
@@ -144,20 +139,19 @@ define("MeSvg", function () {
             document.head.appendChild(styleNode);
             var newState = {};
             newState.path = path;
-            newState.delay = delay;
+            newState.length = length;
             newState.duration = duration;
+            newState.delay = delay;
             newState.infinite = infinite;
             newState.dashName = dashName;
-            var fullState = _assign(this.state,newState);
-            this.setState(fullState);
+            console.log(newState);
+            this.setState(newState);
         },
         componentWillMount: function () {
 
         },
         render: function () {
-			var _style = _assign(this.props.dynamicStyle,this.props.normalStyle);
-			this.updateStyleForDisplay(_style);
-            return (<div style={_style} ref="myMeSvg" dangerouslySetInnerHTML={{__html:this.props.itemVal}}></div>)
+            return (<div style={_assign(this.props.commonStyle,this.props.normalStyle)} ref="myMeSvg" dangerouslySetInnerHTML={{__html:this.props.data.content}}></div>)
         },
         componentDidMount: function () {
             this.createSvgAnimate();
