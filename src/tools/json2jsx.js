@@ -119,7 +119,7 @@ function renderTransform(item){
 
 function imgRenderItem(page,item,_style){
 	if(item.item_val.search(/imageView2/) == -1){
-		item.item_val = item.item_val + "?imageView2/2/w/"+item.item_width + "/h/" + item.item_height;
+		item.item_val = item.item_val + "?imageView2/2/w/"+Math.floor(item.item_width) + "/h/" + Math.floor(item.item_height);
 	}
 	//人工实现Scale,但不影响图片的获取，为了图片质量
 	if(item.x_scale == null) item.x_scale = 1;
