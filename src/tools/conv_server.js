@@ -4,6 +4,7 @@ var convFunc = require('./json2jsx.js');
 var http = require('http');
 var _ = require("underscore");
 var babel = require("babel-core");
+var AV = require("avoscloud-sdk");
 
 var server = express();
 
@@ -43,21 +44,67 @@ function kickoffConvert(tpl,jsonData,cb){
 }
 function convertEntry(req,res,next){
 	console.log(req.query.mag);
-	downloadJson((decodeURI(req.query.mag)),function(data){
-			if(data == null){
-				res.send("");
-			}else{
-				try{
-					var jsData = kickoffConvert(tpl,data);
-					res.send(jsData);
-				}catch(e){
-					console.log(e);
-					res.send(e.toString());
-				}
-			}
+	if(req.query.tid != null){
+		downloadArticleWithTid(res,req.query.tid);
+	}
+	if(req.query.mag != null){
+		return downloadJson((decodeURI(req.query.mag)),function(data){
+			res.send(parseData(data));
 			next();
-	});
+		});
+	}
 	//next();
+}
+
+function parseData(data){
+	if(data == null){
+				return ""
+	}else{
+		try{
+			var jsData = kickoffConvert(tpl,data);
+			return (jsData);
+		}catch(e){
+			console.log(e);
+			return (e.toString());
+		}
+	}
+}
+
+function downloadArticleWithTid(res,tid,next){
+	AV.initialize("hf3jpecovudrg8t7phw3xbt1osqfrmfhnwu22xs8jo1ia3hn", "b9nndoind1e7tjrhj7owyg4m55d9uyymcqprklb5w9qxo9rr");
+		var query = new AV.Query('tplobj');
+        query.equalTo('tpl_id', tid);
+        query.first().then(function(results) {
+            var url = "";
+            console.log(results.get("json_url"),  results.get("tpl_fbstate"));
+            if(results && results.get("json_url") && results.get("tpl_fbstate") != 1) {
+                var jsonurl = results.get("json_url");
+                if (isJsonObject(jsonurl)) {
+                    jsonurl = JSON.parse(jsonurl);
+                    var postfix = jsonurl.postfix || "";
+                    url = "http://ac-hf3jpeco.clouddn.com/"+ jsonurl.key + postfix + "?" + Date.now();
+                } else {
+                    url = "http://ac-hf3jpeco.clouddn.com/" + jsonurl + ".json?" + Date.now();
+                }
+                return downloadJson(url,function(data){
+					res.send(parseData(data));
+					next();
+				});
+            }
+        },function(error) {
+            console.log('Error: ' + error.code + ' ' + error.message);
+			res.send("data error");
+			next();
+        });
+
+        function isJsonObject (str) {
+            if(!str){
+                return false;
+            }else if(str.indexOf("{") == 0 && str.lastIndexOf("}") == str.length - 1){
+                return true;
+            }
+            return false;
+        }
 }
 // 注册功能模块
 server.get('/jsx',convertEntry);

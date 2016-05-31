@@ -86,6 +86,11 @@ body{
 			}else{
 				magUrl = 'dist/' + _xparam[1];
 			}
+		}else{
+			_xparam = /tid=([^&]+)/.exec(location.href);
+			if(_xparam != null){
+				magUrl = "jsx?tid=" + _xparam[1];
+			}
 		}
 		load();
 		function load(){

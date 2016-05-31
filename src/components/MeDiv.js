@@ -6,6 +6,11 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 var MeDiv  = React.createClass({
 	mixins:[MeComponentMixin],
 	displayName:"MeDiv",
+	getDefaultProps:function(){
+		return{
+			normalStyle:{display:"block"}
+		};
+	},
 	pageActive:function(){
 		this.componentPageActive();
 	},
@@ -13,9 +18,9 @@ var MeDiv  = React.createClass({
 		this.componentPageDeactive();
 	},
 	render:function(){
-		var _style = this.props.normalStyle;
+		var _style = _assign(this.props.normalStyle);
 		this.updateStyleForDisplay(_style);
-		return <div id={this.props.id} style={_style}>{this.props.children}</div>
+		return <div id={this.props.id} style={_assign(_style)}>{this.props.children}</div>
 	}
 });
 return MeDiv;
