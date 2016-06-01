@@ -25,6 +25,7 @@
 .active.page_container{
 	transition-property:transform;
 	transition-duration:0.5s;
+	z-index:100;
 }
 
 body{
@@ -45,19 +46,23 @@ body{
 	float:right;
 }
 .page_container.up{
-	transform:translate(0px,-1192px)
+	transform:translate(0px,-1192px);
+	z-index:0;
 }
 .page_container.down{
-	transform:translate(0px,1192px)
+	transform:translate(0px,1192px);
+	z-index:0;
 }
 .page_container.left{
-	transform:translate(-720px,0px)
+	transform:translate(-720px,0px);
+	z-index:0;
 }
 .page_container.right{
-	transform:translate(720px,0px)
+	transform:translate(720px,0px);
+	z-index:0;
 }
 .page_container.middle:{
-	transform:translate(0px,0px)
+	transform:translate(0px,0px);
 }
 .page_container.none{
 	display:none

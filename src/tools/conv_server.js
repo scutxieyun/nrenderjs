@@ -43,15 +43,22 @@ function kickoffConvert(tpl,jsonData,cb){
 	}).code;
 }
 function convertEntry(req,res,next){
-	console.log(req.query.mag);
-	if(req.query.tid != null){
-		downloadArticleWithTid(res,req.query.tid,next);
+	try{
+		console.log(req.query.mag);
+		if(req.query.tid != null){
+			downloadArticleWithTid(res,req.query.tid,next);
+		}
+		if(req.query.mag != null){
+			return downloadJson((decodeURI(req.query.mag)),function(data){
+				res.send(parseData(data));
+				next();
+			});
+		}
 	}
-	if(req.query.mag != null){
-		return downloadJson((decodeURI(req.query.mag)),function(data){
-			res.send(parseData(data));
-			next();
-		});
+	catch(e){
+		console.log(e);
+		res.send(e);
+		next();
 	}
 	//next();
 }

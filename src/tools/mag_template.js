@@ -22,7 +22,7 @@ define([], function () {
     };
     var article = {
 		pages:[<%= pages%>],
-		layout:[<%= layout%>],
+		layout:<%= layout%>,
 		"toolBar": <MeToolBar>
             <MeMusic id="magazine-music" src="<%= music_src%>">
 			</MeMusic>

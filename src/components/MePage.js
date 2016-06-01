@@ -82,6 +82,7 @@ define("MePage",function(){
 		_xBeforePan:0,
 		_yBeforePan:0,
 		interactHandle:function(evt){
+			var res = true; //到达边界否
 			if(evt.type == "pan"){
 				if(evt.additionalEvent == "panup" || evt.additionalEvent == "pandown"){
 					if(evt.deltaTime < this._lastDeltaTime)
@@ -90,7 +91,7 @@ define("MePage",function(){
 						this._yBeforePan = this.state.y_offset;
 					}
 					this._lastDeltaTime = evt.deltaTime;
-					this._setOffset({
+					res = this._setOffset({
 						x:0,
 						y:this._yBeforePan + evt.deltaY
 					});
@@ -98,32 +99,37 @@ define("MePage",function(){
 				}
 			}else{
 				if(evt.type == "swipeup"){
-					this._setOffset({
+					res = this._setOffset({
 						x:0,
 						y:this.state.y_offset - this.containerHeight/2,
 					});
 				}
 				if(evt.type == "swipedown"){
-					this._setOffset({
+					res = this._setOffset({
 						x:0,
 						y:this.state.y_offset + this.containerHeight/2,
 					});
 				}
 			}
+			if(res == true) return true;//允许上层hammer继续处理
+			return false;
 		},
 		_setOffset:function(newOffset){
 			var pSize = this.getPageSize();
+			var atEdge = false;
 			var lastY = newOffset.y;
 			if(newOffset.y > 0){
 				lastY = 0;
 			}
 			if(newOffset.y < this.containerHeight - pSize.height){
 				lastY = this.containerHeight - pSize.height;
+				atEdge = true;
 			}
 			this.setState({
 				x_offset:0,
 				y_offset:lastY
 			});
+			return atEdge;
 		},
 		pageActive:function(){
 			var size = this.getPageSize();
