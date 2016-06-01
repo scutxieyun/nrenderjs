@@ -43,17 +43,19 @@ var defaultAnimation = 	'{animationIterationCount:"1",animationDelay:"0s",animat
 		var pages = mag.groups[grpIdx].pages;
         pages = getPages(pages);
         var subIndex = [];
+		subIndex.push(-1);
 		for(var i = 0;i < pages.length;i ++){
 			pages[i].idx = i + pageNum;
 			pageContent.push(renderPage(pages[i]));
             subIndex.push(i+pageNum);
 			//index.push(i+pageNum);
 		}
+		subIndex.push(-1);
         index.push(subIndex);
         pageNum += pages.length;
 	}
 	index.push(-1);
-	return (_.template(tpl))({pages:pageContent.join(","),layout:index.toString(),music_src:mag.tpl_music});
+	return (_.template(tpl))({pages:pageContent.join(","),layout:JSON.stringify(index),music_src:mag.tpl_music});
 /**
  * 获取组之内的所有页的数据集合
  * @param {arr|array}       需要合并页数据的组集合
