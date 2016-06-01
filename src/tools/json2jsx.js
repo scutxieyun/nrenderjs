@@ -41,15 +41,37 @@ var defaultAnimation = 	'{animationIterationCount:"1",animationDelay:"0s",animat
 	var pageNum = 0;
 	for(grpIdx = 0;grpIdx < mag.groups.length; grpIdx ++){
 		var pages = mag.groups[grpIdx].pages;
+        pages = getPages(pages);
+        var subIndex = [];
 		for(var i = 0;i < pages.length;i ++){
 			pages[i].idx = i + pageNum;
 			pageContent.push(renderPage(pages[i]));
-			index.push(i+pageNum);
+            subIndex.push(i+pageNum);
+			//index.push(i+pageNum);
 		}
-		pageNum += pages.length;
+        index.push(subIndex);
+        pageNum += pages.length;
 	}
 	index.push(-1);
 	return (_.template(tpl))({pages:pageContent.join(","),layout:index.toString(),music_src:mag.tpl_music});
+/**
+ * 获取组之内的所有页的数据集合
+ * @param {arr|array}       需要合并页数据的组集合
+ * @returns {Array}         返回组之内的所有页的数据集合
+ */
+function getPages(arr){
+    var result = [], obj;
+    for(var i =0; i<arr.length; i++){
+        obj = arr[i];
+        if(!obj.hasOwnProperty("pages")){
+            result.push(obj);
+        }else{
+            var tmp = getPages(obj["pages"]);
+            result = result.concat(tmp);
+        }
+    }
+    return result;
+}
 function renderPage(page){
 	var items = [];
 	var grps = indexItems(page.item_object);
