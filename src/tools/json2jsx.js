@@ -158,7 +158,7 @@ function textRenderItem(page,item,_style){
 	var tem = renderTransform(item);
 	if(tem != "")
 		_style.push(tem);
-	if((item.item_width != undefined && item.item_width) != 0 || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplate(item));	
+	if((item.item_width != undefined && item.item_width != 0 )|| (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplate(item));
 	
 	_style.push(fontStyleTemplate(item));
 	//防止react错误，对{}进行替换
