@@ -94,10 +94,17 @@ body{
 			}
 		}
 		load();
+		var _containerHeight = document.getElementsByTagName("body")[0].offsetHeight;
+		var _containerWidth = document.getElementsByTagName("body")[0].offsetWidth;
 		function load(){
 			require([magUrl],function(mag_1){
 				var _article = new renderjs.MeArticle(mag_1);
-				var pads = renderjs.ReactDOM.render(renderjs.React.createElement(renderjs.MeVPads, { 		bufferLen: 5, pageHeight:1008,pageWidth:640, article: _article }), document.getElementById("magazine-container"));
+				var pads = renderjs.ReactDOM.render(renderjs.React.createElement(renderjs.MeVPads,
+				      {bufferLen: 5, pageHeight:1008,pageWidth:640, 
+					    containerHeight:_containerHeight,
+						containerWidth:_containerWidth,
+					    article: _article }), 
+					  document.getElementById("magazine-container"));
 			});
 		}
 		

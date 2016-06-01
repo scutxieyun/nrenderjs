@@ -70,12 +70,13 @@ var PadBuffer = React.createClass({
 			//console.log("react page update with ",this.state);
 		}
 	},
+	
 	render:function(){
 		var className = this.state.state == "active" ? "active":"deactive";
 		className += " page_container " + this.state.loc;
 		var pageInstance = this._getPageElement();
 		if(pageInstance != null) return <div id={this.props.id} className={className} >{pageInstance}</div>;
-		else return <div id={this.props.id} me_page_idx={this.state.pageIdx} className={className} ></div>;
+		else return <div id={this.props.id} me_page_idx={this.state.pageIdx} className={className}></div>;
 	},
 });
 
@@ -310,18 +311,25 @@ var MeVPads = React.createClass({
 					new MeHammer(ref.hammer,{"swipeleft":this.moveXNext,"swiperight":this.moveXPrev,
 											"swipedown":this.moveYPrev,"swipeup":this.moveYNext});
 	},
+	_smartAdjustTranform:function(){
+		var yScale = this.props.containerHeight / this.props.pageHeight;
+		var xScale = this.props.containerWidth / this.props.pageWidth;
+		var xOffset = 0;
+		if(this.props.containerWidth > this.props.pageWidth){
+			xOffset = (this.props.containerWidth - this.props.pageWidth) / 2 / xScale
+		}
+		var yOffset = 0;
+		if(this.props.containerHeight > this.props.pageHeight){
+			yOffset = (this.props.containerHeight - this.props.pageHeight) / 2 / yScale;
+		}
+		var res = "scale(" + xScale + "," + yScale + ") translate(" + xOffset + "px," + yOffset + "px)";   
+		return res;
+	},
+	
+	
 	render:function(){
 		
 		var offset_x = -(this.props.pageWidth * this.state.actPosIndex) + this.state.offset;
-		var divStyle = {
-			width: "auto",
-			height: "1008px",
-			"transform":"translate3d(" + offset_x + "px,0px,0px)",
-			"backfaceVisibility": "hidden", 
-			"perspective": "1000px", 
-			"top":"36.5px",
-			"left": "0px"
-		};
 		var self = this;
 		
 		var items = [];
@@ -330,7 +338,7 @@ var MeVPads = React.createClass({
 		}
 		return (
 	<Hammer ref={this._registerHammer} id="oper-area" className ="magazine-page-container show" vertical={true}>
-			<div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px"}}>
+			<div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
 			
 			{items}
 			{self.props.article.getToolBar()}
