@@ -73,10 +73,11 @@ var PadBuffer = React.createClass({
 	
 	render:function(){
 		var className = this.state.state == "active" ? "active":"deactive";
+		//var zIndex = this.state.state == "active" ? 1 : 0;
 		className += " page_container " + this.state.loc;
 		var pageInstance = this._getPageElement();
 		if(pageInstance != null) return <div id={this.props.id} className={className} >{pageInstance}</div>;
-		else return <div id={this.props.id} me_page_idx={this.state.pageIdx} className={className}></div>;
+		else return <div id={this.props.id} me_page_idx={this.state.pageIdx} className={className} ></div>;
 	},
 });
 
@@ -190,7 +191,6 @@ var MeVPads = React.createClass({
 				found = i;
 			}
 		}
-		console.log("alloc ",found);
 		return found;	//@todo 加错误检查,应该获得一个空闲的page
 	},
 	_cachePage:function(pageIdx,state,loc){
@@ -286,14 +286,7 @@ var MeVPads = React.createClass({
 		this.posYIdx --;
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
-	handleSwipe:function(evt){
-		console.log("swipe ",evt);
-		if(evt.direction == 2){
-			this.moveNext();
-		}else if (evt.direction == 1){
-			this.movePrev();
-		}
-	},
+	
 	handleTap:function(evt){
 		console.log("get tap in pad ",evt);
 	},
@@ -305,11 +298,15 @@ var MeVPads = React.createClass({
 	_registerBuffer:function(ref){
 		this.pageCache[ref.props.id].reactInstance = ref;
 	},
+	handlePan:function(){
+		console.log("handle pan in operator area");
+	},
 	_registerHammer:function(ref){
 		//this.hammer = ref;
 		this.props.article.getCxt().interactHandler = 
 					new MeHammer(ref.hammer,{"swipeleft":this.moveXNext,"swiperight":this.moveXPrev,
-											"swipedown":this.moveYPrev,"swipeup":this.moveYNext});
+											"swipedown":this.moveYPrev,"swipeup":this.moveYNext,
+											"pan":this.handlePan});
 	},
 	_smartAdjustTranform:function(){
 		var yScale = this.props.containerHeight / this.props.pageHeight;
@@ -334,14 +331,16 @@ var MeVPads = React.createClass({
 		
 		var items = [];
 		for(var i = 0;i < this.props.bufferLen;i++){
-			items.push(<PadBuffer id={i} posIdx={i} ref={self._registerBuffer} article = {self.props.article}></PadBuffer>)
+			items.push(<PadBuffer id={i} key={i} posIdx={i} ref={self._registerBuffer} article = {self.props.article}></PadBuffer>)
 		}
 		return (
 	<Hammer ref={this._registerHammer} id="oper-area" className ="magazine-page-container show" vertical={true}>
 			<div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
-			
+			<div style={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/15509a86b6c9ab79.png?imageView2/2/w/640")',
+			height:"100%",width:"100%"}}>
 			{items}
 			{self.props.article.getToolBar()}
+			</div>
 			</div>
 			</Hammer>
 		);
