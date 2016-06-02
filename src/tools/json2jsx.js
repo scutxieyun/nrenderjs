@@ -3,7 +3,7 @@ var fs = require('fs');
 var process = require('process');
 var url = require('url');
 var http = require('http');
-function main(tpl, mag) {
+function main(tpl, magObj) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
@@ -24,11 +24,12 @@ function main(tpl, mag) {
         "10": imgRenderItem,
         "18": imgRenderItem,
         "17": grpRenderItem,
-        "34": grpRenderItem
+        "34": grpRenderItem,
 		"7": musicRenderItem,		
     };
 
     var gId = 0;
+	var mag = magObj.tplData;
 
     var defaultAnimation = '{animationIterationCount:"1",animationDelay:"0s",animationDuration:"1s"}';
     var index = [];
@@ -64,15 +65,16 @@ function main(tpl, mag) {
  * @param {arr|array}       需要合并页数据的组集合
  * @returns {Array}         返回组之内的所有页的数据集合
  */
-function getPages(arr){
-    var result = [], obj;
-    for(var i =0; i<arr.length; i++){
-        obj = arr[i];
-        if(!obj.hasOwnProperty("pages")){
-            result.push(obj);
-        }else{
-            var tmp = getPages(obj["pages"]);
-            result = result.concat(tmp);
+	function getPages(arr) {
+        var result = [], obj;
+        for (var i = 0; i < arr.length; i++) {
+            obj = arr[i];
+            if (!obj.hasOwnProperty("pages")) {
+                result.push(obj);
+            } else {
+                var tmp = getPages(obj["pages"]);
+                result = result.concat(tmp);
+            }
         }
         return result;
     }
@@ -172,7 +174,7 @@ function imgRenderItem(page,item,_style){
 	_style.push(sizeStyleTemplate(item));
 	return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
-function textRenderItem(page, item, _style) {
+	function textRenderItem(page, item, _style) {
         var tem = renderTransform(item);
         if (tem != "")
             _style.push(tem);
