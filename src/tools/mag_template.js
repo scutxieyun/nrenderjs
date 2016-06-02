@@ -14,11 +14,12 @@ define([], function () {
     var EventEmitter = Renderjs.EventEmitter;
     var MeSvg = Renderjs.MeSvg;
 	var MeImage = Renderjs.MeImage;
+    var MeText = Renderjs.MeText;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
-        pageMgr        : pageMgr,//×÷Æ··¶Î§µÄÊÂ¼þ¶©ÔÄÆ÷
+        pageMgr        : pageMgr,//ï¿½ï¿½Æ·ï¿½ï¿½Î§ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         ee             : new EventEmitter(),
-        interactHandler: null,	//ÔÚMeVPads³õÊ¼»¯ºó»áÖÆ¶¨Õâ¸öhandler
+        interactHandler: null,	//ï¿½ï¿½MeVPadsï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½handler
     };
     var article = {
 		pages:[<%= pages%>],
