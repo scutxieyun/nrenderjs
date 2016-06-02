@@ -79,6 +79,9 @@ define("MeArtical",[],function(){
 		}
 		return page;
 	};
+	MeArticle.prototype.getL1Num = function(){
+		return this.article.layout.length - 2; //忽略layout前后的-1
+	}
 	MeArticle.prototype.getNumOfPage = function(){
 		return this.article.pages.length;
 	};

@@ -168,7 +168,8 @@ var MeVPads = React.createClass({
 		this.pageCache = [];
 		this.posXIdx = -1;
 		this.posYIdx = -1;
-        this._pageRecorder = new Array(this.props.article.getNumOfPage());
+        this._pageRecorder = new Array(this.props.article.getL1Num()); //为了记住横向的访问历史
+		for(var i=0;i < this._pageRecorder.length;i ++) this._pageRecorder[i] = 0;//缺省0
 		return {
 		};
 	},
@@ -267,10 +268,18 @@ var MeVPads = React.createClass({
 		var down = article.getNbrPageIdx("L2Next",posXIdx,posYIdx);
 		this._preLoadPage(down,"down",candidatePages);
 		
-		var left = article.getNbrPageIdx("L1Prev",posXIdx,posYIdx);	
+		var left = -1;
+		if(posXIdx - 1 > 0 && this._pageRecorder[posXIdx - 1] != undefined){
+			left = article.getPageIdxInLayout(posXIdx - 1,this._pageRecorder[posXIdx - 1]);
+		}else{
+			left = article.getNbrPageIdx("L1Prev",posXIdx,posYIdx);
+		}
 		this._preLoadPage(left,"left",candidatePages);
 		
-		var right = article.getNbrPageIdx("L1Next",posXIdx,posYIdx);
+		var right = -1;
+		if(posXIdx + 1 < this._pageRecorder.length && this._pageRecorder[posXIdx + 1] != undefined){
+			right =  article.getPageIdxInLayout(posXIdx + 1,this._pageRecorder[posXIdx + 1]);
+		}else article.getNbrPageIdx("L1Next",posXIdx,posYIdx);
 		this._preLoadPage(right,"right",candidatePages);
 		
 		this._cachePage(pageIdx,"active","middle"); //最后再激活
