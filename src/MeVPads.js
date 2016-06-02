@@ -125,7 +125,7 @@ MeHammer.prototype.handleHammerEvent = function(evt){
 		}
 	}
 	if(this.defaultHandler.hasOwnProperty(evt.type)){
-		this.defaultHandler[evt.type].apply([evt]);
+		this.defaultHandler[evt.type].apply(null,[evt]);
 	}
 }
 /***
@@ -171,14 +171,18 @@ var MeVPads = React.createClass({
         this._pageRecorder = new Array(this.props.article.getL1Num()); //为了记住横向的访问历史
 		for(var i=0;i < this._pageRecorder.length;i ++) this._pageRecorder[i] = 0;//缺省0
 		return {
+			xOffset:0,
+			yOffset:0
 		};
 	},
 	getDefaultProps:function(){
 		return {
-			bufferLen:3,
+			bufferLen:5,
 			pageHeight:1192,
 			pageWidth:720,
 			article:null,
+			containerHeight:1002,
+			containerWidth:720,
 		};
 	},
 	
@@ -334,7 +338,6 @@ var MeVPads = React.createClass({
         this._pageRecorder[this.posXIdx] = this.posYIdx;
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
-	
 	handleTap:function(evt){
 		console.log("get tap in pad ",evt);
 	},
@@ -346,8 +349,27 @@ var MeVPads = React.createClass({
 	_registerBuffer:function(ref){
 		this.pageCache[ref.props.id].reactInstance = ref;
 	},
-	handlePan:function(){
-
+	handlePan:function(evt){
+		if(evt.additionalEvent == "panleft" || evt.additionalEvent == "panright"){
+			if(this.props.article.getL1Num() <= 1) return;
+		}else{
+			if(evt.additionalEvent == "panup"){
+				if(this.props.article.getNbrPageIdx("L2Next",this.posXIdx,this.posYIdx) != -1){
+					return;
+				}
+			}
+			if(evt.additionalEvent == "pandown"){
+				if(this.posYIdx > 0) return;
+			}
+			this.setState({
+				yOffset:Math.abs(evt.deltaY) < this.props.containerHeight / 2 ? evt.deltaY : Math.sign(evt.deltaY) * this.props.containerHeight / 2 
+			});
+			return;
+		}
+	},
+	_cancelPan:function(){
+		if(this.state.yOffset != 0)
+		this.setState({yOffset:0});
 	},
 	_registerHammer:function(ref){
 		//this.hammer = ref;
@@ -376,7 +398,7 @@ var MeVPads = React.createClass({
 		
 		var offset_x = -(this.props.pageWidth * this.state.actPosIndex) + this.state.offset;
 		var self = this;
-		
+		var bufContainerTransform = "translate(0," + this.state.yOffset + "px)";
 		var items = [];
 		for(var i = 0;i < this.props.bufferLen;i++){
 			items.push(<PadBuffer id={i} key={i} posIdx={i} ref={self._registerBuffer} article = {self.props.article}></PadBuffer>)
@@ -386,7 +408,9 @@ var MeVPads = React.createClass({
 			<div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
 			<div style={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/15509a86b6c9ab79.png?imageView2/2/w/640")',
 			height:"100%",width:"100%"}}>
+			<div id="buffer-container" ref="bufferContainer" onTouchEnd={this._cancelPan}style={{transform:bufContainerTransform}}>
 			{items}
+			</div>
 			{self.props.article.getToolBar()}
 			</div>
 			</div>
