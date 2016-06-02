@@ -168,6 +168,7 @@ var MeVPads = React.createClass({
 		this.pageCache = [];
 		this.posXIdx = -1;
 		this.posYIdx = -1;
+        this._pageRecorder = new Array(this.props.article.getNumOfPage());
 		return {
 		};
 	},
@@ -301,23 +302,27 @@ var MeVPads = React.createClass({
 	moveXNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return;//翻到尽头
 		this.posXIdx ++;
-		this.posYIdx = 0;	//这是由作品的结构决定的，横向，作品有可能是单页，posYIdx位置失效
+//		this.posYIdx = 0;	//这是由作品的结构决定的，横向，作品有可能是单页，posYIdx位置失效
+        this.posYIdx = this._pageRecorder[this.posXIdx] || 0;
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
 	moveXPrev:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx - 1,0) == -1) return;//翻到尽头
 		this.posXIdx --;
-		this.posYIdx = 0;
+//		this.posYIdx = 0;
+        this.posYIdx = this._pageRecorder[this.posXIdx] || 0;
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
 	moveYNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx + 1) == -1) return;//翻到尽头
 		this.posYIdx ++;
-		this.loadPageByPos(this.posXIdx,this.posYIdx);
+        this._pageRecorder[this.posXIdx] = this.posYIdx;
+        this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
 	moveYPrev:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx - 1) == -1) return;//翻到尽头
 		this.posYIdx --;
+        this._pageRecorder[this.posXIdx] = this.posYIdx;
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
 	

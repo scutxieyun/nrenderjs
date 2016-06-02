@@ -78,7 +78,6 @@ define([], function () {
 							direction:"right"
 						}}
 					>
-
 					</MeLabel>
 			</MePage>,
 			<MePage idx={5} cxt={cxt} normalStyle={{backgroundColor:"pink"}}>
