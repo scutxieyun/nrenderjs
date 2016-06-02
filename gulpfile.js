@@ -33,8 +33,6 @@ jsx = ["src/MeVPads.js",
 	"samples/mag_lf.jsx",
 	"samples/test1.js",
 	"src/components/MeSvg.js",
-	"samples/test.js",
-
 	"samples/mag_page_test.jsx",
 	"index.js"
 ];

@@ -4,8 +4,6 @@ var ReactDOM = require("react-dom");
 var Hammer = require("react-hammerjs");
 var _assign = require("object-assign");
 var PadBuffer = React.createClass({
-	tempPageIdx:-1,
-	delayState:null,
 	getDefaultProps:function(){
 		return {
 			article:null,
@@ -30,13 +28,22 @@ var PadBuffer = React.createClass({
 		if(this.state.pageIdx == -1) return null;
 		return this.props.article.getPageInstanceByIdx(this.state.pageIdx);
 	},
+	//这个函数实现有局限，他假定pageIdx和state一起设置，如果分开设置，程序会有问题
 	updateBuffer:function(newState){
 	//不能让pads直接设置pageIdx，所以用这个函数过度一下
 		var _toSet = _assign({},newState);
-		if(this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1){
+		if(this.bufferredState != undefined && this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1 && newState.pageIdx != undefined){
 		//需要delay修改,先使用无效页，将当前的内容清除，然后再置上新页
-			this.tempPageIdx = newState.pageIdx;
+			if(this.bufferredState.pageIdx != -1){
+				console.log("try to update delay loading:",this.bufferredState.pageIdx," with ",newState.pageIdx, " cur state ",this.state.pageIdx);
+			}
+			this.bufferredState.pageIdx = newState.pageIdx;
+			if(newState.state == "active"){
+				_toSet.state = "standby";//暂时不要激活
+			}
+			this.bufferredState.state = newState.state;
 			_toSet.pageIdx = -1;
+			console.log("delay the page:",this.bufferredState.pageIdx," in buffer ",this.props.id, " own ",this.state.pageIdx);
 		}
 		//if(this.state.state == "active" && this.state.state != _toSet.state)
 		//{
@@ -46,19 +53,28 @@ var PadBuffer = React.createClass({
 		this.setState(_toSet);
 	},
 	tick:function(){
-		if(this.tempPageIdx != -1){
-			this.setState({pageIdx:this.tempPageIdx});
+		var tem = this.bufferredState.pageIdx;
+		this.bufferredState.pageIdx = -1
+		if(tem != -1){
+			console.log("do actual update for ",tem," in buffer ",this.props.id);
+			this.setState({pageIdx:tem,
+							state:this.bufferredState.state});
 		}
 		//if(this.delayState != null){
 		//	this.setState({state:this.delayState});
 		//}
-		this.tempPageIdx = -1;
 		//this.delayState = null;
 	},
-
+	componentWillMount:function(){//没找到一个好方法创建非state的属性，暂时这样
+		this.bufferredState = {
+			pageIdx:-1,
+			state:"standby"
+		}
+	},
 	componentDidUpdate:function(prevProps,prevState){
-		if((this.tempPageIdx != -1 && this.state.pageIdx == -1)){
-			setInterval(this.tick,0);
+		var myself = this;
+		if((this.bufferredState != undefined && this.bufferredState.pageIdx != -1 && this.state.pageIdx == -1)){
+			setInterval(function(){myself.tick()},0);
 			return;
 		}
 		var react_page = this._getPageInstance();
@@ -199,6 +215,9 @@ var MeVPads = React.createClass({
 		if(cacheIdx == -1){
 			cacheIdx = this._findAvailableCache();
 			if(cacheIdx == -1) return;//todo 严重错误
+			if(this.pageCache[cacheIdx].pageIdx != -1){
+				this.pageCacheIdx[this.pageCache[cacheIdx].pageIdx] = -1;//释放这个cache
+			}
 			/**尝试释放这个buffer*/
 			/*if(this.pageCache[cacheIdx].reactInstance != null){
 				ReactDOM.unmountComponentAtNode(ReactDOM.findDOMNode(this.pageCache[cacheIdx].reactInstance));
@@ -225,26 +244,41 @@ var MeVPads = React.createClass({
 		}
 		
 	},
+	_preLoadPage:function(idx,loc,remainders){
+		if(idx == -1)return;
+		if(this.pageCacheIdx[idx] != -1) this._cachePage(idx,"standby",loc); //提前加载
+		else
+			remainders.push({
+				pageIdx:idx,
+				loc:loc
+			});
+	},
 	loadPageByPos:function(posXIdx,posYIdx){//显示指定位置的页，对应的页在layout中定义
+		var candidatePages = [];
 		var article = this.props.article;
 		var pageIdx = article.getPageIdxInLayout(posXIdx,posYIdx);
 		
 		if(pageIdx < 0 || pageIdx > this.pageCacheIdx.length) return;
 		
-		this._cachePage(pageIdx,"active","middle");
-		
-		/*预加载相邻页*/
 		var up = article.getNbrPageIdx("L2Prev",posXIdx,posYIdx);
-		this._cachePage(up,"standby","up");
-		
+		this._preLoadPage(up,"up",candidatePages);
+
 		var down = article.getNbrPageIdx("L2Next",posXIdx,posYIdx);
-		this._cachePage(down,"standby","down");
+		this._preLoadPage(down,"down",candidatePages);
 		
-		var left = article.getNbrPageIdx("L1Prev",posXIdx,posYIdx);
-		this._cachePage(left,"standby","left");
+		var left = article.getNbrPageIdx("L1Prev",posXIdx,posYIdx);	
+		this._preLoadPage(left,"left",candidatePages);
 		
 		var right = article.getNbrPageIdx("L1Next",posXIdx,posYIdx);
-		this._cachePage(right,"standby","right");
+		this._preLoadPage(right,"right",candidatePages);
+		
+		this._cachePage(pageIdx,"active","middle"); //最后再激活
+		
+		for(var i = 0;i < candidatePages.length;i ++){
+			 this._cachePage(candidatePages[i].pageIdx,"standby",candidatePages[i].loc);
+		}
+
+		console.log(pageIdx,up,down,left,right,candidatePages);
 		
 		for(var i = 0;i < this.pageCache.length;i ++){
 			var cache = this.pageCache[i];
@@ -299,7 +333,7 @@ var MeVPads = React.createClass({
 		this.pageCache[ref.props.id].reactInstance = ref;
 	},
 	handlePan:function(){
-		console.log("handle pan in operator area");
+
 	},
 	_registerHammer:function(ref){
 		//this.hammer = ref;

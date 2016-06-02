@@ -164,6 +164,7 @@ define("MePage",function(){
 		componentDidUpdate:function(prevProps,prevState){
 			if(prevState.active != this.state.active){
 				var pageActEvt = "page[" + this.props.idx + "]:" + (this.state.active ? "active":"deactive");
+				console.log(pageActEvt);
 				this.props.cxt.ee.emitEvent(pageActEvt,[{target:this,active:this.state.active}]);
 				this.notifyPageEvent();
 				if(this.state.active){
@@ -174,7 +175,7 @@ define("MePage",function(){
 			}
 		},
 		componentWillUnmount:function(){
-			console.log("mepage will be unmounted",this);
+			console.log("me page will be unmounted at page",this.props.idx);
 		},
 		getId:function(){
 			return "page" + this.props.idx;
