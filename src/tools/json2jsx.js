@@ -4,7 +4,7 @@ var process = require('process');
 var url = require('url');  
 var http = require('http')
 
-function main(tpl,mag){
+function main(tpl,magObj){
 var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
 var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
 var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
@@ -25,9 +25,11 @@ var itemFuncMap = {
 	"18":		imgRenderItem,
 	"17":		grpRenderItem,
 	"34":		grpRenderItem,
+	"7": 		musicRenderItem,
 };
 
 var gId = 0;
+var mag = magObj.tplData;
 
 var defaultAnimation = 	'{animationIterationCount:"1",animationDelay:"0s",animationDuration:"1s"}';
 	var index = [];
@@ -55,7 +57,7 @@ var defaultAnimation = 	'{animationIterationCount:"1",animationDelay:"0s",animat
         pageNum += pages.length;
 	}
 	index.push(-1);
-	return (_.template(tpl))({pages:pageContent.join(","),layout:JSON.stringify(index),music_src:mag.tpl_music});
+	return (_.template(tpl))({pages:pageContent.join(","),layout:JSON.stringify(index),music_src:magObj.tplObj.tpl_music});
 /**
  * 获取组之内的所有页的数据集合
  * @param {arr|array}       需要合并页数据的组集合
@@ -140,6 +142,19 @@ function renderTransform(item){
 	//if(scale == "") return "";
 	//return 'transform:"' + scale + '"';
 	return "";
+}
+
+function musicRenderItem(page,item,_style){
+var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
+	return audioTemplate({
+		normalStyle:_style.join(","),
+		src:item.item_val,
+		autoplay: item.music_autoplay,
+		music_name:item.music_name,
+		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
+		pageIdx:page.idx,
+		id:item.item_id
+	});
 }
 
 function imgRenderItem(page,item,_style){

@@ -264,7 +264,7 @@ var MeVPads = React.createClass({
 		var article = this.props.article;
 		var pageIdx = article.getPageIdxInLayout(posXIdx,posYIdx);
 		
-		if(pageIdx < 0 || pageIdx > this.pageCacheIdx.length) return;
+		if(pageIdx < 0 || pageIdx > this.pageCacheIdx.length) return -1;
 		
 		var up = article.getNbrPageIdx("L2Prev",posXIdx,posYIdx);
 		this._preLoadPage(up,"up",candidatePages);
@@ -308,9 +308,17 @@ var MeVPads = React.createClass({
 				cache.lock = false;//释放刚刚申请的page，供下次调度使用
 			}
 		}
-		
+		return pageIdx;
 		//console.log(this.pageCache);
 		
+	},
+	gotoPos:function(x,y){
+		if(x >= 0 && x < this.props.article.getL1Num()){
+			if(this.loadPageByPos(x,y) != -1){
+				this.posXIdx = x;
+				this.posYIdx = y;
+			}
+		}
 	},
 	moveXNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return;//翻到尽头
@@ -347,6 +355,7 @@ var MeVPads = React.createClass({
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
 	},
 	_registerBuffer:function(ref){
+		if(ref != null) //销毁时会用null调用
 		this.pageCache[ref.props.id].reactInstance = ref;
 	},
 	handlePan:function(evt){
@@ -367,16 +376,21 @@ var MeVPads = React.createClass({
 			return;
 		}
 	},
-	_cancelPan:function(){
+	_cancelPan:function(){ //not a good method, hook to react directly
 		if(this.state.yOffset != 0)
 		this.setState({yOffset:0});
 	},
 	_registerHammer:function(ref){
 		//this.hammer = ref;
-		this.props.article.getCxt().interactHandler = 
+		if(ref != null)//控件创建过程
+		{
+			this.props.article.getCxt().interactHandler = 
 					new MeHammer(ref.hammer,{"swipeleft":this.moveXNext,"swiperight":this.moveXPrev,
 											"swipedown":this.moveYPrev,"swipeup":this.moveYNext,
 											"pan":this.handlePan});
+		}else{
+		//控件消除
+		}
 	},
 	_smartAdjustTranform:function(){
 		var yScale = this.props.containerHeight / this.props.pageHeight;

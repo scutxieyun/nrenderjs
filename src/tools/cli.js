@@ -7,7 +7,7 @@ function kickoffConvert(tpl,jsonData,cb){
 	var jsStatement = "(function(){return " + jsonData + ";})();";
 	var jsonData = eval(jsStatement);
 	if(jsonData == null) console.log("Êý¾Ý´íÎó");
-	var res = convFunc((tpl),jsonData.tplData)
+	var res = convFunc((tpl),jsonData)
 	cb(res);
 }
 

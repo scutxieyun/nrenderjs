@@ -37,7 +37,7 @@ function kickoffConvert(tpl,jsonData,cb){
 	var jsStatement = "(function(){return " + jsonData + ";})();";
 	var jsonData = eval(jsStatement);
 	if(jsonData == null) console.log("数据错误");
-	var res = convFunc(tpl,jsonData.tplData)
+	var res = convFunc(tpl,jsonData)
 	return babel.transform(res, {
 		plugins: ["transform-react-jsx"]
 	}).code;

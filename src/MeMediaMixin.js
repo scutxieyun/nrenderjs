@@ -1,26 +1,40 @@
-define("MeAnimationMixin",function(){
+define("MeMediaMixin",function(){
+	var MeMediaMgr = require("../src/MeMediaMgr.js");
 	return {
-		pageActive:function(){
-			this.componentPageActive();
-			if(this.props.cxt.pageMgr != null){
-				this.props.cxt.mediaMgr.registerPage(this); //开始，将这个操作放在componentDidMount，但是对于后续加载的页面，都没有调用，怀疑react认为是老的页面，只是调用了update
+		getInitialState:function(){
+			if(this.props.cxt.mediaMgr == undefined){
+				this.props.cxt.mediaMgr = new MeMediaMgr();
+			}
+			return {
+				isPlay:false
 			}
 		},
-		pageDeactive:function(){
-			this.componentPageDeactive();
-			console.log("media pageDeactive");
+		play:function(){
+			this.props.cxt.mediaMgr.pause();
+			if(this.refs.mediaPlay){
+				this.refs.mediaPlay.play();
+			}
+			this.props.cxt.mediaMgr.register(this)
+			this.setState({
+				isPlay:true
+			})
+		},
+		pause:function(){
+			if(this.refs.mediaPlay){
+				this.refs.mediaPlay.pause();
+			}
+			this.props.cxt.mediaMgr.unregister(this);
+			this.setState({
+				isPlay:false
+			})
 		},
 		togglePlay:function(){
 			if (this.state.isPlay) {
 				this.pause()
 			}
 			else {
-				this.props.cxt.mediaMgr.pausePageMedia(this);
-				//var pageActEvt = "page[" + this.props.pageIdx+","+this.props.idx+ "]:play";
-				//this.props.cxt.ee.emitEvent(pageActEvt,[{target:this,isPlay:true}]);
 				this.play();
 			}
-			this.setState({isPlay:!this.state.isPlay})
 		}
 	}
 });

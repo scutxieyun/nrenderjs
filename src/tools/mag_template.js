@@ -14,6 +14,7 @@ define([], function () {
     var EventEmitter = Renderjs.EventEmitter;
     var MeSvg = Renderjs.MeSvg;
 	var MeImage = Renderjs.MeImage;
+	var MeAudio	= Renderjs.MeAudio;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
@@ -24,7 +25,7 @@ define([], function () {
 		pages:[<%= pages%>],
 		layout:<%= layout%>,
 		"toolBar": <MeToolBar>
-            <MeMusic id="magazine-music" src="<%= music_src%>">
+            <MeMusic cxt={cxt} id="magazine-music" src="<%= music_src%>">
 			</MeMusic>
         </MeToolBar>,
 		"cxt"   : cxt
