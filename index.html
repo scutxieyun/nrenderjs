@@ -17,6 +17,38 @@
 	<!--<script src="3rd/hammer.js"></script>
 	<script src="components/core/MePage.js"></script>-->
 <style>
+
+.audioWrapper{
+	background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAgCAMAAADOixOHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABGlBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAACz+Fa2AAAAXHRSTlMAhHeK/mmR+jxx5RSHnwO2OwYW674Hs6QBXjkKuHUC05z4JVryCEb8qO1CgP0dg+R0X359MdlKEfDJDn/P+1ISeD3d2qlkF2Kmha4QDESBCekNBNxNbMXAP5ahFZTSyTUAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAABLklEQVQoz22S11bDMBAFBYgaIISShBaaTTMh9G7A9FBC7/v/38G9CvKxj6wHa3ZWWq8lK5UeLa0qa7SJbs/QHSLS2eX6bnjpybmJXib6XN+fh9cDSVUo8Dk4hMRwQo8US2XOo6w0FuvxCZFJQmUKfjr2rDszS5oDeb718wsIF0n+Emg53hAgWqmSSqDV2Ps1hGukdUAR80bzqDYR5glbgG1o0Ts2rBF2AXtm2T7DAzZudvKT1SGeRyYMQeyvYjwS+pg6hzAknJg6SJya5RHCM/ui8/SdXBAu//tsjisP4TXpBlC3unzLY7kD3XPBg/UNdtmwZbzH5PE8PQNeXtM3GYh+4/zOjVHiwgLTbpXVP9x7/+THfjn+m1V+HF03/9Wv49lVGCmVlcj6b21XSv0Br5lN9OvlDGIAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMDEtMjBUMTQ6NDE6NTcrMDg6MDBBCJ6JAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTAxLTIwVDE0OjQxOjU3KzA4OjAwMFUmNQAAAABJRU5ErkJggg==");
+	perspective: 1000px; 
+	backface-visibility: hidden; 
+	position: relative; 
+	border: none; 
+	border-radius: 100%; 
+	box-sizing: border-box;
+	animation-duration: 0.1s;
+	animation-iteration-count: 1;
+	animation-delay: 0.3s;
+	width: 62px; 
+	height: 62px;
+}
+.audioWrapper .audioBack.playing{
+	width: 72px;
+	height: 72px; 
+	position: absolute; 
+	top: calc(50% - 36px); 
+	left: calc(50% - 36px);
+	z-index: 1;
+	margin: 0px auto;
+	animation-name: player-button;
+	animation-duration: 2.6s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	border-radius: 100%;
+	display: block; 
+	background: rgba(31, 29, 27, 0.4);
+}
+
 .page_container {
 	position:absolute;
 	height:1008px;
@@ -81,9 +113,10 @@ body{
 <body>
 <div id="pageContent">
 	<div id="magazine" class="ui_view_transitioning ui_page">
-		<div id="magazine-container">
+		<div id="magazine-container" style='height:100%;width:100%'>
 		</div>
 	</div>
+	<button style="position:absolute;top:11px;left:120px" id="test">测试</button>
 </div>
 </body>
 <script type="text/javascript">
@@ -103,21 +136,16 @@ body{
 				magUrl = "jsx?tid=" + _xparam[1];
 			}
 		}
-		load();
-		var _containerHeight = document.getElementsByTagName("body")[0].offsetHeight;
-		var _containerWidth = document.getElementsByTagName("body")[0].offsetWidth;
-		function load(){
-			require([magUrl],function(mag_1){
-				var _article = new renderjs.MeArticle(mag_1);
-				var pads = renderjs.ReactDOM.render(renderjs.React.createElement(renderjs.MeVPads,
-				      {bufferLen: 5, pageHeight:1008,pageWidth:640, 
-					    containerHeight:_containerHeight,
-						containerWidth:_containerWidth,
-					    article: _article }), 
-					  document.getElementById("magazine-container"));
-			});
-		}
+		require([magUrl],function(mag_1){
+			if(mag_1 != undefined && renderjs != undefined){
+				renderjs.helper.load(mag_1,document.getElementById("magazine-container"));
+			}
+		});
 		
+		
+		$("#test").click(function(){
+			renderjs.helper.gotoPos(0,2);
+		});
 	});
 	</script>	
 </html>

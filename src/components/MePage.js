@@ -10,6 +10,7 @@ define("MePage",function(){
 			this._lastDeltaTime = 0;
 			this._xBeforePan = 0;
 			this._yBeforePan = 0;
+			this._lastEdge = 1;//上顶部
 			return{
 				active:false,
 				y_offset:0,
@@ -111,7 +112,10 @@ define("MePage",function(){
 					});
 				}
 			}
-			if(res == true) return true;//允许上层hammer继续处理
+			if(res == this._lastEdge){
+				return true;//允许上层hammer继续处理
+			}
+			this._lastEdge = res;
 			return false;
 		},
 		_setOffset:function(newOffset){
@@ -120,10 +124,11 @@ define("MePage",function(){
 			var lastY = newOffset.y;
 			if(newOffset.y > 0){
 				lastY = 0;
+				atEdge = 1;
 			}
 			if(newOffset.y < this.containerHeight - pSize.height){
 				lastY = this.containerHeight - pSize.height;
-				atEdge = true;
+				atEdge = 2;
 			}
 			this.setState({
 				x_offset:0,
@@ -133,6 +138,7 @@ define("MePage",function(){
 		},
 		pageActive:function(){
 			var size = this.getPageSize();
+			this._lastEdge = 1;//在上顶部
 			if(size.height > this.containerHeight){
 			//注册漫游功能
 				this.props.cxt.interactHandler.on("pan swipeup swipedown",this.getId(),this.interactHandle);
