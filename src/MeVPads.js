@@ -14,6 +14,10 @@ var PadBuffer = React.createClass({
 		};
 	},
 	getInitialState:function(){
+		this.bufferredState = {
+			pageIdx:-1,
+			state:"standby"
+		}
 		return {
 			pageIdx:-1, // 当前缓存的页面
 			state:"free",	//free:空闲，hide:装有page，但不能显示 standby:加载，但移除view之外, active:正在显示
@@ -32,7 +36,7 @@ var PadBuffer = React.createClass({
 	updateBuffer:function(newState){
 	//不能让pads直接设置pageIdx，所以用这个函数过度一下
 		var _toSet = _assign({},newState);
-		if(this.bufferredState != undefined && this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1 && newState.pageIdx != undefined){
+		if(this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1 && newState.pageIdx != undefined){
 		//需要delay修改,先使用无效页，将当前的内容清除，然后再置上新页
 			if(this.bufferredState.pageIdx != -1){
 				console.log("try to update delay loading:",this.bufferredState.pageIdx," with ",newState.pageIdx, " cur state ",this.state.pageIdx);
@@ -66,14 +70,10 @@ var PadBuffer = React.createClass({
 		//this.delayState = null;
 	},
 	componentWillMount:function(){//没找到一个好方法创建非state的属性，暂时这样
-		this.bufferredState = {
-			pageIdx:-1,
-			state:"standby"
-		}
 	},
 	componentDidUpdate:function(prevProps,prevState){
 		var myself = this;
-		if((this.bufferredState != undefined && this.bufferredState.pageIdx != -1 && this.state.pageIdx == -1)){
+		if((this.bufferredState.pageIdx != -1 && this.state.pageIdx == -1)){
 			setInterval(function(){myself.tick()},0);
 			return;
 		}

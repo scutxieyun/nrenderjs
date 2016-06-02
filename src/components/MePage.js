@@ -3,10 +3,13 @@ var ReactDOM = require("react-dom");
 define("MePage",function(){
 	var MePage  = React.createClass({
 		containerWidth:720,
-		containerHeight:1020,
+		containerHeight:1020,//所有page公用这个变量
 		getInitialState:function(){
 			this.container = {};//让页面内的组件进行注册
 			this.pageListener = [];
+			this._lastDeltaTime = 0;
+			this._xBeforePan = 0;
+			this._yBeforePan = 0;
 			return{
 				active:false,
 				y_offset:0,
@@ -78,9 +81,6 @@ define("MePage",function(){
 				}
 			}
 		},
-		_lastDeltaTime:0,
-		_xBeforePan:0,
-		_yBeforePan:0,
 		interactHandle:function(evt){
 			var res = true; //到达边界否
 			if(evt.type == "pan"){
