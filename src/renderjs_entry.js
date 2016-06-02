@@ -22,7 +22,6 @@ var EventEmitter = require("wolfy87-eventemitter");
 var React = require("react");
 var ReactDOM = require("react-dom");
 
-function renderjs(){}
 module.exports = {
 	MePage:MePage,
 	MeAnimation:MeAnimation,
@@ -44,5 +43,42 @@ module.exports = {
     MeText:MeText,
 	EventEmitter:EventEmitter,
 	React:React,
-	ReactDOM:ReactDOM
+	ReactDOM:ReactDOM,
+	helper:function(){
+		var pads = null;
+		var elem = null;
+		function _renderArticle(mag,_elem,options){
+			var _assign = require("object-assign");
+			var _article = new MeArticle(mag);
+			elem = _elem;
+			var _default = {
+				containerHeight:elem.offsetHeight,
+				containerWidth:elem.offsetWidth,
+				bufferLen: 5, 
+				pageHeight:1008,
+				pageWidth:640, 
+				article:_article,
+			}
+			pads = ReactDOM.render(React.createElement(MeVPads,
+											_assign(_default,options)), 
+											elem);
+							
+		}
+		function _unload(){
+			if(elem != null){
+				ReactDOM.unmountComponentAtNode(elem);
+				pads = null;
+				return;
+			}
+		}
+		return {
+			load:_renderArticle,
+			unload:_unload,
+			gotoPos:function(x,y){
+				if(pads != null){
+					pads.gotoPos(x,y);
+				}
+			}
+		};
+		}(),
 };
