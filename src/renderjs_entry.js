@@ -15,6 +15,7 @@ var MeSvg = require("../dist/MeSvg.js");
 var MeRadio = require("../dist/MeRadio.js");
 var MeCheckbox = require("../dist/MeCheckbox.js");
 var MeLabel = require("../dist/MeLabel.js");
+var MeText = require("../dist/MeText.js");
 
 
 var EventEmitter = require("wolfy87-eventemitter");
@@ -39,6 +40,7 @@ module.exports = {
     MeRadio:MeRadio,
     MeCheckbox:MeCheckbox,
     MeLabel:MeLabel,
+    MeText:MeText,
 	EventEmitter:EventEmitter,
 	React:React,
 	ReactDOM:ReactDOM,

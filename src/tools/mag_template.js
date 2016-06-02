@@ -15,11 +15,12 @@ define([], function () {
     var MeSvg = Renderjs.MeSvg;
 	var MeImage = Renderjs.MeImage;
 	var MeAudio	= Renderjs.MeAudio;
+    var MeText = Renderjs.MeText;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
-        pageMgr        : pageMgr,//作品范围的事件订阅器
+        pageMgr        : pageMgr,//浣滃搧鑼冨洿鐨勪簨浠惰闃呭櫒
         ee             : new EventEmitter(),
-        interactHandler: null,	//在MeVPads初始化后会制定这个handler
+        interactHandler: null,	//鍦∕eVPads鍒濆鍖栧悗浼氬埗瀹氳繖涓猦andler
     };
     var article = {
 		pages:[<%= pages%>],
