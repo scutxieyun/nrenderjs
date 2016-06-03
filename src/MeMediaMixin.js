@@ -2,7 +2,7 @@ define("MeMediaMixin",function(){
 	var MeMediaMgr = require("../src/MeMediaMgr.js");
 	return {
 		getInitialState:function(){
-			if(this.props.cxt.mediaMgr == undefined){
+			if(this.props.cxt != undefined && this.props.cxt.mediaMgr == undefined){
 				this.props.cxt.mediaMgr = new MeMediaMgr();
 			}
 			return {
@@ -10,6 +10,7 @@ define("MeMediaMixin",function(){
 			}
 		},
 		play:function(){
+			if(this.props.cxt == undefined) return;
 			this.props.cxt.mediaMgr.pause();
 			if(this.refs.mediaPlay){
 				this.refs.mediaPlay.play();

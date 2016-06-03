@@ -30,7 +30,7 @@ function main(tpl, magObj, callback) {
         "2": textRenderItem,
         "3": imgRenderItem,
         "10": imgRenderItem,
-        "18": imgRenderItem,
+        "18": imgRenderItem,//带链接
         "17": grpRenderItem,
         "34": grpRenderItem,
 		"7": musicRenderItem,		
@@ -313,7 +313,7 @@ function musicRenderItem(page,item,_style){
 
         if (item.item_href != null && item.item_href != "") {
             //hide_el:-2|hide_el:65185725
-            cmds = convertOldCmd(item.item_href);
+            cmds = convertOldCmd(item);
         }
 
         var funcKey = item.item_type.toString();
@@ -411,19 +411,19 @@ function musicRenderItem(page,item,_style){
         }
 
         function convertOldCmd(item) {
-            //通常是type 18
-            var item_href = item.item_href;
+			//通常是type 18
+			var item_href = item.item_href;
             var _cmdMap = {
                 "hide_el": ["componentDo", "hide"],
                 "show_el": ["componentDo", "show"],
-                "http":function(args){
-                    var articleLink = /www\.agoodme\.com\/#\/preview\/tid=([0-9|a-f|A-F]+)/
-                    var res = articleLink.exec(args[1]);
-                    if(res != null){
-                        return '{action:"gotoArticle(' + res[1] + ')",propagate:true}';
-                    }
-                    return null;
-                }
+				"http":function(args){
+					var articleLink = /www\.agoodme\.com\/#\/preview\/tid=([0-9|a-f|A-F]+)/
+					var res = articleLink.exec(args[1]);
+					if(res != null){
+						return '{action:"gotoArticle(' + res[1] + ')",propagate:true}';
+					}
+					return null;
+				}
             }
             var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
             //hide_el:-2|hide_el:65185725
@@ -433,20 +433,20 @@ function musicRenderItem(page,item,_style){
                 var args = cmd.split(":");
                 var new_cmd = _cmdMap[args[0]];
                 var resStr = "";
-                if(new_cmd != undefined){
-                    if (new_cmd instanceof Array) {
-                        args.splice(0, 1);
-                        new_cmd = new_cmd.concat(args);
-                        var _method = new_cmd[0];
-                        new_cmd.splice(0, 1);
-                        resStr = _method + "(" + new_cmd.join(",") + ")";
-                        res.push(actionTemplate({cmd: resStr, propagate: true}));
-                    } else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
-                        debugger;
-                        var cmd = new_cmd.apply(null,[args]);
-                        if(cmd != null)	res.push(cmd);
-                    }
-                }
+				if(new_cmd != undefined){
+					if (new_cmd instanceof Array) {
+						args.splice(0, 1);
+						new_cmd = new_cmd.concat(args);
+						var _method = new_cmd[0];
+						new_cmd.splice(0, 1);
+						resStr = _method + "(" + new_cmd.join(",") + ")";
+						res.push(actionTemplate({cmd: resStr, propagate: true}));
+					} else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
+						debugger;
+						var cmd = new_cmd.apply(null,[args]);
+						if(cmd != null)	res.push(cmd);
+					}
+				}
             });
             return res;
         }

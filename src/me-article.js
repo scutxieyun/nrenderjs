@@ -53,9 +53,6 @@ define("MeArtical",[],function(){
 		}
 		return -1;
 	};
-	MeArticle.prototype.getCurPage = function(){
-		return this.getPage(this.article.reading_page_index[this.reading_point]);
-	};
 	
 	MeArticle.prototype.getPageByIdx = function(idx){
 		if(idx < 0 || idx >= this.article.pages.length) return null;
@@ -64,21 +61,7 @@ define("MeArtical",[],function(){
 	MeArticle.prototype.getPageInstanceByIdx = function(idx){
 		return this.article.cxt.pageMgr.getPageInstance(idx);
 	};
-	MeArticle.prototype.getPage = function(key){
-		var page = null;
-		if(typeof key === "number"){
-			page = this.article.pages[key];
-		}
-		if(typeof key === "string"){
-			var keys = key.split(":");
-			if(keys.length == 1){
-				page = this.article[key];
-			}else{
-				page = this.article[keys[0]][keys[1]];
-			}
-		}
-		return page;
-	};
+
 	MeArticle.prototype.getL1Num = function(){
 		return this.article.layout.length - 2; //忽略layout前后的-1
 	}

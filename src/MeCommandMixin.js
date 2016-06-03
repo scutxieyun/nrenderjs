@@ -6,6 +6,15 @@ define([],function(){
 		"sms":function(cxt,callee,args){
 			
 		},
+		"gotoArticle":function(cxt,callee,args){
+			if(this.props.cxt.system != undefined){
+				var renderjs = this.props.cxt.system;
+				var tid = args[0];
+				setTimeout(function(){
+					renderjs.helper.loadTid(tid);
+				},0);
+			}
+		},
 		"pageTo:":function(cxt,callee,args){
 		},
 		//componentDo(method, element，args...)

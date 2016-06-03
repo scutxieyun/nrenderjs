@@ -22,7 +22,8 @@ var EventEmitter = require("wolfy87-eventemitter");
 var React = require("react");
 var ReactDOM = require("react-dom");
 
-module.exports = {
+module.exports = function(){
+	var myself = {
 	MePage:MePage,
 	MeAnimation:MeAnimation,
 	MeToolBar:MeToolBar,
@@ -47,22 +48,33 @@ module.exports = {
 	helper:function(){
 		var pads = null;
 		var elem = null;
-		function _renderArticle(mag,_elem,options){
+		var cfg = {};
+		function _init(_elem,options){
 			var _assign = require("object-assign");
-			var _article = new MeArticle(mag);
-			elem = _elem;
 			var _default = {
-				containerHeight:elem.offsetHeight,
-				containerWidth:elem.offsetWidth,
+				containerHeight:_elem.offsetHeight,
+				containerWidth:_elem.offsetWidth,
 				bufferLen: 5, 
 				pageHeight:1008,
-				pageWidth:640, 
-				article:_article,
-			}
-			pads = ReactDOM.render(React.createElement(MeVPads,
-											_assign(_default,options)), 
+				pageWidth:640,
+				article:null
+			};
+			elem = _elem;
+			cfg = _assign(
+				_default,options
+			);
+		}
+		function _loadArticle(mag){
+			if(elem != null){
+				if(cfg.article != null) ReactDOM.unmountComponentAtNode(elem);
+				var _article = new MeArticle(mag);
+				cfg.article = _article;
+				_article.getCxt().system = myself;
+				pads = ReactDOM.render(React.createElement(MeVPads,
+															cfg), 
 											elem);
 							
+			}
 		}
 		function _unload(){
 			if(elem != null){
@@ -72,13 +84,44 @@ module.exports = {
 			}
 		}
 		return {
-			load:_renderArticle,
+			load:_loadArticle,
 			unload:_unload,
+			init:_init,
 			gotoPos:function(x,y){
 				if(pads != null){
 					pads.gotoPos(x,y);
 				}
+			},
+			loadTid:function(tid){
+				if(elem == null) return;
+				if(globalLoadTid == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
+				globalLoadTid(tid,function(mag){
+					myself.helper.load(mag);
+				});
+			},
+			gotoNext:function(){
+				if(pads != null){
+					var x = 0;
+					var y = 0;
+					y = pads.moveYNext();
+					if(y == -1){
+						x = pads.moveXNext();
+						if(x == -1){
+							this.gotoPos(0,0);
+						}
+					}
+				}
+			},
+			gotoPrev:function(){
+				if(pads != null){
+					var x = 0;
+					var y = 0;
+					y = pads.moveYPrev();
+				}
 			}
 		};
 		}(),
-};
+	}	
+		
+	return myself;
+}();
