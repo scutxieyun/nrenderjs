@@ -3,7 +3,7 @@ var fs = require('fs');
 var process = require('process');
 var url = require('url');
 var http = require('http');
-function main(tpl, mag) {
+function main(tpl, mag, callback) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
@@ -15,7 +15,16 @@ function main(tpl, mag) {
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
     var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
     var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.cmds %>}}><%= children %></MeTouchTrigger>');
-
+    //最终返回的对象
+    var pageTemp;
+    //页容器的字符串
+    var pagesContentTemp = "";
+    //需要加载云字体的缓存
+    var fontCache = [];
+    //云字体域名
+    var fontServer = "http://agoodme.com:3000";
+    //默认从第0个其实加载
+    var fontIndex = 0;
 
     var itemFuncMap = {
         "1": imgRenderItem,
@@ -26,8 +35,8 @@ function main(tpl, mag) {
         "17": grpRenderItem,
         "34": grpRenderItem
     };
-
-    var gId = 0;
+    //给一个初始的随机数
+    var gId = (0 | (Math.random() * 998));
 
     var defaultAnimation = '{animationIterationCount:"1",animationDelay:"0s",animationDuration:"1s"}';
     var index = [];
@@ -57,7 +66,12 @@ function main(tpl, mag) {
         pageNum += pages.length;
     }
     index.push(-1);
-    return (_.template(tpl))({pages: pageContent.join(","), layout: JSON.stringify(index), music_src: mag.tpl_music});
+    pagesContentTemp = pageContent.join(",");
+    pageTemp = (_.template(tpl))({pages: pagesContentTemp, layout: JSON.stringify(index), music_src: mag.tpl_music});
+    //循环下载云字体
+    loop(callback);
+
+//        return (_.template(tpl))({pages: pageContent.join(","), layout: JSON.stringify(index), music_src: mag.tpl_music});
     /**
      * 获取组之内的所有页的数据集合
      * @param {arr|array}       需要合并页数据的组集合
@@ -160,22 +174,99 @@ function main(tpl, mag) {
         return imgTemplate({src: item.item_val, displayType: item.item_display_status, style: _style.join(",")});
     }
 
+    /**
+     * 获取设置云字体
+     * @param cIndex
+     * @param cb
+     */
+    function getCloundFont(cIndex, cb) {
+        var jsonData = "";
+        var obj = fontCache[cIndex];
+        var key = "";
+        var url = "";
+        for (key in obj) {
+            url = obj[key]
+        }
+        http.get(url, function (res) {
+            res.on("data", function (data) {
+                jsonData = jsonData + data;
+            }).on("end", function () {
+                //过滤&&之前的多余的字符串 typeof === 'function' &&
+                jsonData = jsonData.split("&&")[1];
+                var jsStatement = "(function(){return " + jsonData + ";})();";
+                var fontObj = eval(jsStatement);
+                if (fontObj.src == 'undefined' || !fontObj.src) {
+                    //没有云字体的情况
+                } else {
+                    //获取云字体成功正确的情况
+                    var temp = fontServer + fontObj.src + "?" + fontObj.type;
+                    //替换文字
+                    var patt1 = new RegExp(key, "g");
+                    pagesContentTemp = pagesContentTemp.replace(patt1, temp);
+                    pageTemp = (_.template(tpl))({pages: pagesContentTemp, layout: JSON.stringify(index), music_src: mag.tpl_music});
+                }
+                cb();
+            }).on("error", function () {
+                console.log("get font data error");
+                cb();
+            });
+        });
+    }
+
+    /**
+     *循环加载云字体载方法
+     */
+    function loop(cb_ok) {
+        if (fontIndex >= fontCache.length) {
+            cb_ok(pageTemp);
+            return;
+        } else {
+            getCloundFont(fontIndex, function () {
+                fontIndex++;
+                loop(cb_ok);
+            })
+        }
+    }
+
+    /**
+     * 获取随机唯一ID
+     * @returns {number}
+     */
+    function getNewID() {
+        gId++;
+        return gId;
+    }
+
     function textRenderItem(page, item, _style) {
         var tem = renderTransform(item);
         if (tem != "")
             _style.push(tem);
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplate(item));
         //增加处理背景颜色
-        if(item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
         _style.push(fontStyleTemplate(item));
+        //获取文字内容和云字体
+        var text = item.item_val;
+        var fontFamily = item.font_family;
         //防止react错误，对{}进行替换
         item.item_val = item.item_val.replace(/[{|}]/g, function (word) {
             return "{'" + word + "'}"
         });
+        //针对文字的情况去设置云字体
+        //TODO 可能还不只是item_type为2的
+        var fontName = "css-font-" + getNewID();
+        var url = fontServer + "/loadfont/?callback=?&type=fixed&font=" + fontFamily + "&text=" + text + "&r=" + Math.random();
+        url = encodeURI(url);
         var data = {};
+        data.fontName = fontName;
         data.content = item.item_val;
-        //todo 替换 fontFamily
+        var cacheKey = "me-clould-font-cache" + getNewID();
+        data.src = cacheKey;
         data = JSON.stringify(data);
+        //添加需要加载的云字体链接到缓存
+        var tempFont = {};
+        tempFont[cacheKey] = url;
+        fontCache.push(tempFont);
         return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(",")});
     }
 
@@ -333,7 +424,6 @@ function main(tpl, mag) {
             return res;
         }
     }
-
 
 }
 
