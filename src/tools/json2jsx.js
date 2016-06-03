@@ -14,7 +14,7 @@ function main(tpl, magObj) {
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
     var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
-    var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.cmds %>}}><%= children %></MeTouchTrigger>');
+    var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.actions%>}}><%= children %></MeTouchTrigger>');
 
 
     var itemFuncMap = {
@@ -208,7 +208,7 @@ function imgRenderItem(page,item,_style){
 
 
     function renderItem(page, item, content) {
-        var cmds = [];
+        var cmds = {};
         var posStyle = posStyleTemplate(item);//位置由最外围决定
         var genStyle = [];
         var animationData = null;
@@ -238,7 +238,7 @@ function imgRenderItem(page,item,_style){
             return NoTypeDefinedT({item_type: item.item_type, style: posStyle});
         }
 
-        if (animationData == null && cmds.length == 0) {
+        if (animationData == null && (cmds.actions == undefined || cmds.actions.length == 0)) {
             genStyle.push(posStyle);
             if (transformStyle != "") genStyle.push(transformStyle);
             return renderFunc(page, item, genStyle, content)
@@ -249,7 +249,7 @@ function imgRenderItem(page,item,_style){
         var conStyle = [posStyle];
         if (transformStyle != "")conStyle.push(transformStyle);
 
-        if (cmds.length == 0 && animationData != null) {
+        if ((cmds.actions == undefined || cmds.actions.length == 0) && animationData != null) {
             return animationTemplate({animationClass: animationData.animationClass,
                 children: _itemContent,
                 animation: animationData.animation,
@@ -267,15 +267,14 @@ function imgRenderItem(page,item,_style){
                 displayType: 0,
                 id: item.item_id});
         }
-        if (cmds.length > 0) {
+        if ((cmds.actions != undefined && cmds.actions.length > 0)) {
+			cmds.actions = cmds.actions.join(",");
             return touchTriggerTemplate({
                 normalStyle: conStyle.join(','),
                 children: _itemContent,
                 pageIdx: page.idx,
                 id: item.item_id,
-                triggerActions: {evt: "tap",
-                    cmds: "[" + cmds.join(",") + "]"
-                }
+                triggerActions: cmds
             });
         }
         return "";
@@ -328,11 +327,10 @@ function imgRenderItem(page,item,_style){
             var _cmdMap = {
                 "hide_el": ["componentDo", "hide"],
                 "show_el": ["componentDo", "show"],
-				"http":function(args){
-					var articleLink = /www\.agoodme\.com\/#\/preview\/tid=([0-9|a-f|A-F]+)/
-					var res = articleLink.exec(args[1]);
-					if(res != null){
-						return '{action:"gotoArticle(' + res[1] + ')",propagate:true}';
+				"http":function(_link){
+					var tid = articleLinkDetect(_link);
+					if(tid != null){
+						return '{action:"' + linkToAction(_link) + '",propagate:true}';
 					}
 					return null;
 				}
@@ -340,7 +338,7 @@ function imgRenderItem(page,item,_style){
             var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
             //hide_el:-2|hide_el:65185725
             var _cmds = item_href.split("|");
-            var res = [];
+            var res = {evt:"tap",actions:[]};
             _.each(_cmds, function (cmd) {
                 var args = cmd.split(":");
                 var new_cmd = _cmdMap[args[0]];
@@ -352,15 +350,44 @@ function imgRenderItem(page,item,_style){
 						var _method = new_cmd[0];
 						new_cmd.splice(0, 1);
 						resStr = _method + "(" + new_cmd.join(",") + ")";
-						res.push(actionTemplate({cmd: resStr, propagate: true}));
+						res.actions.push(actionTemplate({cmd: resStr, propagate: true}));
 					} else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
 						debugger;
-						var cmd = new_cmd.apply(null,[args]);
-						if(cmd != null)	res.push(cmd);
+						var cmd = new_cmd.apply(null,[cmd]);
+						if(cmd != null)	res.actions.push(cmd);
+					}
+				}else{
+					//"[{"meTap":{"target":"_blank","value":"http://www.agoodme.com/#/preview/tid=154ebc5570c44252"}}]"
+					var cmds = JSON.parse(item_href);
+					if(cmds != null && cmds instanceof Array){
+						_.each(cmds,function(cmd){
+							if(cmd.meTap != undefined){//放弃多事件的case
+								debugger;
+								res.actions.push('{action:"' + linkToAction(cmd.meTap.value) + '",propagate:true}');
+							}
+						});
 					}
 				}
             });
             return res;
+			
+			function linkToAction(_link){
+				var tid = _articleLinkDetect(_link);
+				if(tid != null){
+					return "gotoArticle(" + tid + ")";
+				}else{
+					return "gotoLink(" + _link + ")";
+				}
+			}
+			
+			function _articleLinkDetect(_link){
+				var articleLink = /www\.agoodme\.com\/#\/preview\/tid=([0-9|a-f|A-F]+)/
+				var res = articleLink.exec(_link);
+				if(res != null){
+					return res[1];
+				}
+				return null;
+			}
         }
     }
 

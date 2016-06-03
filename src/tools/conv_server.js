@@ -18,6 +18,7 @@ if(tpl == null){
 function downloadJson(url,cb){
 	var jsonData = "";
 	console.log("request get",url);
+	try{
 	http.get(url,function(res){
 		res.on("data",function(data){
 				jsonData = jsonData + data;
@@ -30,6 +31,9 @@ function downloadJson(url,cb){
 				cb(null);
 			});;
 	});
+	}catch(e){
+		cb(null);
+	}
 }
 
 
@@ -118,6 +122,10 @@ function downloadArticleWithTid(res,tid,next){
 server.get('/jsx',convertEntry);
 server.get('/test',function(req,res){res.send("asdfdfsd");});
 
+
+process.on('uncaughtException', function (err) {
+    console.log(err);
+});
 
 try {
     // 监听端口
