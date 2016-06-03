@@ -1,5 +1,5 @@
 define("MeMediaMgr",function(){
-	var MeMediaMgr = function(pageSize){
+	/*var MeMediaMgr = function(pageSize){
 		this.pageArr = new Array(0);
 	};
 	MeMediaMgr.prototype.registerPage = function(mediaInstance){
@@ -18,6 +18,24 @@ define("MeMediaMgr",function(){
 				pageObjs[obj].pause();
 			}
 
+		}
+	}*/
+	var MeMediaMgr = function(){
+		this.workMediaSource = null;
+	}
+	MeMediaMgr.prototype.pause = function(){
+		if(this.workMediaSource)
+			this.workMediaSource.pause();
+	}
+	MeMediaMgr.prototype.register = function(source){
+		if(this.workMediaSource != null && this.workMediaSource != source){
+			this.workMediaSource.pause();
+		}
+		this.workMediaSource = source;
+	}
+	MeMediaMgr.prototype.unregister = function(source){
+		if(source == this.workMediaSource){
+			this.workMediaSource = null;
 		}
 	}
 	return MeMediaMgr;

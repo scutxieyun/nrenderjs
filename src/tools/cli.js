@@ -9,7 +9,7 @@ function kickoffConvert(tpl,jsonData,cb){
 	if(jsonData == null) console.log("��ݴ���");
 //	var res = convFunc((tpl),jsonData.tplData)
 //	cb(res);
-    convFunc((tpl),jsonData.tplData, function(data){
+    convFunc((tpl),jsonData, function(data){
         cb(data);
     });
 }

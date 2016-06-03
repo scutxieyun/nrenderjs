@@ -1,9 +1,8 @@
 var _ = require("underscore");
 var fs = require('fs');
-var process = require('process');
 var url = require('url');
 var http = require('http');
-function main(tpl, mag, callback) {
+function main(tpl, magObj, callback) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
@@ -33,11 +32,12 @@ function main(tpl, mag, callback) {
         "10": imgRenderItem,
         "18": imgRenderItem,
         "17": grpRenderItem,
-        "34": grpRenderItem
+        "34": grpRenderItem,
+		"7": musicRenderItem,		
     };
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
-
+	var mag = magObj.tplData;
     var defaultAnimation = '{animationIterationCount:"1",animationDelay:"0s",animationDuration:"1s"}';
     var index = [];
     index.push(-1);
@@ -159,20 +159,31 @@ function main(tpl, mag, callback) {
         //return 'transform:"' + scale + '"';
         return "";
     }
-
-    function imgRenderItem(page, item, _style) {
-        //人工实现Scale,
-        if (item.x_scale == null) item.x_scale = 1;
-        if (item.y_scale == null) item.y_scale = 1;
-        item.item_height *= item.y_scale;
-        item.item_width *= item.x_scale;	//激进一点，然返回的图片小一些
-        if (item.item_val.search(/imageView2/) == -1) {
-            item.item_val = item.item_val + "?imageView2/2/w/" + Math.floor(item.item_width) + "/h/" + Math.floor(item.item_height);
-        }
-
-        _style.push(sizeStyleTemplate(item));
-        return imgTemplate({src: item.item_val, displayType: item.item_display_status, style: _style.join(",")});
+function imgRenderItem(page,item,_style){
+    //人工实现Scale,
+    if(item.x_scale == null) item.x_scale = 1;
+    if(item.y_scale == null) item.y_scale = 1;
+    item.item_height *= item.y_scale;
+    item.item_width *= item.x_scale;	//激进一点，然返回的图片小一些
+    if(item.item_val.search(/imageView2/) == -1){
+        item.item_val = item.item_val + "?imageView2/2/w/"+Math.floor(item.item_width) + "/h/" + Math.floor(item.item_height);
     }
+
+    _style.push(sizeStyleTemplate(item));
+    return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
+}
+function musicRenderItem(page,item,_style){
+    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
+	return audioTemplate({
+		normalStyle:_style.join(","),
+		src:item.item_val,
+		autoplay: item.music_autoplay,
+		music_name:item.music_name,
+		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
+		pageIdx:page.idx,
+		id:item.item_id
+	});
+}
 
     /**
      * 获取设置云字体
@@ -399,10 +410,20 @@ function main(tpl, mag, callback) {
             return null;
         }
 
-        function convertOldCmd(item_href) {
+        function convertOldCmd(item) {
+            //通常是type 18
+            var item_href = item.item_href;
             var _cmdMap = {
                 "hide_el": ["componentDo", "hide"],
-                "show_el": ["componentDo", "show"]
+                "show_el": ["componentDo", "show"],
+                "http":function(args){
+                    var articleLink = /www\.agoodme\.com\/#\/preview\/tid=([0-9|a-f|A-F]+)/
+                    var res = articleLink.exec(args[1]);
+                    if(res != null){
+                        return '{action:"gotoArticle(' + res[1] + ')",propagate:true}';
+                    }
+                    return null;
+                }
             }
             var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
             //hide_el:-2|hide_el:65185725
@@ -412,13 +433,19 @@ function main(tpl, mag, callback) {
                 var args = cmd.split(":");
                 var new_cmd = _cmdMap[args[0]];
                 var resStr = "";
-                if (new_cmd != undefined) {
-                    args.splice(0, 1);
-                    new_cmd = new_cmd.concat(args);
-                    var _method = new_cmd[0];
-                    new_cmd.splice(0, 1);
-                    resStr = _method + "(" + new_cmd.join(",") + ")";
-                    res.push(actionTemplate({cmd: resStr, propagate: true}));
+                if(new_cmd != undefined){
+                    if (new_cmd instanceof Array) {
+                        args.splice(0, 1);
+                        new_cmd = new_cmd.concat(args);
+                        var _method = new_cmd[0];
+                        new_cmd.splice(0, 1);
+                        resStr = _method + "(" + new_cmd.join(",") + ")";
+                        res.push(actionTemplate({cmd: resStr, propagate: true}));
+                    } else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
+                        debugger;
+                        var cmd = new_cmd.apply(null,[args]);
+                        if(cmd != null)	res.push(cmd);
+                    }
                 }
             });
             return res;
