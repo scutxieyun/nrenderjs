@@ -125,6 +125,7 @@ body{
 		var article_file = "mag_lf.js"
 		var _xparam = /article=([^&]+)/.exec(location.href);
 		var magUrl = 'dist/mag_1.js';
+		renderjs.helper.init(document.getElementById("magazine-container"),{});
 		if(_xparam != null){
 			if(_xparam[1].search(/http/) != -1){
 				magUrl = 'jsx?mag=' + escape(_xparam[1]);
@@ -134,12 +135,22 @@ body{
 		}else{
 			_xparam = /tid=([^&]+)/.exec(location.href);
 			if(_xparam != null){
-				magUrl = "jsx?tid=" + _xparam[1];
+				globalLoadTid(_xparam[1],function(mag){
+					if(mag != undefined && renderjs != undefined){
+						renderjs.helper.load(mag);
+						setInterval(function(){
+							if(document.getElementById("autoplay").checked){
+								renderjs.helper.gotoNext();
+								}
+						},3000);
+					}
+				});
+				return;
 			}
 		}
 		require([magUrl],function(mag_1){
 			if(mag_1 != undefined && renderjs != undefined){
-				renderjs.helper.load(mag_1,document.getElementById("magazine-container"));
+				renderjs.helper.load(mag_1);
 			}
 		});
 		
@@ -148,5 +159,16 @@ body{
 			renderjs.helper.gotoPos(0,2);
 		});
 	});
+	
+	function globalLoadTid(tid,cb){
+		var magUrl = "jsx?tid=" + tid;
+		setTimeout(function(){
+		require([magUrl],function(mag){
+			cb(mag);
+		})
+		},0);
+	}
+	
+	
 	</script>	
 </html>

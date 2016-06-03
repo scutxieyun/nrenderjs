@@ -74,7 +74,7 @@ var PadBuffer = React.createClass({
 	componentDidUpdate:function(prevProps,prevState){
 		var myself = this;
 		if((this.bufferredState.pageIdx != -1 && this.state.pageIdx == -1)){
-			setInterval(function(){myself.tick()},0);
+			setTimeout(function(){myself.tick()},0);
 			return;
 		}
 		var react_page = this._getPageInstance();
@@ -321,30 +321,40 @@ var MeVPads = React.createClass({
 		}
 	},
 	moveXNext:function(){
-		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return;//翻到尽头
+		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return -1;//翻到尽头
 		this.posXIdx ++;
 //		this.posYIdx = 0;	//这是由作品的结构决定的，横向，作品有可能是单页，posYIdx位置失效
         this.posYIdx = this._pageRecorder[this.posXIdx] || 0;
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
+		return this.posXIdx;
 	},
 	moveXPrev:function(){
-		if(this.props.article.getPageIdxInLayout(this.posXIdx - 1,0) == -1) return;//翻到尽头
+		if(this.props.article.getPageIdxInLayout(this.posXIdx - 1,0) == -1) return -1;//翻到尽头
 		this.posXIdx --;
 //		this.posYIdx = 0;
         this.posYIdx = this._pageRecorder[this.posXIdx] || 0;
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
+		return this.posXIdx;
 	},
 	moveYNext:function(){
-		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx + 1) == -1) return;//翻到尽头
+		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx + 1) == -1) return -1;//翻到尽头
 		this.posYIdx ++;
         this._pageRecorder[this.posXIdx] = this.posYIdx;
         this.loadPageByPos(this.posXIdx,this.posYIdx);
+		return this.posYIdx;
 	},
 	moveYPrev:function(){
-		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx - 1) == -1) return;//翻到尽头
+		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx - 1) == -1) return -1;//翻到尽头
 		this.posYIdx --;
         this._pageRecorder[this.posXIdx] = this.posYIdx;
 		this.loadPageByPos(this.posXIdx,this.posYIdx);
+		return this.posYIdx;
+	},
+	getPos:function(){
+		return {
+			x:this.posXIdx,
+			y:this.posYIdx
+		}
 	},
 	handleTap:function(evt){
 		console.log("get tap in pad ",evt);
