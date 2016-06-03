@@ -111,6 +111,13 @@ module.exports = function(){
 						}
 					}
 				}
+			},
+			gotoPrev:function(){
+				if(pads != null){
+					var x = 0;
+					var y = 0;
+					y = pads.moveYPrev();
+				}
 			}
 		};
 		}(),

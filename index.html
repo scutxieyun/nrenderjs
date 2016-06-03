@@ -118,10 +118,24 @@ body{
 		<div id="magazine-container" style='height:100%;width:100%'>
 		</div>
 	</div>
+	<div style="position:absolute; left:20px; top:200px;font-size:30px" > <input type="checkbox" id="autoplay" checked="checked">自动播放</input></div>
 </div>
 </body>
 <script type="text/javascript">
 	$(function(){
+	
+		$('#pageContent').bind('mousewheel', function(e){
+			if(e.originalEvent.wheelDelta /120 > 0) {
+				renderjs.helper.gotoPrev();
+			}
+			else{
+				renderjs.helper.gotoNext();
+			}
+		});
+	
+	
+	
+	
 		var article_file = "mag_lf.js"
 		var _xparam = /article=([^&]+)/.exec(location.href);
 		var magUrl = 'dist/mag_1.js';
