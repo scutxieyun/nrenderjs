@@ -17,8 +17,6 @@ define("MeText", function () {
             }
         },
         getInitialState : function(){
-            this.fontName = "css-font-" + this.getIncId();
-            this.fontServer = "http://agoodme.com:3000";
             return {};
         },
         /**
@@ -34,33 +32,18 @@ define("MeText", function () {
             console.log("deactive checkbox");
         },
         /**
-         * 下载云字体
-         */
-        downloadFont : function(){
-            var fontserver = this.fontServer;
-            var font = this.props.normalStyle.fontFamily;
-            var text = this.props.data.content;
-            var self = this;
-            $.ajax({
-                type: 'GET',
-                url: fontserver + "/loadfont/?callback=?&r=" + Math.random(),
-                data: {"type":"fixed","font":font,"text":text},
-                success: self.applyFont,
-                error:function(data,status,e){
-                    console.log(status);
-                },
-                dataType: "json"
-            });
-        },
-        /**
          * 设置云字体的font face
          */
-        applyFont : function (fontData) {
-            var fontName = this.fontName;
-            var src = fontData.src;
-            var type = fontData.type;
-            if(!src || !type || src == 'undefined') return;
-            src = this.fontServer + src;
+        applyFont : function () {
+            var fontName = this.props.data.fontName;
+            var tempSrc = this.props.data.src;
+            //没有云字体或者加载失败云字体
+            if(tempSrc.indexOf("me-clould-font-cache") > -1){
+                return;
+            }
+            var arr = tempSrc.split("?");
+            var src = arr[0];
+            var type = arr[1];
             var styleNode = document.createElement("style");
             styleNode.type = "text/css";
             styleNode.id = "style-" + fontName;
@@ -73,12 +56,12 @@ define("MeText", function () {
             document.head.appendChild(styleNode);
         },
         componentWillMount: function () {
-            this.downloadFont();
+            this.applyFont();
         },
         render: function () {
-            //更换云字体样式
-            if(this.props.normalStyle.fontFamily){
-                this.props.normalStyle.fontFamily = this.fontName;
+            //更换云字体样式,有云字体的时候
+            if(this.props.data.src.indexOf("me-clould-font-cache") < 0){
+                this.props.normalStyle.fontFamily = this.props.data.fontName;
             }
             return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeText" dangerouslySetInnerHTML={{__html:this.props.data.content}}></div>);
         },

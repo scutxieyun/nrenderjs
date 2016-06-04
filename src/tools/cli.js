@@ -6,9 +6,12 @@ var http = require('http');
 function kickoffConvert(tpl,jsonData,cb){
 	var jsStatement = "(function(){return " + jsonData + ";})();";
 	var jsonData = eval(jsStatement);
-	if(jsonData == null) console.log("Êý¾Ý´íÎó");
-	var res = convFunc((tpl),jsonData)
-	cb(res);
+	if(jsonData == null) console.log("ï¿½ï¿½Ý´ï¿½ï¿½ï¿½");
+//	var res = convFunc((tpl),jsonData.tplData)
+//	cb(res);
+    convFunc((tpl),jsonData, function(data){
+        cb(data);
+    });
 }
 
 
@@ -29,7 +32,7 @@ function downloadJson(url,cb){
 
 var myArgs = process.argv.slice(2);
 if(myArgs.length < 3){
-	console.log("²ÎÊý£ºÄ£°åÎÄ¼þ Ô¶³ÌÎÄ¼þÁ´½Ó Éú³ÉÎÄ¼þ");
+	console.log("ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½Ä¼ï¿½ Ô¶ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½");
 	return;
 }
 fs.readFile(myArgs[0],'utf8',function(err,tpl){

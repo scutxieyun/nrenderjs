@@ -82,7 +82,13 @@ var PadBuffer = React.createClass({
 		var cur_active = this.state.state == "active" ? true : false;
 		if(react_page != null && old_active != cur_active){
 			react_page.setContainerSize(this.props.pageWidth,this.props.pageHeight);
-			react_page.setState({active:cur_active});
+			if(cur_active == false){
+				setTimeout(function(){
+					react_page.setState({active:false});
+				},500);//延迟消失
+			}else{
+				react_page.setState({active:true});
+			}
 			//console.log("react page update with ",this.state);
 		}
 	},

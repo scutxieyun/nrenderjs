@@ -41,10 +41,13 @@ function kickoffConvert(tpl,jsonData,cb){
 	var jsStatement = "(function(){return " + jsonData + ";})();";
 	var jsonData = eval(jsStatement);
 	if(jsonData == null) console.log("数据错误");
-	var res = convFunc(tpl,jsonData)
-	return babel.transform(res, {
-		plugins: ["transform-react-jsx"]
-	}).code;
+	convFunc(tpl,jsonData,function(data){
+		if(data != null){
+			cb(babel.transform(data, {
+				plugins: ["transform-react-jsx"]
+			}).code);
+		}
+	});
 }
 function convertEntry(req,res,next){
 	try{
@@ -54,8 +57,10 @@ function convertEntry(req,res,next){
 		}
 		if(req.query.mag != null){
 			return downloadJson((decodeURI(req.query.mag)),function(data){
-				res.send(parseData(data));
-				next();
+				parseData(data,function(_js){
+					res.send(_js);
+					next();
+				});
 			});
 		}
 	}
@@ -67,17 +72,12 @@ function convertEntry(req,res,next){
 	//next();
 }
 
-function parseData(data){
+function parseData(data,cb){
 	if(data == null){
-				return ""
+		cb(null);
 	}else{
-		try{
-			var jsData = kickoffConvert(tpl,data);
-			return (jsData);
-		}catch(e){
-			console.log(e);
-			return (e.toString());
-		}
+		kickoffConvert(tpl,data,cb);
+		return;
 	}
 }
 
@@ -99,8 +99,10 @@ function downloadArticleWithTid(res,tid,next){
                     url = "http://ac-hf3jpeco.clouddn.com/" + jsonurl + ".json?" + Date.now();
                 }
                 return downloadJson(url,function(data){
-					res.send(parseData(data));
-					next();
+					parseData(data,function(_js){
+						res.send(_js);
+						next();
+					});
 				});
             }
         },function(error) {
