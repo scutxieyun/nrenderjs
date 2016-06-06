@@ -58,7 +58,7 @@ define([],function(){
 	};
 	var MeCommandMixin ={
 		handleCmd:function(cmd){
-			var p = /([\D|_][a-z|A-Z|_|0-9]*)\(([a-z|A-Z|_|0-9|,]*)\)/;
+			var p = /([\D|_][a-z|A-Z|_|0-9]*)\((.*)\)/;
 			var m = p.exec(cmd);
 			if(m != null){
 				var method = m[1];

@@ -67,7 +67,7 @@ define("MeVideo", function () {
                 //停止其他的音视频
                 this.play();
                 var height = this.props.data.iframeHeight;
-                var action = "openWithIFrame('"+src+"',"+height+")";
+                var action = "openWithIFrame(" + src+","+height+")";
                 this.handleCmd(action);
             }
         },
