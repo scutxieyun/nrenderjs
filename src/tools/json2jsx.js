@@ -166,11 +166,21 @@ function imgRenderItem(page,item,_style){
     if(item.y_scale == null) item.y_scale = 1;
     item.item_height *= item.y_scale;
     item.item_width *= item.x_scale;	//激进一点，然返回的图片小一些
+	
+	item.y_scale = 1;
+	item.x_scale = 1;
+	
+	
     if(item.item_val.search(/imageView2/) == -1){
         item.item_val = item.item_val + "?imageView2/2/w/"+Math.floor(item.item_width) + "/h/" + Math.floor(item.item_height);
     }
 
     _style.push(sizeStyleTemplate(item));
+    var tem = renderTransform(item);
+    if (tem != "")
+        _style.push(tem);	
+	
+	
     return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
 function musicRenderItem(page,item,_style){
@@ -250,12 +260,14 @@ function musicRenderItem(page,item,_style){
     }
 
     function textRenderItem(page, item, _style) {
-        var tem = renderTransform(item);
-        if (tem != "")
-            _style.push(tem);
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplate(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+		if (Math.abs(1-item.y_scale) < 0.01 || Math.abs(item.x_scale - item.y_scale) < 0.01){
+			//直接修改字体size来实现缩放
+			item.font_size = (parseInt(item.font_size) * item.y_scale) + "px";
+			item.x_scale = 1;item.y_scale = 1;//禁止x_scale,y_scale
+		}
         _style.push(fontStyleTemplate(item));
         //获取文字内容和云字体
         var text = item.item_val;
@@ -279,6 +291,9 @@ function musicRenderItem(page,item,_style){
         var tempFont = {};
         tempFont[cacheKey] = url;
         fontCache.push(tempFont);
+		var tem = renderTransform(item);
+        if (tem != "")
+        _style.push(tem);
         return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(",")});
     }
 
@@ -371,9 +386,13 @@ function musicRenderItem(page,item,_style){
         function animationParse(item) {
             var animation = [];
             var animationClass = [];
-            if (!(item.item_animation == null || item.item_animation === "" || item.item_animation === "none")) {
-                var temp = JSON.parse(item.item_animation_val);
-
+            if (!(item.item_animation == null || item.item_animation === "" || item.item_animation === "none" || item.item_animation_val == "")) {
+				var temp = null;
+				try{
+					temp = JSON.parse(item.item_animation_val);
+				}catch(e){
+					return null;
+				}
                 if (temp != null) {
                     if (temp instanceof Array) {
                         animation = [];

@@ -39,12 +39,19 @@ function downloadJson(url,cb){
 
 function kickoffConvert(tpl,jsonData,cb){
 	var jsStatement = "(function(){return " + jsonData + ";})();";
-	var jsonData = eval(jsStatement);
+	var jsonData = null;
+	try{
+		jsonData = eval(jsStatement);
+	}catch(e){
+		console.log("json文件不能解释");
+		cb(null);
+	}
 	if(jsonData == null) console.log("数据错误");
 	convFunc(tpl,jsonData,function(data){
 		if(data != null){
 			cb(babel.transform(data, {
-				plugins: ["transform-react-jsx"]
+				plugins: ["transform-react-jsx"],
+				compact:false
 			}).code);
 		}
 	});
@@ -100,7 +107,11 @@ function downloadArticleWithTid(res,tid,next){
                 }
                 return downloadJson(url,function(data){
 					parseData(data,function(_js){
-						res.send(_js);
+						if(_js == null){
+							res.send(tid + "作品解析错误");
+						}else{
+							res.send(_js);
+						}
 						next();
 					});
 				});
