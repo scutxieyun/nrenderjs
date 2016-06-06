@@ -14,7 +14,7 @@ function main(tpl, magObj, callback) {
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
     var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
     var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.actions%>}}><%= children %></MeTouchTrigger>');
- 
+
    //最终返回的对象
     var pageTemp;
     //页容器的字符串
@@ -34,7 +34,8 @@ function main(tpl, magObj, callback) {
         "18": imgRenderItem,//带链接
         "17": grpRenderItem,
         "34": grpRenderItem,
-		"7": musicRenderItem,		
+		"7": musicRenderItem,
+        "8": videoRenderItem
     };
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
@@ -186,6 +187,40 @@ function musicRenderItem(page,item,_style){
 	});
 }
 
+    function videoRenderItem(page,item,_style){
+        if(!item.item_href){
+            return;
+        }
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplate(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplate(item));
+        var audioTemplate = _.template('<MeVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeVideo>');
+        var data = {};
+        //todo 最好用正则表达式获取 src height
+        //<iframe frameborder="0" width="640" height="498" src="http://v.qq.com/iframe/player.html?vid=b0020d8wsqm&tiny=0&auto=0" allowfullscreen></iframe>
+        var itemHref = item.item_href;
+        if(itemHref.indexOf("iframe") > -1){
+            var tempSrcArr = itemHref.split('src="');
+            var src = tempSrcArr[1].split('"')[0];
+            var tempHeightArr = itemHref.split('height="');
+            var height = tempHeightArr[1].split('"')[0];
+            data.src = src;
+            data.iframeHeight = height;
+            data.isIFrame = true;
+        }else{
+            data.src = item.item_href;
+        }
+        data.poster = item.item_val;
+        data = JSON.stringify(data);
+        return audioTemplate({
+            normalStyle:_style.join(","),
+            data:data,
+            pageIdx:page.idx,
+            id:item.item_id
+        });
+    }
+
     /**
      * 获取设置云字体
      * @param cIndex
@@ -311,8 +346,10 @@ function musicRenderItem(page,item,_style){
         if (item.item_opacity != 100) {
             genStyle.push('opacity:' + (item.item_opacity / 100));
         }
-
-        if (item.item_href != null && item.item_href != "") {
+        //TODO 这里有一些元素的item_href表示的是别的值
+        //过滤掉视频8的item_href, 和涂抹24的item_href,和长按的25 item_href, 假话29,密码31的时候, 36打赏 37图集元素 40--360全景  41红包 过滤掉
+        var itemType = item.item_type;
+        if (item.item_href != null && item.item_href != "" && itemType != 8 && itemType != 24  && itemType != 29 && itemType != 31 && itemType != 36 && itemType != 37 && itemType != 40  && itemType != 41) {
             //hide_el:-2|hide_el:65185725
             cmds = convertOldCmd(item);
         }

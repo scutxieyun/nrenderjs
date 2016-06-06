@@ -45,6 +45,16 @@ define([],function(){
 				}
 			}
 		},
+        "openWithIFrame":function(cxt,callee,args){
+            if(this.props.cxt.system != undefined){
+                var renderjs = this.props.cxt.system;
+                var target = args[0];
+                var height = args[1];
+                setTimeout(function(){
+                    renderjs.helper.openWithInnerBrowse(target, height);
+                },0);
+            }
+        }
 	};
 	var MeCommandMixin ={
 		handleCmd:function(cmd){

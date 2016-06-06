@@ -102,7 +102,34 @@ body{
 .page_container.none{
 	display:none
 }
-
+.popupIframe{
+    position: absolute;
+    display: none;
+    z-index: 100000;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65098);
+}
+.closeBtn{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 126px;
+    height: 126px;
+    z-index: 2;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADoAAAA6CAMAAADWZboaAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAV1BMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC7u7uRkZHs7OycnJwAAADxN0xuAAAAHHRSTlMABidFWm9+hIoKOmqHG1sXYUoYdTOGQ0zQvPDAdFT41AAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAFLSURBVEjHpZfZmoMgDIXB9VSpdevq+7/nWNvOFCcsenInX34hIYGDUpLpJM3yogTKIs/SRKtIO1S1gWWmrg4R4LFZcW+6OQbAUwuntScPqDsDj5nOGXQ/IGBDL5PjOUQC51EiL2HwaZf/5DWOBK475xTmHeNJwIq3j8jQV66+8qyDu2Lb8Le/3TYS6H6rz2xFzacm263kXM/vXrEGb3fZ+X6zPl991Nguj0kip4f9y2bpbLN2miRyNWievV8F3cShakbr8BTSQuq5HISdWbmKIRitEjkpU4AEEpUiwDpIpCqDn3WRyFQOL+skkasCPtZNolAlPKyHRKkAD+shAQYlFkykidgcoiSIQiTKn2g6otWZA4Y41ojDlDnCiYuDua6IS5K5mglBwMgQRvwwkosReoy8ZEQtI6UVIeCXPtr7bFgkzd7HyivomCfSDxqOYr3jUPvqAAAAAElFTkSuQmCC') center no-repeat;
+}
+.iframeWrapper{
+    width: 100%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    position: relative;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+}
 </style>
 <script type="text/javascript">
 //var log = log4javascript.getLogger("main");
@@ -115,7 +142,12 @@ body{
 		</div>
 	</div>
 	<div style="position:absolute; left:20px; top:200px;font-size:30px" > <input type="checkbox" id="autoplay" checked="checked">自动播放</input></div>
+    <div id="popup-iframe" class="popupIframe">
+        <div class="closeBtn"></div>
+
+    </div>
 </div>
+
 </body>
 <script type="text/javascript">
 	$(function(){
@@ -178,7 +210,23 @@ body{
 		})
 		},0);
 	}
-	
+
+    function globalOpenWithInnerBrowse(target, height){
+        console.log("点击了4", target);
+        var myIframe = document.createElement("iframe");
+        var $popupIframe = $("#popup-iframe");
+        var $closeBtn = $(".closeBtn");
+        $popupIframe.append($(myIframe));
+        $popupIframe.show();
+        myIframe.src =  target;
+        myIframe.height = height;
+        myIframe.width = "100%";
+        myIframe.className = "iframeWrapper";
+        $closeBtn.on("click",function(){
+            $popupIframe.hide();
+            $(myIframe).remove();
+        });
+    }
 	
 	</script>	
 </html>

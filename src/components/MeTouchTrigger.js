@@ -41,6 +41,7 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 				}
 				var propagate = false;
 				for(var i = 0;i < actions.length; i ++){
+                    console.log(actions[i].action);
 					this.handleCmd(actions[i].action);
 					propagate |= actions[i].propagate;
 					
