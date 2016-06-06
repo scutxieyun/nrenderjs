@@ -186,7 +186,7 @@ function musicRenderItem(page,item,_style){
 	return audioTemplate({
 		normalStyle:_style.join(","),
 		src:item.item_val,
-		autoplay: item.music_autoplay,
+		autoplay: item.music_autoplay ? true:false,
 		music_name:item.music_name,
 		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
 		pageIdx:page.idx,
