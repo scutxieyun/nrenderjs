@@ -1,6 +1,7 @@
+define("MePage",function(){
 var React = require("react");
 var ReactDOM = require("react-dom");
-define("MePage",function(){
+var _assign = require("object-assign");
 	var MePage  = React.createClass({
 		containerWidth:720,
 		containerHeight:1020,//所有page公用这个变量
@@ -99,7 +100,8 @@ define("MePage",function(){
 				}else{
 				}
 			}else{
-				if(evt.type == "swipeup"){
+				//取消swipe，有点多余了
+				/*if(evt.type == "swipeup"){
 					res = this._setOffset({
 						x:0,
 						y:this.state.y_offset - this.containerHeight/2,
@@ -110,17 +112,18 @@ define("MePage",function(){
 						x:0,
 						y:this.state.y_offset + this.containerHeight/2,
 					});
-				}
+				}*/
 			}
-			if(res == this._lastEdge){
+			if(res == this._lastEdge && res != 0){ //已经到达边界了，同时防止一到达边界就翻页
 				return true;//允许上层hammer继续处理
 			}
 			this._lastEdge = res;
 			return false;
 		},
+		//设置偏移量，如到达边界，范围非0
 		_setOffset:function(newOffset){
 			var pSize = this.getPageSize();
-			var atEdge = false;
+			var atEdge = 0;
 			var lastY = newOffset.y;
 			if(newOffset.y > 0){
 				lastY = 0;
@@ -141,7 +144,7 @@ define("MePage",function(){
 			this._lastEdge = 1;//在上顶部
 			if(size.height > this.containerHeight){
 			//注册漫游功能
-				this.props.cxt.interactHandler.on("pan swipeup swipedown",this.getId(),this.interactHandle);
+				this.props.cxt.interactHandler.on("pan",this.getId(),this.interactHandle);
 			}
 		},
 		getPageSize:function(){
@@ -155,7 +158,7 @@ define("MePage",function(){
 				y_offset:0,
 				x_offset:0
 			});
-			this.props.cxt.interactHandler.off("pan swipeup swipedown",this.getId(),this.interactHandle);
+			this.props.cxt.interactHandler.off("pan",this.getId(),this.interactHandle);
 		},
 		setContainerSize:function(_width,_height){
 			this.containerWidth = _width;
@@ -187,12 +190,9 @@ define("MePage",function(){
 			return "page" + this.props.idx;
 		},
 		render:function(){
-			//if(this.props.cxt.pageMgr != null){
-			//	this.props.cxt.pageMgr.registerPage(this); 
-			//}
 			var  transform = "translate3d(" + this.state.x_offset +"px," + this.state.y_offset + "px,0px)";
-			var _style = this.props.normalStyle != undefined ? this.props.normalStyle:{};
-			_style.transform = transform;
+			var _style = _assign(this.props.normalStyle,{transform:transform});
+			//y_offset由0变为非0,总会出现警告：`div` was passed a style object that has previously been mutated.， 不能理解
 			return <div className="me-page" id={this.getId()} style={_style} >{this.props.children}</div>;
 		}});
 	return MePage;

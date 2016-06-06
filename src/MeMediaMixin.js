@@ -2,7 +2,7 @@ define("MeMediaMixin",function(){
 	var MeMediaMgr = require("../src/MeMediaMgr.js");
 	return {
 		getInitialState:function(){
-			if(this.props.cxt != undefined && this.props.cxt.mediaMgr == undefined){
+			if(this.props.cxt != undefined && this.props.cxt.mediaMgr == undefined){//为了作品性兼容
 				this.props.cxt.mediaMgr = new MeMediaMgr();
 			}
 			return {

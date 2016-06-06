@@ -37,6 +37,7 @@ define("MeText", function () {
         applyFont : function () {
             var fontName = this.props.data.fontName;
             var tempSrc = this.props.data.src;
+			if(tempSrc == undefined || !tempSrc) return;//无效数据
             //没有云字体或者加载失败云字体
             if(tempSrc.indexOf("me-clould-font-cache") > -1){
                 return;
@@ -60,7 +61,7 @@ define("MeText", function () {
         },
         render: function () {
             //更换云字体样式,有云字体的时候
-            if(this.props.data.src.indexOf("me-clould-font-cache") < 0){
+            if(this.props.data != undefined && this.props.data &&this.props.data.src.indexOf("me-clould-font-cache") < 0){
                 this.props.normalStyle.fontFamily = this.props.data.fontName;
             }
             return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeText" dangerouslySetInnerHTML={{__html:this.props.data.content}}></div>);
