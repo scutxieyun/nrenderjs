@@ -13,7 +13,7 @@ function main(tpl, magObj, callback) {
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
     var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
-    var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":<%= triggerActions.actions%>}}><%= children %></MeTouchTrigger>');
+    var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
  
    //最终返回的对象
     var pageTemp;
@@ -425,41 +425,60 @@ function musicRenderItem(page,item,_style){
 				}
             }
             var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
-            //hide_el:-2|hide_el:65185725
-            var _cmds = item_href.split("|");
-            var res = {evt:"tap",actions:[]};
-            _.each(_cmds, function (cmd) {
-                var args = cmd.split(":");
-                var new_cmd = _cmdMap[args[0]];
-                var resStr = "";
-				if(new_cmd != undefined){
-					if (new_cmd instanceof Array) {
-						args.splice(0, 1);
-						new_cmd = new_cmd.concat(args);
-						var _method = new_cmd[0];
-						new_cmd.splice(0, 1);
-						resStr = _method + "(" + new_cmd.join(",") + ")";
-						res.actions.push(actionTemplate({cmd: resStr, propagate: true}));
-					} else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
-						debugger;
-						var cmd = new_cmd.apply(null,[cmd]);
-						if(cmd != null)	res.actions.push(cmd);
-					}
-				}else{
-					//"[{"meTap":{"target":"_blank","value":"http://www.agoodme.com/#/preview/tid=154ebc5570c44252"}}]"
-					var cmds = JSON.parse(item_href);
-					if(cmds != null && cmds instanceof Array){
-						_.each(cmds,function(cmd){
-							if(cmd.meTap != undefined){//放弃多事件的case
-								debugger;
-								res.actions.push('{action:"' + linkToAction(cmd.meTap.value) + '",propagate:true}');
-							}
-						});
-					}
-				}
-            });
-            return res;
+            //hide_el:-2|hide_el:65185725, 
+			var cmds = JSON.parse(item_href);
+			if(cmds != null && cmds instanceof Array){
+				return convertv2Cmd(cmds);
+			}else{
+				return convertv1Cmd(item);
+			}
 			
+			function convertv1Cmd(item_href){
+				var _cmds = item_href.split("|");
+				var res = {evt:"tap",actions:strToActions(item_href)};
+				return res;
+			}
+			function strToActions(item_href){
+				var _cmds = item_href.split("|");
+				var actions = [];
+				_.each(_cmds, function (cmd) {
+					var args = cmd.split(":");
+					var new_cmd = _cmdMap[args[0]];
+					var resStr = "";
+					if(new_cmd != undefined){
+						if (new_cmd instanceof Array) {
+							args.splice(0, 1);
+							new_cmd = new_cmd.concat(args);
+							var _method = new_cmd[0];
+							new_cmd.splice(0, 1);
+							resStr = _method + "(" + new_cmd.join(",") + ")";
+							actions.push(actionTemplate({cmd: resStr, propagate: true}));
+						} else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
+							var cmd = new_cmd.apply(null,[cmd]);
+							if(cmd != null)	actions.push(cmd);
+						}
+					}
+				});
+				return actions;
+			}
+			
+			function convertv2Cmd(cmds){
+				//"[{"meTap":{"target":"_blank","value":"http://www.agoodme.com/#/preview/tid=154ebc5570c44252"}}]"
+				//[{"meTap":"show_el:-2|show_el:53054687"}]'
+				var res = {evt:"tap",actions:[]};
+				_.each(cmds,function(cmd){
+					if(cmd.meTap != undefined){//放弃多事件的case
+						debugger;
+						if(cmd.meTap.hasOwnProperty("value"))
+							res.actions.push('{action:"' + linkToAction(cmd.meTap.value) + '",propagate:true}');
+						else if(typeof cmd.meTap == "string"){
+							res.actions = res.actions.concat(strToActions(cmd.meTap));
+						}
+					}
+				});
+				return res;
+			}
+ 			
 			function linkToAction(_link){
 				var tid = _articleLinkDetect(_link);
 				if(tid != null){

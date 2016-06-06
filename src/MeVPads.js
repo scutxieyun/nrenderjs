@@ -84,7 +84,7 @@ var PadBuffer = React.createClass({
 			react_page.setContainerSize(this.props.pageWidth,this.props.pageHeight);
 			if(cur_active == false){
 				setTimeout(function(){
-					react_page.setState({active:false});
+					react_page.setState({active:false});//延迟page的deactive，这样，就会实现两页间滑动的效果
 				},500);//延迟消失
 			}else{
 				react_page.setState({active:true});
@@ -168,6 +168,7 @@ MeHammer.prototype.off = function(evttype,_id){
 虚拟操作面板
 **/
 var MeVPads = React.createClass({
+	minBufNum:5,
 	getInitialState:function(){
 		this.lastTouchX = null;
 		this.lastDeltaX = 0;
@@ -183,7 +184,7 @@ var MeVPads = React.createClass({
 	},
 	getDefaultProps:function(){
 		return {
-			bufferLen:5,
+			bufferLen:this.minBufNum,
 			pageHeight:1192,
 			pageWidth:720,
 			article:null,
@@ -197,8 +198,8 @@ var MeVPads = React.createClass({
 		for(var i = 0;i < this.pageCacheIdx.length;i ++){
 			this.pageCacheIdx[i] = -1;
 		}
-		if(this.props.bufferLen == null || this.props.bufferLen < 3 || this.props.bufferLen > 10 )
-			this.props.bufferLen = 3;
+		if(this.props.bufferLen < this.minBufNum || this.props.bufferLen > this.minBufNum * 3 )
+			this.props.bufferLen = this.minBufNum;
 		for(var i = 0;i < this.props.bufferLen; i ++){
 			this.pageCache.push({
 				pageIdx:-1, // 当前缓存的页面
