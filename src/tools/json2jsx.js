@@ -6,8 +6,6 @@ function main(tpl, magObj, callback) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
-    var sizeStyleTemplate = _.template('height:"<%= item_height%>px",width:"<%= item_width%>px"');
-    var fontStyleTemplate = _.template('fontSize:"<%= font_size%>", color:"<%= item_color%>",fontFamily:"<%= font_family %>",backgroundColor:"<%= bg_color %>"');
     var imgTemplate = _.template('<MeImage src="<%= src%>" displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
     var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
@@ -140,7 +138,7 @@ function main(tpl, magObj, callback) {
     }
 
     function noTypeDefined(page, item) {
-        var _style = [posStyleTemplate(item), sizeStyleTemplate(item)];
+        var _style = [posStyleTemplate(item), sizeStyleTemplateWrap(item)];
         return NoTypeDefinedT({item_type: item.item_type, style: _style});
     }
 
@@ -175,7 +173,7 @@ function imgRenderItem(page,item,_style){
         item.item_val = item.item_val + "?imageView2/2/w/"+Math.floor(item.item_width) + "/h/" + Math.floor(item.item_height);
     }
 
-    _style.push(sizeStyleTemplate(item));
+    _style.push(sizeStyleTemplateWrap(item));
     var tem = renderTransform(item);
     if (tem != "")
         _style.push(tem);	
@@ -258,9 +256,38 @@ function musicRenderItem(page,item,_style){
         gId++;
         return gId;
     }
+	
+	function sizeStyleTemplateWrap(item){
+		var height = item.item_height + "px";
+		var width = item.item_width + "px";
+		if (item.item_height == 0)height = "auto";
+		if (item.item_width == 0)width = "auto";
+		
+		var sizeStyleTemplate = _.template('height:"<%= height%>",width:"<%= width%>"');
+		
+		return sizeStyleTemplate({
+			height:height,
+			width:width
+		});
+	}
+	
+	function fontStyleTemplateWrap(item){
+		var fontStyleTemplate = _.template('fontSize:"<%= font_size%>", color:"<%= item_color%>",fontFamily:"<%= font_family %>",backgroundColor:"<%= bg_color %>"');
+		var color = item.item_color;
+		try{
+			color = JSON.parse(color);
+			color = color.colors[0];
+			//"item_color": "{\"colors\":[\"#FF0000\"]}",
+		}catch(e){
+		//normal string
+		}
+		item.item_color = color;
+		return fontStyleTemplate(item);
+	}
+	
 
     function textRenderItem(page, item, _style) {
-        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplate(item));
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
 		if (Math.abs(1-item.y_scale) < 0.01 || Math.abs(item.x_scale - item.y_scale) < 0.01){
@@ -268,7 +295,7 @@ function musicRenderItem(page,item,_style){
 			item.font_size = (parseInt(item.font_size) * item.y_scale) + "px";
 			item.x_scale = 1;item.y_scale = 1;//禁止x_scale,y_scale
 		}
-        _style.push(fontStyleTemplate(item));
+        _style.push(fontStyleTemplateWrap(item));
         //获取文字内容和云字体
         var text = item.item_val;
         var fontFamily = item.font_family;
@@ -276,6 +303,10 @@ function musicRenderItem(page,item,_style){
         item.item_val = item.item_val.replace(/[{|}]/g, function (word) {
             return "{'" + word + "'}"
         });
+		
+		item.item_val = item.item_val.replace(/\n/g,'<BR/>')
+		item.item_val = item.item_val.replace(/\s/g, '&nbsp');
+		//&nbsp
         //针对文字的情况去设置云字体
         //TODO 可能还不只是item_type为2的
         var fontName = "css-font-" + getNewID();
@@ -301,7 +332,7 @@ function musicRenderItem(page,item,_style){
         var tem = renderTransform(item);
         if (tem != "")
             _style.push(tem);
-        _style.push(sizeStyleTemplate(item));
+        _style.push(sizeStyleTemplateWrap(item));
         _style.push('overflow:"hidden"');
         return grpTemplate({displayType: item.item_display_status,
             pageIdx: page.idx,
@@ -326,6 +357,7 @@ function musicRenderItem(page,item,_style){
         if (item.item_opacity != 100) {
             genStyle.push('opacity:' + (item.item_opacity / 100));
         }
+
 
         if (item.item_href != null && item.item_href != "") {
             //hide_el:-2|hide_el:65185725
@@ -386,12 +418,12 @@ function musicRenderItem(page,item,_style){
         function animationParse(item) {
             var animation = [];
             var animationClass = [];
-            if (!(item.item_animation == null || item.item_animation === "" || item.item_animation === "none" || item.item_animation_val == "")) {
+            if (!(item.item_animation == null || item.item_animation === "" || item.item_animation === "none")) {
 				var temp = null;
 				try{
 					temp = JSON.parse(item.item_animation_val);
 				}catch(e){
-					return null;
+					temp = null;
 				}
                 if (temp != null) {
                     if (temp instanceof Array) {
@@ -419,7 +451,7 @@ function musicRenderItem(page,item,_style){
                     }
                 } else {
                     animation = [defaultAnimation];
-                    animationClass = ["fadeIn"];
+                    animationClass = [item.item_animation];
                 }
                 return {
                     animation: JSON.stringify(animation),
@@ -445,7 +477,13 @@ function musicRenderItem(page,item,_style){
             }
             var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
             //hide_el:-2|hide_el:65185725, 
-			var cmds = JSON.parse(item_href);
+			var cmds = null;
+			try{
+				cmds = JSON.parse(item_href);
+			}catch(e){
+				return {evt:"tap",actions:[]};
+			}
+			
 			if(cmds != null && cmds instanceof Array){
 				return convertv2Cmd(cmds);
 			}else{
