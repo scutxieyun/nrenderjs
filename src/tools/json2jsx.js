@@ -428,7 +428,7 @@ function musicRenderItem(page,item,_style){
                 if (temp != null) {
                     if (temp instanceof Array) {
                         animation = [];
-                        var tempClass = JSON.parse(item.item_animation);
+                        var tempClass = JSON.parse(item.item_animation_val);
                         _.each(temp, function (a, idx) {
                             animation.push({
                                 animationDelay: a.delay + "s",
