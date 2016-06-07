@@ -14,9 +14,9 @@ define([], function () {
     var EventEmitter = Renderjs.EventEmitter;
     var MeSvg = Renderjs.MeSvg;
 	var MeImage = Renderjs.MeImage;
-	var MeAudio	= Renderjs.MeAudio;
     var MeText = Renderjs.MeText;
-    var MeVideo	= Renderjs.MeVideo;
+    var MeIFrameVideo= Renderjs.MeIFrameVideo;
+    var MeInnerVideo= Renderjs.MeInnerVideo;
     var MeClip	= Renderjs.MeClip;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {

@@ -16,7 +16,8 @@ var MeRadio = require("../dist/MeRadio.js");
 var MeCheckbox = require("../dist/MeCheckbox.js");
 var MeLabel = require("../dist/MeLabel.js");
 var MeText = require("../dist/MeText.js");
-var MeVideo = require("../dist/MeVideo.js");
+var MeIFrameVideo = require("../dist/MeIFrameVideo.js");
+var MeInnerVideo = require("../dist/MeInnerVideo.js");
 var MeClip = require("../dist/MeClip.js");
 
 
@@ -44,7 +45,8 @@ module.exports = function(){
     MeCheckbox:MeCheckbox,
     MeLabel:MeLabel,
     MeText:MeText,
-    MeVideo:MeVideo,
+    MeIFrameVideo:MeIFrameVideo,
+    MeInnerVideo:MeInnerVideo,
     MeClip:MeClip,
 	EventEmitter:EventEmitter,
 	React:React,
