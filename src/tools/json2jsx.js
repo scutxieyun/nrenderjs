@@ -500,7 +500,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 				"http":function(_link){
 					var tid = articleLinkDetect(_link);
 					if(tid != null){
-						return '{action:"' + linkToAction(_link) + '",propagate:true}';
+						return '{action:"' + linkToAction(_link,"_self") + '",propagate:true}';
 					}
 					return null;
 				}
@@ -558,7 +558,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 					if(cmd.meTap != undefined){//放弃多事件的case
 						debugger;
 						if(cmd.meTap.hasOwnProperty("value"))
-							res.actions.push('{action:"' + linkToAction(cmd.meTap.value) + '",propagate:true}');
+							res.actions.push('{action:"' + linkToAction(cmd.meTap.value,cmd.meTap.target) + '",propagate:true}');
 						else if(typeof cmd.meTap == "string"){
 							res.actions = res.actions.concat(strToActions(cmd.meTap));
 						}
@@ -567,12 +567,12 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 				return res;
 			}
  			
-			function linkToAction(_link){
+			function linkToAction(_link,target){
 				var tid = _articleLinkDetect(_link);
 				if(tid != null){
-					return "gotoArticle(" + tid + ")";
+					return "gotoArticle(" + tid + "," + target + ")";
 				}else{
-					return "gotoLink(" + _link + ")";
+					return "gotoLink(" + _link + "," + target + ")";
 				}
 			}
 			

@@ -15,6 +15,9 @@ define([],function(){
 				},0);
 			}
 		},
+		"gotoLink":function(cxt,calle,args){
+			console.log("access external link:",args[0]);
+		},
 		"pageTo:":function(cxt,callee,args){
 		},
 		//componentDo(method, element，args...)

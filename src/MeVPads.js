@@ -3,6 +3,11 @@ var React = require("react");
 var ReactDOM = require("react-dom");
 var Hammer = require("react-hammerjs");
 var _assign = require("object-assign");
+var debug_mode = false;
+if (debug_mode == false){
+	console = {};
+	console.log = function(){};
+}
 var PadBuffer = React.createClass({
 	getDefaultProps:function(){
 		return {
@@ -114,7 +119,6 @@ var MeHammer = function(hammer,default_handler){
 	this.listeners = {};
 	//this.hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL }); it doesn't work???
 	this.hammer.on("swipeleft swiperight swipeup swipedown pan tap",function(evt){self.handleHammerEvent(evt);});
-	this.hammer.on("tap",function(evt){self.handleHammerEvent(evt);});
 }
 MeHammer.prototype.handleHammerEvent = function(evt){
 	if(this.listeners.hasOwnProperty(evt.type)){
