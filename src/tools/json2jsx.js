@@ -34,7 +34,8 @@ function main(tpl, magObj, callback) {
         "17": grpRenderItem,
         "34": grpRenderItem,
 		"7": musicRenderItem,
-        "8": videoRenderItem
+        "8": videoRenderItem,
+        "24": clipRenderItem
     };
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
@@ -186,6 +187,13 @@ function musicRenderItem(page,item,_style){
 	});
 }
 
+    /**
+     * 解析视频元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
     function videoRenderItem(page,item,_style){
         if(!item.item_href){
             return;
@@ -213,6 +221,36 @@ function musicRenderItem(page,item,_style){
         data.poster = item.item_val;
         data = JSON.stringify(data);
         return audioTemplate({
+            normalStyle:_style.join(","),
+            data:data,
+            pageIdx:page.idx,
+            id:item.item_id
+        });
+    }
+
+    /**
+     * 解析涂抹元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function clipRenderItem(page,item,_style){
+        if(!item.item_href){
+            return;
+        }
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplate(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplate(item));
+        var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeClip>');
+        var data = {};
+
+        data.src = item.item_href;
+        data.content = item.item_val;
+        data.percent = item.clip_percent;
+        data = JSON.stringify(data);
+        return clipTemplate({
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,

@@ -17,6 +17,7 @@ define([], function () {
 	var MeAudio	= Renderjs.MeAudio;
     var MeText = Renderjs.MeText;
     var MeVideo	= Renderjs.MeVideo;
+    var MeClip	= Renderjs.MeClip;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器

@@ -68,6 +68,15 @@ var selfIncCounter = 0;
 			this.setState({display:false});
 		},
 		addClass:function(str){
-		}
+		},
+        isPC:function(){    //判断是否是浏览器平台
+            var userAgentInfo = navigator.userAgent;
+            var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
+            var flag = true;
+            for (var v = 0; v < Agents.length; v++) {
+                if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }
+            }
+            return flag;
+        }
 	};
 });
