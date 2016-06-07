@@ -12,7 +12,7 @@ function main(tpl, magObj, callback) {
     var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
-    var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
+    var animationTemplate = _.template('<MeAnimation id={<%= id%>} displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
     var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
    //最终返回的对象
     var pageTemp;
@@ -24,6 +24,8 @@ function main(tpl, magObj, callback) {
     var fontServer = "http://agoodme.com:3000";
     //默认从第0个其实加载
     var fontIndex = 0;
+	
+	var convertOldCmdWrap = null;//临时为了合并，将convertOldCmd过度一下，减少后面合并的成本
 
     var itemFuncMap = {
         "1": imgRenderItem,
@@ -251,7 +253,14 @@ function musicRenderItem(page,item,_style){
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
         _style.push(fontStyleTemplate(item));
-        var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeClip>');
+		item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+		var cmds = convertOldCmdWrap(item.animate_end_act);
+		if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+			cmds.actions = [];
+        }
+		
+		cmds.actions.join(",");
+        var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} data={<%= data%>}  ></MeClip>');
         var data = {};
 
         data.src = item.item_href;
@@ -262,9 +271,12 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id
+            id:item.item_id,
+			triggerActions:cmds
+			
         });
     }
+
 
     /**
      * 获取设置云字体
@@ -382,7 +394,7 @@ function musicRenderItem(page,item,_style){
         var genStyle = [];
         var animationData = null;
         var transformStyle = renderTransform(item);
-
+		convertOldCmdWrap = convertOldCmd;
 
         item.pageIdx = page.idx;
 
@@ -396,7 +408,7 @@ function musicRenderItem(page,item,_style){
         var itemType = item.item_type;
         if (item.item_href != null && item.item_href != "" && itemType != 8 && itemType != 24  && itemType != 29 && itemType != 31 && itemType != 36 && itemType != 37 && itemType != 40  && itemType != 41) {
             //hide_el:-2|hide_el:65185725
-            cmds = convertOldCmd(item);
+            cmds = convertOldCmd(item.item_href);
         }
 
         var funcKey = item.item_type.toString();
@@ -443,7 +455,7 @@ function musicRenderItem(page,item,_style){
                 normalStyle: conStyle.join(','),
                 children: _itemContent,
                 pageIdx: page.idx,
-                id: item.item_id,
+                id: item.item_id + "T",
                 triggerActions: cmds
             });
         }
@@ -453,12 +465,16 @@ function musicRenderItem(page,item,_style){
             var animation = [];
             var animationClass = [];
             if (!(item.item_animation == null || item.item_animation === "" || item.item_animation === "none")) {
-                var temp = JSON.parse(item.item_animation_val);
-
+				var temp = null;
+				try{
+					temp = JSON.parse(item.item_animation_val);
+				}catch(e){
+					temp = null;
+				}
                 if (temp != null) {
                     if (temp instanceof Array) {
                         animation = [];
-                        var tempClass = JSON.parse(item.item_animation);
+                        var tempClass = JSON.parse(item.item_animation_val);
                         _.each(temp, function (a, idx) {
                             animation.push({
                                 animationDelay: a.delay + "s",
@@ -481,7 +497,7 @@ function musicRenderItem(page,item,_style){
                     }
                 } else {
                     animation = [defaultAnimation];
-                    animationClass = ["fadeIn"];
+                    animationClass = [item.item_animation];
                 }
                 return {
                     animation: JSON.stringify(animation),
@@ -491,27 +507,33 @@ function musicRenderItem(page,item,_style){
             return null;
         }
 
-        function convertOldCmd(item) {
+        function convertOldCmd(item_href) {
 			//通常是type 18
-			var item_href = item.item_href;
             var _cmdMap = {
                 "hide_el": ["componentDo", "hide"],
                 "show_el": ["componentDo", "show"],
 				"http":function(_link){
-					var tid = articleLinkDetect(_link);
+					var tid = _articleLinkDetect(_link);
 					if(tid != null){
 						return '{action:"' + linkToAction(_link) + '",propagate:true}';
 					}
 					return null;
 				}
             }
+			debugger;
             var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
             //hide_el:-2|hide_el:65185725, 
-			var cmds = JSON.parse(item_href);
+			var cmds = null;
+			try{
+				cmds = JSON.parse(item_href);
+			}catch(e){
+				console.log("old cmd format");
+			}
+			
 			if(cmds != null && cmds instanceof Array){
 				return convertv2Cmd(cmds);
 			}else{
-				return convertv1Cmd(item);
+				return convertv1Cmd(item_href);
 			}
 			
 			function convertv1Cmd(item_href){
