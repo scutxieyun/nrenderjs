@@ -28,12 +28,19 @@ define("MeClip", function () {
             this._img = null;
             return {isOver : false};
         },
-        mixins:[MeComponentMixin],
+        mixins:[MeComponentMixin,MeCommandMixin],
         /**
          * 显示当前页的时候
          */
         pageActive:function(){
-            console.log("active clip");
+            var self = this;
+			if(this.state.isOver){
+			//Sorry, 动作没有限制，如果涂抹结束，调用事件函数
+				setTimeout(function(){
+					if((!!self.props.triggerActions) && (!!self.props.triggerActions.tap))
+						self.callActionMethod(self.props.triggerActions.tap)
+				},1);//因为很多show元素缺省是hide的，如果不delay，show的元素又会被重新hide
+			}
         },
         /**
          * 移除当前页的时候
@@ -224,6 +231,8 @@ define("MeClip", function () {
 //                                //TODO 更换了执行完的脚本
 //                                self.parentView.execAnimationEndAct();
 //                            }
+							if((!!self.props.triggerActions) && (!!self.props.triggerActions.tap))
+								self.callActionMethod(self.props.triggerActions.tap);
                             self._destroy();
                         }
                     }

@@ -57,7 +57,7 @@ define([],function(){
         }
 	};
 	var MeCommandMixin ={
-		handleCmd:function(cmd){
+		_handleCmd:function(cmd){
 			var p = /([\D|_][a-z|A-Z|_|0-9]*)\((.*)\)/;
 			var m = p.exec(cmd);
 			if(m != null){
@@ -67,6 +67,17 @@ define([],function(){
 					cmdTable[method].apply(this,[this.props.cxt,this,params]);
 				}
 			}
+		},
+		callActionMethod:function(actions){
+			if((!!actions) && actions.length > 0){
+				var propagate = false;
+				for(var i = 0;i < actions.length; i ++){
+					this._handleCmd(actions[i].action);
+					propagate |= actions[i].propagate;
+				}
+				return propagate;
+			}
+			return true;
 		}
 	}
 	return MeCommandMixin;
