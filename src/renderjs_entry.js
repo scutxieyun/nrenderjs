@@ -18,6 +18,7 @@ var MeLabel = require("../dist/MeLabel.js");
 var MeText = require("../dist/MeText.js");
 var MeVideo = require("../dist/MeVideo.js");
 var MeClip = require("../dist/MeClip.js");
+var MeGallary = require("../dist/MeGallary.js");
 
 
 var EventEmitter = require("wolfy87-eventemitter");
@@ -46,6 +47,7 @@ module.exports = function(){
     MeText:MeText,
     MeVideo:MeVideo,
     MeClip:MeClip,
+	MeGallary:MeGallary,
 	EventEmitter:EventEmitter,
 	React:React,
 	ReactDOM:ReactDOM,

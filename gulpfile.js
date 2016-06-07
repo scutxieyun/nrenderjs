@@ -34,6 +34,7 @@ jsx = ["src/MeVPads.js",
 	"samples/test1.js",
 	"src/components/MeSvg.js",
 	"samples/mag_page_test.jsx",
+	"samples/mag_gallary.jsx",
 	"index.js"
 ];
 gulp.task("babel", function(){

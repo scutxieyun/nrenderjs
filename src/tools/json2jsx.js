@@ -12,7 +12,7 @@ function main(tpl, magObj, callback) {
     var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
-    var animationTemplate = _.template('<MeAnimation id={<%= id%>} displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
+    var animationTemplate = _.template('<MeAnimation id="<%= id%>" displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
     var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
    //最终返回的对象
     var pageTemp;
@@ -37,7 +37,8 @@ function main(tpl, magObj, callback) {
         "34": grpRenderItem,
 		"7": musicRenderItem,
         "8": videoRenderItem,
-        "24": clipRenderItem
+        "24": clipRenderItem,
+		"37": gallaryRenderItem,
     };
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
@@ -163,6 +164,27 @@ function main(tpl, magObj, callback) {
         //return 'transform:"' + scale + '"';
         return "";
     }
+	
+function gallaryRenderItem(page,item,_style){
+	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
+	var imgs = item.item_val.split("|");
+	var urls = item.item_href.split("@");
+	var imgItems = [];
+	_.each(imgs,function(img,i){
+		imgItems.push({
+			src:img,
+			action:urls[i],
+		})
+	});
+	_style.push(sizeStyleTemplate(item));
+	return template({
+		pageIdx:page.idx,
+		id:item.item_id,
+		imgItems:JSON.stringify(imgItems),
+		normalStyle:_style.join(",")
+	});
+}
+	
 function imgRenderItem(page,item,_style){
     //人工实现Scale,
     if(item.x_scale == null) item.x_scale = 1;
@@ -431,7 +453,7 @@ function musicRenderItem(page,item,_style){
                 normalStyle: conStyle.join(','),
                 pageIdx: page.idx,
                 displayType: item.item_display_status,
-                id: item.item_id});
+                id: item.item_id + "A"});
         }
         if (animationData != null) {
             _itemContent = animationTemplate({animationClass: animationData.animationClass,
@@ -440,7 +462,7 @@ function musicRenderItem(page,item,_style){
                 normalStyle: "",
                 pageIdx: page.idx,
                 displayType: 0,
-                id: item.item_id});
+                id: item.item_id + "T"});
         }
         if ((cmds.actions != undefined && cmds.actions.length > 0)) {
 			cmds.actions = cmds.actions.join(",");
