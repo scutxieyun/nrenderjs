@@ -32,6 +32,7 @@ function main(tpl, magObj, callback) {
         "18": imgRenderItem,//带链接
         "17": grpRenderItem,
         "34": grpRenderItem,
+		"12": phoneRenderItem,//打电话
 		"7": musicRenderItem,		
     };
     //给一个初始的随机数
@@ -194,6 +195,15 @@ function musicRenderItem(page,item,_style){
 	});
 }
 
+
+
+function phoneRenderItem(page,item,_style){//todo can not adjust the font to center, 
+	_style.push(fontStyleTemplateWrap(item));
+	_style.push(sizeStyleTemplateWrap(item));
+	var phoneTemplate = _.template('<div className="mePhone" style={{<%= _style %>}}><%= item_val%></div>');
+	item._style = _style.join(",");
+	return phoneTemplate(item);
+}
     /**
      * 获取设置云字体
      * @param cIndex
@@ -341,6 +351,29 @@ function musicRenderItem(page,item,_style){
             children: content});
     }
 
+	function genStyleRender(item){
+		var genStyle = [];
+		if (item.item_opacity != 100) {
+            genStyle.push('opacity:' + (item.item_opacity / 100));
+        }
+		if (!!item.bg_color){
+			genStyle.push('backgroundColor:"' + item.bg_color + '"');
+		}
+		if (!!item.item_color){
+			genStyle.push('color:"' + item.item_color + '"');
+		}
+		if (!!item.bd_radius){
+			genStyle.push('borderRadius:"' + item.bd_radius + 'px"');
+		}
+		if (!!item.item_border){
+			genStyle.push('borderSize:"' + item.item_border + 'px"');
+		}
+		if (!!item.bd_style){
+			genStyle.push('borderStyle:"' + item.bd_style + '"');
+		}
+		
+		return genStyle;
+	}
 
     function renderItem(page, item, content) {
         var cmds = {};
@@ -354,11 +387,7 @@ function musicRenderItem(page,item,_style){
 
         if (item.item_display_status == undefined)item.item_display_status = 0;
 
-        if (item.item_opacity != 100) {
-            genStyle.push('opacity:' + (item.item_opacity / 100));
-        }
-
-
+		genStyle = genStyleRender(item);
         if (item.item_href != null && item.item_href != "") {
             //hide_el:-2|hide_el:65185725
             cmds = convertOldCmd(item);
@@ -467,6 +496,7 @@ function musicRenderItem(page,item,_style){
             var _cmdMap = {
                 "hide_el": ["componentDo", "hide"],
                 "show_el": ["componentDo", "show"],
+				"telto"  : ["phoneFunc","telto"],
 				"http":function(_link){
 					var tid = articleLinkDetect(_link);
 					if(tid != null){
@@ -522,6 +552,7 @@ function musicRenderItem(page,item,_style){
 			function convertv2Cmd(cmds){
 				//"[{"meTap":{"target":"_blank","value":"http://www.agoodme.com/#/preview/tid=154ebc5570c44252"}}]"
 				//[{"meTap":"show_el:-2|show_el:53054687"}]'
+				//"[{\"meTap\":\"telto:0571-64395888\"}]"
 				var res = {evt:"tap",actions:[]};
 				_.each(cmds,function(cmd){
 					if(cmd.meTap != undefined){//放弃多事件的case

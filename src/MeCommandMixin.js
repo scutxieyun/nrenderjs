@@ -33,6 +33,9 @@ define([],function(){
 		"systemCall":function(){
 			
 		},
+		"phoneFunc":function(cxt,callee,args){
+			console.log("phonefunc calls: ",args);
+		},
 		"componentDo":function(cxt,callee,args){
 			var pageInstance = callee.getPageInstance();
 			if(pageInstance != null && args.length > 1){
@@ -48,7 +51,7 @@ define([],function(){
 	};
 	var MeCommandMixin ={
 		handleCmd:function(cmd){
-			var p = /([\D|_][a-z|A-Z|_|0-9]*)\(([a-z|A-Z|_|0-9|,]*)\)/;
+			var p = /([\D|_][a-z|A-Z|_|0-9]*)\((.*)\)/;
 			var m = p.exec(cmd);
 			if(m != null){
 				var method = m[1];
