@@ -16,6 +16,10 @@ var MeRadio = require("../dist/MeRadio.js");
 var MeCheckbox = require("../dist/MeCheckbox.js");
 var MeLabel = require("../dist/MeLabel.js");
 var MeText = require("../dist/MeText.js");
+var MeIFrameVideo = require("../dist/MeIFrameVideo.js");
+var MeInnerVideo = require("../dist/MeInnerVideo.js");
+var MeClip = require("../dist/MeClip.js");
+var MeGallary = require("../dist/MeGallary.js");
 
 
 var EventEmitter = require("wolfy87-eventemitter");
@@ -42,6 +46,10 @@ module.exports = function(){
     MeCheckbox:MeCheckbox,
     MeLabel:MeLabel,
     MeText:MeText,
+    MeIFrameVideo:MeIFrameVideo,
+    MeInnerVideo:MeInnerVideo,
+    MeClip:MeClip,
+	MeGallary:MeGallary,
 	EventEmitter:EventEmitter,
 	React:React,
 	ReactDOM:ReactDOM,
@@ -118,9 +126,18 @@ module.exports = function(){
 					var y = 0;
 					y = pads.moveYPrev();
 				}
-			}
+			},
+            /**
+             * 这里调用外部的以iframe打开链接
+             * @param target
+             */
+            openWithInnerBrowse : function(target,height){
+                if(elem == null) return;
+                if(globalOpenWithInnerBrowse == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
+                globalOpenWithInnerBrowse(target,height);
+            }
 		};
-		}(),
+		}()
 	}	
 		
 	return myself;

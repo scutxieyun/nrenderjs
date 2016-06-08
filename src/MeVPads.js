@@ -428,6 +428,9 @@ var MeVPads = React.createClass({
 			return;
 		}
 	},
+	handleTap:function(evt){
+		console.log("tap");
+	},
 	_cancelPan:function(){ //not a good method, hook to react directly
 		if(this.state.yOffset != 0)
 		this.setState({yOffset:0});
@@ -439,7 +442,8 @@ var MeVPads = React.createClass({
 			this.props.article.getCxt().interactHandler = 
 					new MeHammer(ref.hammer,{"swipeleft":this.moveXNext,"swiperight":this.moveXPrev,
 											"swipedown":this.moveYPrev,"swipeup":this.moveYNext,
-											"pan":this.handlePan});
+											"pan":this.handlePan,
+											"tap":this.handleTap});
 		}else{
 		//控件消除
 		}

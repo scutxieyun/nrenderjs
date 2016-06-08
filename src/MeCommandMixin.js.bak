@@ -63,7 +63,11 @@ define([],function(){
         }
 	};
 	var MeCommandMixin ={
+<<<<<<< HEAD
+		handleCmd:function(cmd){
+=======
 		_handleCmd:function(cmd){
+>>>>>>> develop-june
 			var p = /([\D|_][a-z|A-Z|_|0-9]*)\((.*)\)/;
 			var m = p.exec(cmd);
 			if(m != null){

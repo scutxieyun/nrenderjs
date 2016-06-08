@@ -39,13 +39,7 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 				if(this.props.triggerActions[evt.type] instanceof Array){
 					actions = this.props.triggerActions[evt.type];
 				}
-				var propagate = false;
-				for(var i = 0;i < actions.length; i ++){
-					this.handleCmd(actions[i].action);
-					propagate |= actions[i].propagate;
-					
-				}
-				return propagate;
+				return this.callActionMethod(actions);
 			}
 			return true;
 		},

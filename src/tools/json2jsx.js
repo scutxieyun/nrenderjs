@@ -10,9 +10,8 @@ function main(tpl, magObj, callback) {
     var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
-    var animationTemplate = _.template('<MeAnimation displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
+    var animationTemplate = _.template('<MeAnimation id="<%= id%>" displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
     var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
- 
    //最终返回的对象
     var pageTemp;
     //页容器的字符串
@@ -23,6 +22,8 @@ function main(tpl, magObj, callback) {
     var fontServer = "http://agoodme.com:3000";
     //默认从第0个其实加载
     var fontIndex = 0;
+	
+	var convertOldCmdWrap = null;//临时为了合并，将convertOldCmd过度一下，减少后面合并的成本
 
     var itemFuncMap = {
         "1": imgRenderItem,
@@ -33,7 +34,10 @@ function main(tpl, magObj, callback) {
         "17": grpRenderItem,
         "34": grpRenderItem,
 		"12": phoneRenderItem,//打电话
-		"7": musicRenderItem,		
+		"7": musicRenderItem,
+        "8": videoRenderItem,
+        "24": clipRenderItem,
+		"37": gallaryRenderItem,
     };
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
@@ -159,6 +163,27 @@ function main(tpl, magObj, callback) {
         //return 'transform:"' + scale + '"';
         return "";
     }
+	
+function gallaryRenderItem(page,item,_style){
+	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
+	var imgs = item.item_val.split("|");
+	var urls = item.item_href.split("@");
+	var imgItems = [];
+	_.each(imgs,function(img,i){
+		imgItems.push({
+			src:img,
+			action:urls[i],
+		})
+	});
+	_style.push(sizeStyleTemplateWrap(item));
+	return template({
+		pageIdx:page.idx,
+		id:item.item_id,
+		imgItems:JSON.stringify(imgItems),
+		normalStyle:_style.join(",")
+	});
+}
+	
 function imgRenderItem(page,item,_style){
     //人工实现Scale,
     if(item.x_scale == null) item.x_scale = 1;
@@ -183,15 +208,27 @@ function imgRenderItem(page,item,_style){
     return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
 function musicRenderItem(page,item,_style){
-    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
-	return audioTemplate({
+    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
+    //处理音频的事件
+    if(!item.animate_end_act){
+        item.animate_end_act = "";
+    }
+    item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+    var cmds = convertOldCmdWrap(item.animate_end_act);
+    if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+        cmds.actions = [];
+    }
+
+    cmds.actions.join(",")
+    return audioTemplate({
 		normalStyle:_style.join(","),
 		src:item.item_val,
 		autoplay: item.music_autoplay ? true:false,
 		music_name:item.music_name,
 		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
 		pageIdx:page.idx,
-		id:item.item_id
+		id:item.item_id,
+        triggerActions:cmds
 	});
 }
 
@@ -204,6 +241,108 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 	item._style = _style.join(",");
 	return phoneTemplate(item);
 }
+    /**
+     * 解析视频元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function videoRenderItem(page,item,_style){
+        if(!item.item_href){
+            return;
+        }
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        //处理视频的事件
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        var cmds = convertOldCmdWrap(item.animate_end_act);
+        if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+            cmds.actions = [];
+        }
+        cmds.actions.join(",");
+        var audioTemplate;
+        var data = {};
+        //todo 最好用正则表达式获取 src height
+        //<iframe frameborder="0" width="640" height="498" src="http://v.qq.com/iframe/player.html?vid=b0020d8wsqm&tiny=0&auto=0" allowfullscreen></iframe>
+        var poster = item.item_val;
+        var width = item.item_width;
+        var height = item.item_height;
+        var src = item.item_href;
+        if(src.indexOf("iframe") > -1){
+            var tempSrcArr = src.split('src="');
+            src = tempSrcArr[1].split('"')[0];
+            var tempHeightArr = item.item_href.split('height="');
+            var iframeHeight = tempHeightArr[1].split('"')[0];
+            data.iframeHeight = iframeHeight;
+            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
+        }else{
+            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
+            data.width = width;
+            data.height = height;
+        }
+        data.src = src;
+        if(poster){
+            //modify by fishYu 2016-4-22 18:44 修改让视频的背景图片适配视频的区域
+            poster = poster.split("?")[0]+"?imageView2/1/w/"+parseInt(width)+"/h/" +parseInt(height);
+        }
+        data.poster = poster;
+        data = JSON.stringify(data);
+        return audioTemplate({
+            normalStyle:_style.join(","),
+            data:data,
+            pageIdx:page.idx,
+            id:item.item_id,
+            triggerActions:cmds
+        });
+    }
+    /**
+     * 解析涂抹元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function clipRenderItem(page,item,_style){
+        if(!item.item_href){
+            return;
+        }
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+		var cmds = convertOldCmdWrap(item.animate_end_act);
+		if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+			cmds.actions = [];
+        }
+        cmds.actions.join(",");
+        var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} data={<%= data%>}  ></MeClip>');
+        var data = {};
+
+        data.src = item.item_href;
+        data.content = item.item_val;
+        data.percent = item.clip_percent;
+        data = JSON.stringify(data);
+        return clipTemplate({
+            normalStyle:_style.join(","),
+            data:data,
+            pageIdx:page.idx,
+            id:item.item_id,
+			triggerActions:cmds
+			
+        });
+    }
+
+
     /**
      * 获取设置云字体
      * @param cIndex
@@ -381,16 +520,19 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
         var genStyle = [];
         var animationData = null;
         var transformStyle = renderTransform(item);
-
+		convertOldCmdWrap = convertOldCmd;
 
         item.pageIdx = page.idx;
 
         if (item.item_display_status == undefined)item.item_display_status = 0;
 
 		genStyle = genStyleRender(item);
-        if (item.item_href != null && item.item_href != "") {
+       //TODO 这里有一些元素的item_href表示的是别的值
+        //过滤掉视频8的item_href, 和涂抹24的item_href,和长按的25 item_href, 假话29,密码31的时候, 36打赏 37图集元素 40--360全景  41红包 过滤掉
+        var itemType = item.item_type;
+        if (item.item_href != null && item.item_href != "" && itemType != 8 && itemType != 24  && itemType != 29 && itemType != 31 && itemType != 36 && itemType != 37 && itemType != 40  && itemType != 41) {
             //hide_el:-2|hide_el:65185725
-            cmds = convertOldCmd(item);
+            cmds = convertOldCmd(item.item_href);
         }
 
         var funcKey = item.item_type.toString();
@@ -413,7 +555,6 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 
         var conStyle = [posStyle];
         if (transformStyle != "")conStyle.push(transformStyle);
-
         if ((cmds.actions == undefined || cmds.actions.length == 0) && animationData != null) {
             return animationTemplate({animationClass: animationData.animationClass,
                 children: _itemContent,
@@ -421,7 +562,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
                 normalStyle: conStyle.join(','),
                 pageIdx: page.idx,
                 displayType: item.item_display_status,
-                id: item.item_id});
+                id: item.item_id + "A"});
         }
         if (animationData != null) {
             _itemContent = animationTemplate({animationClass: animationData.animationClass,
@@ -438,7 +579,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
                 normalStyle: conStyle.join(','),
                 children: _itemContent,
                 pageIdx: page.idx,
-                id: item.item_id,
+                id: item.item_id + "T",
                 triggerActions: cmds
             });
         }
@@ -494,34 +635,34 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
             return null;
         }
 
-        function convertOldCmd(item) {
+        function convertOldCmd(item_href) {
 			//通常是type 18
-			var item_href = item.item_href;
             var _cmdMap = {
                 "hide_el": ["componentDo", "hide"],
                 "show_el": ["componentDo", "show"],
 				"telto"  : ["phoneFunc","telto"],
 				"http":function(_link){
-					var tid = articleLinkDetect(_link);
+					var tid = _articleLinkDetect(_link);
 					if(tid != null){
 						return '{action:"' + linkToAction(_link,"_self") + '",propagate:true}';
 					}
 					return null;
 				}
             }
+			debugger;
             var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
             //hide_el:-2|hide_el:65185725, 
 			var cmds = null;
 			try{
 				cmds = JSON.parse(item_href);
 			}catch(e){
-				return {evt:"tap",actions:[]};
+				console.log("old cmd format");
 			}
 			
 			if(cmds != null && cmds instanceof Array){
 				return convertv2Cmd(cmds);
 			}else{
-				return convertv1Cmd(item);
+				return convertv1Cmd(item_href);
 			}
 			
 			function convertv1Cmd(item_href){
