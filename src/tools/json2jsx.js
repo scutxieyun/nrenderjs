@@ -177,15 +177,27 @@ function imgRenderItem(page,item,_style){
     return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
 function musicRenderItem(page,item,_style){
-    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
-	return audioTemplate({
+    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
+    //处理音频的事件
+    if(!item.animate_end_act){
+        item.animate_end_act = "";
+    }
+    item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+    var cmds = convertOldCmdWrap(item.animate_end_act);
+    if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+        cmds.actions = [];
+    }
+
+    cmds.actions.join(",")
+    return audioTemplate({
 		normalStyle:_style.join(","),
 		src:item.item_val,
 		autoplay: item.music_autoplay,
 		music_name:item.music_name,
 		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
 		pageIdx:page.idx,
-		id:item.item_id
+		id:item.item_id,
+        triggerActions:cmds
 	});
 }
 
@@ -204,6 +216,16 @@ function musicRenderItem(page,item,_style){
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
         _style.push(fontStyleTemplate(item));
+        //处理视频的事件
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        var cmds = convertOldCmdWrap(item.animate_end_act);
+        if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+            cmds.actions = [];
+        }
+        cmds.actions.join(",");
         var audioTemplate;
         var data = {};
         //todo 最好用正则表达式获取 src height
@@ -218,9 +240,9 @@ function musicRenderItem(page,item,_style){
             var tempHeightArr = item.item_href.split('height="');
             var iframeHeight = tempHeightArr[1].split('"')[0];
             data.iframeHeight = iframeHeight;
-            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
+            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
-            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
+            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
             data.width = width;
             data.height = height;
         }
@@ -235,7 +257,8 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id
+            id:item.item_id,
+            triggerActions:cmds
         });
     }
     /**
@@ -253,13 +276,15 @@ function musicRenderItem(page,item,_style){
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
         _style.push(fontStyleTemplate(item));
-		item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
 		var cmds = convertOldCmdWrap(item.animate_end_act);
 		if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
 			cmds.actions = [];
         }
-		
-		cmds.actions.join(",");
+        cmds.actions.join(",");
         var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} data={<%= data%>}  ></MeClip>');
         var data = {};
 

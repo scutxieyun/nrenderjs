@@ -70,8 +70,9 @@ define("MeInnerVideo", function () {
             var _videoEndLayer = self.refs.mediaEnd;
             _video.addEventListener("ended", function(e){
                 //视频播放结束
-                console.log(123);
                 //TODO 视频播放结束的时候需要播放背景音乐,和执行脚本
+                if((!!self.props.triggerActions) && (!!self.props.triggerActions.tap))
+                    self.callActionMethod(self.props.triggerActions.tap);
                 self.setState({
                     isPlay:false
                 });
