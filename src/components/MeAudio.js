@@ -16,6 +16,22 @@ define("MeAudio", function () {
 		pageDeactive:function(){
 			this.pause();
 		},
+        /**
+         * 音频播放结束处理函数
+         */
+        audioEndHandle : function(){
+            var self = this;
+            var _video = self.refs.mediaPlay;
+            _video.addEventListener("ended", function(e){
+                //视频播放结束
+                //TODO 视频播放结束的时候需要播放背景音乐,和执行脚本
+                if((!!self.props.triggerActions) && (!!self.props.triggerActions.tap))
+                    self.callActionMethod(self.props.triggerActions.tap);
+                self.setState({
+                    isPlay:false
+                });
+            })
+        },
         render: function () {
 			var playingClass = this.state.isPlay ? "playing" : "";
             return (<div className="audioWrapper" onClick={this.togglePlay} style={this.props.normalStyle}>
@@ -23,6 +39,9 @@ define("MeAudio", function () {
                        play-status="play-current" ref="mediaPlay"></audio>
 				<div className={"audioBack " + playingClass}></div>
             </div>)
+        },
+        componentDidMount: function () {
+            this.audioEndHandle();
         }
     });
     return MeAudio;

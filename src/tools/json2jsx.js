@@ -199,15 +199,27 @@ function imgRenderItem(page,item,_style){
     return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
 }
 function musicRenderItem(page,item,_style){
-    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
-	return audioTemplate({
+    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
+    //处理音频的事件
+    if(!item.animate_end_act){
+        item.animate_end_act = "";
+    }
+    item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+    var cmds = convertOldCmdWrap(item.animate_end_act);
+    if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+        cmds.actions = [];
+    }
+
+    cmds.actions.join(",")
+    return audioTemplate({
 		normalStyle:_style.join(","),
 		src:item.item_val,
 		autoplay: item.music_autoplay,
 		music_name:item.music_name,
 		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
 		pageIdx:page.idx,
-		id:item.item_id
+		id:item.item_id,
+        triggerActions:cmds
 	});
 }
 
@@ -226,32 +238,51 @@ function musicRenderItem(page,item,_style){
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
         _style.push(fontStyleTemplate(item));
-        var audioTemplate = _.template('<MeVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeVideo>');
+        //处理视频的事件
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        var cmds = convertOldCmdWrap(item.animate_end_act);
+        if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+            cmds.actions = [];
+        }
+        cmds.actions.join(",");
+        var audioTemplate;
         var data = {};
         //todo 最好用正则表达式获取 src height
         //<iframe frameborder="0" width="640" height="498" src="http://v.qq.com/iframe/player.html?vid=b0020d8wsqm&tiny=0&auto=0" allowfullscreen></iframe>
-        var itemHref = item.item_href;
-        if(itemHref.indexOf("iframe") > -1){
-            var tempSrcArr = itemHref.split('src="');
-            var src = tempSrcArr[1].split('"')[0];
-            var tempHeightArr = itemHref.split('height="');
-            var height = tempHeightArr[1].split('"')[0];
-            data.src = src;
-            data.iframeHeight = height;
-            data.isIFrame = true;
+        var poster = item.item_val;
+        var width = item.item_width;
+        var height = item.item_height;
+        var src = item.item_href;
+        if(src.indexOf("iframe") > -1){
+            var tempSrcArr = src.split('src="');
+            src = tempSrcArr[1].split('"')[0];
+            var tempHeightArr = item.item_href.split('height="');
+            var iframeHeight = tempHeightArr[1].split('"')[0];
+            data.iframeHeight = iframeHeight;
+            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
-            data.src = item.item_href;
+            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
+            data.width = width;
+            data.height = height;
         }
-        data.poster = item.item_val;
+        data.src = src;
+        if(poster){
+            //modify by fishYu 2016-4-22 18:44 修改让视频的背景图片适配视频的区域
+            poster = poster.split("?")[0]+"?imageView2/1/w/"+parseInt(width)+"/h/" +parseInt(height);
+        }
+        data.poster = poster;
         data = JSON.stringify(data);
         return audioTemplate({
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id
+            id:item.item_id,
+            triggerActions:cmds
         });
     }
-
     /**
      * 解析涂抹元素
      * @param page
@@ -267,13 +298,15 @@ function musicRenderItem(page,item,_style){
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
         _style.push(fontStyleTemplate(item));
-		item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
 		var cmds = convertOldCmdWrap(item.animate_end_act);
 		if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
 			cmds.actions = [];
         }
-		
-		cmds.actions.join(",");
+        cmds.actions.join(",");
         var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} data={<%= data%>}  ></MeClip>');
         var data = {};
 
@@ -445,7 +478,6 @@ function musicRenderItem(page,item,_style){
 
         var conStyle = [posStyle];
         if (transformStyle != "")conStyle.push(transformStyle);
-
         if ((cmds.actions == undefined || cmds.actions.length == 0) && animationData != null) {
             return animationTemplate({animationClass: animationData.animationClass,
                 children: _itemContent,
