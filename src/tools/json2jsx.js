@@ -459,6 +459,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
                         animation = [];
                         var tempClass = JSON.parse(item.item_animation_val);
                         _.each(temp, function (a, idx) {
+							if(a.duration < 0.2){return;}//如果动画太短，就忽略他算了。
                             animation.push({
                                 animationDelay: a.delay + "s",
                                 animationDuration: a.duration + "s",
@@ -482,6 +483,9 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
                     animation = [defaultAnimation];
                     animationClass = [item.item_animation];
                 }
+				if(animationClass.length == 0){
+					return null;
+				}
                 return {
                     animation: JSON.stringify(animation),
                     animationClass: JSON.stringify(animationClass)

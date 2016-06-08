@@ -3,7 +3,7 @@ var React = require("react");
 var ReactDOM = require("react-dom");
 var Hammer = require("react-hammerjs");
 var _assign = require("object-assign");
-var debug_mode = false;
+var debug_mode = true;
 if (debug_mode == false){
 	console = {};
 	console.log = function(){};
@@ -21,7 +21,8 @@ var PadBuffer = React.createClass({
 	getInitialState:function(){
 		this.bufferredState = {
 			pageIdx:-1,
-			state:"standby"
+			state:"standby",
+			doneCb:null,
 		}
 		return {
 			pageIdx:-1, // 当前缓存的页面
@@ -38,7 +39,7 @@ var PadBuffer = React.createClass({
 		return this.props.article.getPageInstanceByIdx(this.state.pageIdx);
 	},
 	//这个函数实现有局限，他假定pageIdx和state一起设置，如果分开设置，程序会有问题
-	updateBuffer:function(newState){
+	updateBuffer:function(newState,done){
 	//不能让pads直接设置pageIdx，所以用这个函数过度一下
 		var _toSet = _assign({},newState);
 		if(this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1 && newState.pageIdx != undefined){
@@ -51,8 +52,11 @@ var PadBuffer = React.createClass({
 				_toSet.state = "standby";//暂时不要激活
 			}
 			this.bufferredState.state = newState.state;
+			this.bufferredState.doneCb = done;
 			_toSet.pageIdx = -1;
 			console.log("delay the page:",this.bufferredState.pageIdx," in buffer ",this.props.id, " own ",this.state.pageIdx);
+		}else{
+			if(done != null)done("done");
 		}
 		//if(this.state.state == "active" && this.state.state != _toSet.state)
 		//{
@@ -66,6 +70,8 @@ var PadBuffer = React.createClass({
 		this.bufferredState.pageIdx = -1
 		if(tem != -1){
 			console.log("do actual update for ",tem," in buffer ",this.props.id);
+			if(this.bufferredState.doneCb != null)this.bufferredState.doneCb("done");
+			this.bufferredState.doneCb = null;
 			this.setState({pageIdx:tem,
 							state:this.bufferredState.state});
 		}
@@ -88,10 +94,13 @@ var PadBuffer = React.createClass({
 		if(react_page != null && old_active != cur_active){
 			react_page.setContainerSize(this.props.pageWidth,this.props.pageHeight);
 			if(cur_active == false){
+				console.log("buffer ask page ",this.state.pageIdx," deactive after 500ms");
 				setTimeout(function(){
-					react_page.setState({active:false});//延迟page的deactive，这样，就会实现两页间滑动的效果
+					if(myself.state.state != "active") //确认500ms后状态一致
+						react_page.setState({active:false});//延迟page的deactive，这样，就会实现两页间滑动的效果
 				},500);//延迟消失
 			}else{
+				console.log("buffer ask page ",this.state.pageIdx," active");
 				react_page.setState({active:true});
 			}
 			//console.log("react page update with ",this.state);
@@ -179,6 +188,7 @@ var MeVPads = React.createClass({
 		this.pageCache = [];
 		this.posXIdx = -1;
 		this.posYIdx = -1;
+		this._pendingBufferUpdate = 0;
         this._pageRecorder = new Array(this.props.article.getL1Num()); //为了记住横向的访问历史
 		for(var i=0;i < this._pageRecorder.length;i ++) this._pageRecorder[i] = 0;//缺省0
 		return {
@@ -227,6 +237,8 @@ var MeVPads = React.createClass({
 		return found;	//@todo 加错误检查,应该获得一个空闲的page
 	},
 	_cachePage:function(pageIdx,state,loc){
+		
+		var myself = this;
 		if(pageIdx < 0 || pageIdx > this.pageCacheIdx.length) return;
 		var cacheIdx = this.pageCacheIdx[pageIdx];
 		if(cacheIdx == -1){
@@ -248,7 +260,9 @@ var MeVPads = React.createClass({
 		}
 		if(cache.lock) return;//这个cache已经被激活，不用再次激活，，，通常是页面定义有冲突，比如page1的下一页也是page1
 		cache.lock = true;
-		if(state == "active") cache.rate += 4;
+		if(state == "active"){
+			cache.rate += 4;
+		}
 		else cache.rate += 2;
 		//if(cache.pageIdx != -1 && cache.pageIdx != pageIdx){
 		//	debugger;
@@ -257,7 +271,11 @@ var MeVPads = React.createClass({
 		cache.state = state;
 		cache.loc = loc;
 		if(cache.reactInstance != null){
-			cache.reactInstance.updateBuffer({loc:cache.loc,state:cache.state,pageIdx:cache.pageIdx});
+			this._pendingBufferUpdate ++;
+			cache.reactInstance.updateBuffer({loc:cache.loc,state:cache.state,pageIdx:cache.pageIdx},function(progress){
+				//updateBuffer回调，因为延迟换页的存在，只有换页成功后，才允许翻页
+				myself._pendingBufferUpdate --;
+			});
 		}
 		
 	},
@@ -271,6 +289,7 @@ var MeVPads = React.createClass({
 			});
 	},
 	loadPageByPos:function(posXIdx,posYIdx){//显示指定位置的页，对应的页在layout中定义
+		//if(this._pendingBufferUpdate) return -1; //找到快速回看，页面状态不对的问题，请参见line 98 setTimeout，保留这个update计数，但不用他，留着以后debug
 		var candidatePages = [];
 		var article = this.props.article;
 		var pageIdx = article.getPageIdxInLayout(posXIdx,posYIdx);
@@ -303,7 +322,7 @@ var MeVPads = React.createClass({
 			 this._cachePage(candidatePages[i].pageIdx,"standby",candidatePages[i].loc);
 		}
 
-		console.log(pageIdx,up,down,left,right,candidatePages);
+		//console.log(pageIdx,up,down,left,right,candidatePages);
 		
 		for(var i = 0;i < this.pageCache.length;i ++){
 			var cache = this.pageCache[i];
@@ -313,7 +332,7 @@ var MeVPads = React.createClass({
 				if(cache.pageIdx != -1 && cache.reactInstance != null){
 					cache.state = "hide";
 					cache.loc = "none";
-					cache.reactInstance.updateBuffer({state:cache.state,loc:cache.loc});
+					cache.reactInstance.updateBuffer({state:cache.state,loc:cache.loc},null);
 				}
 			}else{
 				cache.lock = false;//释放刚刚申请的page，供下次调度使用
@@ -333,32 +352,44 @@ var MeVPads = React.createClass({
 	},
 	moveXNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return -1;//翻到尽头
-		this.posXIdx ++;
-//		this.posYIdx = 0;	//这是由作品的结构决定的，横向，作品有可能是单页，posYIdx位置失效
-        this.posYIdx = this._pageRecorder[this.posXIdx] || 0;
-		this.loadPageByPos(this.posXIdx,this.posYIdx);
+		var tempX,tempY;
+		tempX = this.posXIdx + 1;
+		tempY = this._pageRecorder[this.posXIdx] || 0;
+		if(this.loadPageByPos(tempX,tempY) != -1){
+			this.posXIdx = tempX;
+			this.posYIdx = tempY;
+		}
 		return this.posXIdx;
 	},
 	moveXPrev:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx - 1,0) == -1) return -1;//翻到尽头
-		this.posXIdx --;
-//		this.posYIdx = 0;
-        this.posYIdx = this._pageRecorder[this.posXIdx] || 0;
-		this.loadPageByPos(this.posXIdx,this.posYIdx);
+		var tempX,tempY;
+		tempX = this.posXIdx - 1;
+		tempY = this._pageRecorder[this.posXIdx] || 0;
+		if(this.loadPageByPos(tempX,tempY) != -1){
+			this.posXIdx = tempX;
+			this.posYIdx = tempY;
+		}
 		return this.posXIdx;
 	},
 	moveYNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx + 1) == -1) return -1;//翻到尽头
-		this.posYIdx ++;
-        this._pageRecorder[this.posXIdx] = this.posYIdx;
-        this.loadPageByPos(this.posXIdx,this.posYIdx);
+		var tempY;
+		tempY = this.posYIdx + 1;
+		if(this.loadPageByPos(this.posXIdx,tempY) != -1){ // 只有成功才去更新索引
+			this.posYIdx = tempY;
+			this._pageRecorder[this.posXIdx] = this.posYIdx;
+		}
 		return this.posYIdx;
 	},
 	moveYPrev:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx - 1) == -1) return -1;//翻到尽头
-		this.posYIdx --;
-        this._pageRecorder[this.posXIdx] = this.posYIdx;
-		this.loadPageByPos(this.posXIdx,this.posYIdx);
+		var tempY;
+		tempY = this.posYIdx - 1 ;
+		if(this.loadPageByPos(this.posXIdx,tempY) != -1){
+			this.posYIdx = tempY;
+			this._pageRecorder[this.posXIdx] = this.posYIdx;
+		}
 		return this.posYIdx;
 	},
 	getPos:function(){
