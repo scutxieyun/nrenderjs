@@ -114,7 +114,6 @@ var MeHammer = function(hammer,default_handler){
 	this.listeners = {};
 	//this.hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL }); it doesn't work???
 	this.hammer.on("swipeleft swiperight swipeup swipedown pan tap",function(evt){self.handleHammerEvent(evt);});
-	this.hammer.on("tap",function(evt){self.handleHammerEvent(evt);});
 }
 MeHammer.prototype.handleHammerEvent = function(evt){
 	if(this.listeners.hasOwnProperty(evt.type)){
@@ -393,6 +392,9 @@ var MeVPads = React.createClass({
 			return;
 		}
 	},
+	handleTap:function(evt){
+		console.log("tap");
+	},
 	_cancelPan:function(){ //not a good method, hook to react directly
 		if(this.state.yOffset != 0)
 		this.setState({yOffset:0});
@@ -404,7 +406,8 @@ var MeVPads = React.createClass({
 			this.props.article.getCxt().interactHandler = 
 					new MeHammer(ref.hammer,{"swipeleft":this.moveXNext,"swiperight":this.moveXPrev,
 											"swipedown":this.moveYPrev,"swipeup":this.moveYNext,
-											"pan":this.handlePan});
+											"pan":this.handlePan,
+											"tap":this.handleTap});
 		}else{
 		//控件消除
 		}
