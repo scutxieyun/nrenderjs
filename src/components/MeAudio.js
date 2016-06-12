@@ -7,7 +7,7 @@ define("MeAudio", function () {
     var MeCommandMixin = require("../src/MeCommandMixin.js");
     var MeComponentMixin = require("../src/MeComponentMixin");
     var MeAudio = React.createClass({
-        mixins     : [MeComponentMixin,MeMediaMixin],
+        mixins     : [MeComponentMixin,MeCommandMixin,MeMediaMixin],
         pageActive:function(){
 			if(this.props.autoplay){
 				this.play();
