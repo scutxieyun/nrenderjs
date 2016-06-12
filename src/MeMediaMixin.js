@@ -30,6 +30,7 @@ define("MeMediaMixin",function(){
 			})
 		},
 		togglePlay:function(){
+			if((!!this.props.src) == false) return;//不存在数据就不enable togglePlay
 			if (this.state.isPlay) {
 				this.pause()
 			}

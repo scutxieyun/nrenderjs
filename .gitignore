@@ -5,3 +5,5 @@ test.js
 .git/
 lib/renderjs.js
 __temp.jsx
+test_index.html
+src/tools/json2jsx.js.bak

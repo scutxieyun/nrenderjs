@@ -42,6 +42,7 @@ function main(tpl, magObj, callback) {
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
 	var mag = magObj.tplData;
+	var tplObj = magObj.tplObj;
     var defaultAnimation = '{animationIterationCount:"1",animationDelay:"0s",animationDuration:"1s"}';
     var index = [];
     index.push(-1);
@@ -71,7 +72,10 @@ function main(tpl, magObj, callback) {
     }
     index.push(-1);
     pagesContentTemp = pageContent.join(",");
-    pageTemp = (_.template(tpl))({pages: pagesContentTemp, layout: JSON.stringify(index), music_src: mag.tpl_music});
+    pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
+									layout: JSON.stringify(index),
+									music_src: tplObj.tpl_music,
+									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false"});
     //循环下载云字体
     loop(callback);
 
@@ -372,7 +376,10 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
                     //替换文字
                     var patt1 = new RegExp(key, "g");
                     pagesContentTemp = pagesContentTemp.replace(patt1, temp);
-                    pageTemp = (_.template(tpl))({pages: pagesContentTemp, layout: JSON.stringify(index), music_src: mag.tpl_music});
+                    pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
+									layout: JSON.stringify(index),
+									music_src: tplObj.tpl_music,
+									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false"});
                 }
                 cb();
             }).on("error", function () {
