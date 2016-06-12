@@ -96,7 +96,8 @@ function downloadArticleWithTid(res,tid,next){
             var url = "";
 			if(results == null)console.log("bad request for ",tid);
 			else console.log(results.get("json_url"),  results.get("tpl_fbstate"));
-            if(results && results.get("json_url") && results.get("tpl_fbstate") != 1) {
+            //之前处理的时候遇到是表单的情况不去获取静态文件，results.get("tpl_fbstate") != 1 ，由于再次更改数据的时候不会去保存静态文件
+            if(results && results.get("json_url")) {
                 var jsonurl = results.get("json_url");
                 if (isJsonObject(jsonurl)) {
                     jsonurl = JSON.parse(jsonurl);

@@ -277,8 +277,10 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
         if(src.indexOf("iframe") > -1){
             var tempSrcArr = src.split('src="');
             src = tempSrcArr[1].split('"')[0];
-            var tempHeightArr = item.item_href.split('height="');
-            var iframeHeight = tempHeightArr[1].split('"')[0];
+            console.log(item.item_href);
+            var tempHeightArr = item.item_href.split('height=');
+            var iframeHeight = tempHeightArr[1].split(' ')[0];
+            console.log(iframeHeight);
             data.iframeHeight = iframeHeight;
             audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
