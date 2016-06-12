@@ -168,7 +168,7 @@ function main(tpl, magObj, callback) {
         return "";
     }
 	
-function gallaryRenderItem(page,item,_style){
+function gallaryRenderItem(page,item,_style,content,hasWrap){
 	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
 	var imgs = item.item_val.split("|");
 	var urls = item.item_href.split("@");
@@ -182,13 +182,13 @@ function gallaryRenderItem(page,item,_style){
 	_style.push(sizeStyleTemplateWrap(item));
 	return template({
 		pageIdx:page.idx,
-		id:item.item_id,
+		id:item.item_id + (hasWrap ? "Ga" : ""),
 		imgItems:JSON.stringify(imgItems),
 		normalStyle:_style.join(",")
 	});
 }
 	
-function imgRenderItem(page,item,_style){
+function imgRenderItem(page,item,_style,content,hasWrap){
     //人工实现Scale,
     if(item.x_scale == null) item.x_scale = 1;
     if(item.y_scale == null) item.y_scale = 1;
@@ -209,9 +209,12 @@ function imgRenderItem(page,item,_style){
         _style.push(tem);	
 	
 	
-    return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
+    return imgTemplate({src:item.item_val,
+						displayType:item.item_display_status,
+						style:_style.join(","),
+						id:item.item_id + ( hasWrap ? "I" :"")});
 }
-function musicRenderItem(page,item,_style){
+function musicRenderItem(page,item,_style,content,hasWrap){
     var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
     //处理音频的事件
     if(!item.animate_end_act){
@@ -231,14 +234,14 @@ function musicRenderItem(page,item,_style){
 		music_name:item.music_name,
 		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
 		pageIdx:page.idx,
-		id:item.item_id,
+		id:item.item_id + ( hasWrap ? "M":""),
         triggerActions:cmds
 	});
 }
 
 
 
-function phoneRenderItem(page,item,_style){//todo can not adjust the font to center, 
+function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust the font to center, 
 	_style.push(fontStyleTemplateWrap(item));
 	_style.push(sizeStyleTemplateWrap(item));
 	var phoneTemplate = _.template('<div className="mePhone" style={{<%= _style %>}}><%= item_val%></div>');
@@ -252,7 +255,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
      * @param _style
      * @returns {*}
      */
-    function videoRenderItem(page,item,_style){
+    function videoRenderItem(page,item,_style,content,hasWrap){
         if(!item.item_href){
             return;
         }
@@ -301,7 +304,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id,
+            id:item.item_id + ( hasWrap ? "V" :""),
             triggerActions:cmds
         });
     }
@@ -312,7 +315,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
      * @param _style
      * @returns {*}
      */
-    function clipRenderItem(page,item,_style){
+    function clipRenderItem(page,item,_style,content,hasWrap){
         if(!item.item_href){
             return;
         }
@@ -340,7 +343,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id,
+            id:item.item_id + ( hasWrap ? "C" :""),
 			triggerActions:cmds
 			
         });
@@ -442,7 +445,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 	}
 	
 
-    function textRenderItem(page, item, _style) {
+    function textRenderItem(page, item, _style,content,hasWrap) {
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -481,10 +484,12 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 		var tem = renderTransform(item);
         if (tem != "")
         _style.push(tem);
-        return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(",")});
+        return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(","),
+			id:item.item_id + ( hasWrap ? "V" :""),
+		});
     }
 
-    function grpRenderItem(page, item, _style, content) {
+    function grpRenderItem(page, item, _style, content,hasWrap) {
         var tem = renderTransform(item);
         if (tem != "")
             _style.push(tem);
@@ -492,7 +497,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
         _style.push('overflow:"hidden"');
         return grpTemplate({displayType: item.item_display_status,
             pageIdx: page.idx,
-            id: item.item_id,
+            id:item.item_id + ( hasWrap ? "G" :""),
             style: _style,
             children: content});
     }
@@ -555,10 +560,10 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
         if (animationData == null && (cmds.actions == undefined || cmds.actions.length == 0)) {
             genStyle.push(posStyle);
             if (transformStyle != "") genStyle.push(transformStyle);
-            return renderFunc(page, item, genStyle, content)
+            return renderFunc(page, item, genStyle, content,false);//最终元素，没有包裹
         }
 
-        var _itemContent = renderFunc(page, item, genStyle, content);//内容自己决定大小,位置有容器决定
+        var _itemContent = renderFunc(page, item, genStyle, content,true);//内容自己决定大小,位置有容器决定
 
         var conStyle = [posStyle];
         if (transformStyle != "")conStyle.push(transformStyle);
@@ -569,7 +574,7 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
                 normalStyle: conStyle.join(','),
                 pageIdx: page.idx,
                 displayType: item.item_display_status,
-                id: item.item_id + "A"});
+                id: item.item_id});
         }
         if (animationData != null) {
             _itemContent = animationTemplate({animationClass: animationData.animationClass,
