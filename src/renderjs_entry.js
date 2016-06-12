@@ -50,13 +50,14 @@ module.exports = function(){
     MeInnerVideo:MeInnerVideo,
     MeClip:MeClip,
 	MeGallary:MeGallary,
-	EventEmitter:EventEmitter,
+	ee:new EventEmitter(),	//因为需要ee建立，容器，Pads和作品之间的联系，所以在这里创建ee
 	React:React,
 	ReactDOM:ReactDOM,
 	helper:function(){
 		var pads = null;
 		var elem = null;
 		var cfg = {};
+		
 		function _init(_elem,options){
 			var _assign = require("object-assign");
 			var _default = {
@@ -73,6 +74,7 @@ module.exports = function(){
 			);
 		}
 		function _loadArticle(mag){
+			myself.ee.removeAllListeners(); // later, 仅仅删除与page相关的内容
 			if(elem != null){
 				if(cfg.article != null) ReactDOM.unmountComponentAtNode(elem);
 				var _article = new MeArticle(mag);
@@ -95,6 +97,9 @@ module.exports = function(){
 			load:_loadArticle,
 			unload:_unload,
 			init:_init,
+			getEE:function (){
+				return myself.ee; 
+			},
 			gotoPos:function(x,y){
 				if(pads != null){
 					pads.gotoPos(x,y);
