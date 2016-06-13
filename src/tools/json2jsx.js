@@ -46,6 +46,8 @@ function main(tpl, magObj, callback) {
         "15":mapRenderItem,      //地图
         "36":rewardRenderItem,      //打赏
         "41":redEnvelopesRenderItem,      //红包
+        "27":shakeRenderItem,            //摇一摇
+        "25":longPressRenderItem        //长按元素
 
     };
     //给一个初始的随机数
@@ -661,6 +663,72 @@ function musicRenderItem(page,item,_style){
             id:item.item_id,
 			triggerActions:cmds
 			
+        });
+    }
+
+    /**
+     * 解析摇一摇元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function shakeRenderItem(page,item,_style){
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        var cmds = convertOldCmdWrap(item.animate_end_act);
+        if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+            cmds.actions = [];
+        }
+        cmds.actions.join(",");
+        var shakeTemplate = _.template('<MeShake pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeShake>');
+        return shakeTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            id:item.item_id,
+            triggerActions:cmds
+
+        });
+    }
+
+    /**
+     * 解析长按元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function longPressRenderItem(page,item,_style){
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        var cmds = convertOldCmdWrap(item.animate_end_act);
+        if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+            cmds.actions = [];
+        }
+        cmds.actions.join(",");
+        var longPressTemplate = _.template('<MeLongPress pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" data={<%= data %>} normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeLongPress>');
+        var data = {};
+        data.borderWidth = item.item_border;
+        data = JSON.stringify(data);
+        return longPressTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id,
+            triggerActions:cmds
+
         });
     }
 

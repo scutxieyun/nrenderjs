@@ -26,6 +26,8 @@ var MePhone = require("../dist/MePhone.js");
 var MeMap = require("../dist/MeMap.js");
 var MeReward = require("../dist/MeReward.js");
 var MeRedEnvelopes = require("../dist/MeRedEnvelopes.js");
+var MeShake = require("../dist/MeShake.js");
+var MeLongPress = require("../dist/MeLongPress.js");
 
 
 var EventEmitter = require("wolfy87-eventemitter");
@@ -62,6 +64,8 @@ module.exports = function(){
     MeMap:MeMap,
     MeReward:MeReward,
     MeRedEnvelopes:MeRedEnvelopes,
+    MeShake:MeShake,
+    MeLongPress:MeLongPress,
 	ee:new EventEmitter(),	//因为需要ee建立，容器，Pads和作品之间的联系，所以在这里创建ee
 	React:React,
 	ReactDOM:ReactDOM,
