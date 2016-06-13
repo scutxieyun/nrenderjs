@@ -43,7 +43,7 @@ define("MeRadio", function () {
             var objectId = data.objectId;
             var options = data.options;
             var backgroundColor = this.props.normalStyle.backgroundColor;
-            var border = this.props.normalStyle.border;
+            var border = this.props.normalStyle.borderBottom;
             var color = this.props.normalStyle.color;
             var fontSize = this.props.normalStyle.fontSize;
             //创建标题

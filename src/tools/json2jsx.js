@@ -38,6 +38,10 @@ function main(tpl, magObj, callback) {
         "8": videoRenderItem,
         "24": clipRenderItem,
 		"37": gallaryRenderItem,
+        "39": svgRenderItem,        //SVG
+        "20":radioRenderItem,    //单选
+        "21":checkboxRenderItem,    //多选
+        "38": labelRenderItem       //标签
     };
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
@@ -231,8 +235,141 @@ function musicRenderItem(page,item,_style){
         triggerActions:cmds
 	});
 }
+    /**
+     * 解析单选元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function radioRenderItem(page,item,_style){
+        var radioTemplate = _.template('<MeRadio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRadio>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var itemVal = null;
+        //预防JSON字符串解析出问题
+        try{
+            itemVal = JSON.parse(item.item_val);
+        }catch (e){
+            console.log(e.name + ": " + e.message);
+            return;
+        }
+        if(itemVal == null){
+            return;
+        }
+        var data = {};
+        data.title = itemVal.title;
+        data.options = itemVal.options;
+        data.objectId = item.objectId;
+        data = JSON.stringify(data);
+        return radioTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析多选元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function checkboxRenderItem(page,item,_style){
+        var checkboxTemplate = _.template('<MeCheckbox pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeCheckbox>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var itemVal = null;
+        //预防JSON字符串解析出问题
+        try{
+            itemVal = JSON.parse(item.item_val);
+        }catch (e){
+            console.log(e.name + ": " + e.message);
+            return;
+        }
+        if(itemVal == null){
+            return;
+        }
+        var data = {};
+        data.title = itemVal.title;
+        data.options = itemVal.options;
+        data.objectId = item.objectId;
+        data = JSON.stringify(data);
+        return checkboxTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析label元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function labelRenderItem(page,item,_style){
+        var labelTemplate = _.template('<MeLabel pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeLabel>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var data = {};
+        var itemSubVal = item.item_val_sub;
+        itemSubVal = JSON.parse(itemSubVal);
+        for(var key in itemSubVal){
+            data.type = key;
+            data.typeImg = itemSubVal[key];
+        }
+        data.content = item.item_val;
+        data.direction = item.ext_attr;
+        data = JSON.stringify(data);
+        return labelTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
 
-
+    /**
+     * 解析svg元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function svgRenderItem(page,item,_style){
+        var svgTemplate = _.template('<MeSvg pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSvg>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var data = {};
+        data.content = item.item_val;
+        var itemSubVal = item.item_val_sub;
+        itemSubVal = JSON.parse(itemSubVal);
+        data.delay = itemSubVal.delay;
+        data.duration = itemSubVal.duration;
+        data.infinite = itemSubVal.infinite;
+        data.a1 = itemSubVal.a1;
+        data.a2 = itemSubVal.a2;
+        data.b1 = itemSubVal.b1;
+        data.b2 = itemSubVal.b2;
+        data = JSON.stringify(data);
+        return svgTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
 
 function phoneRenderItem(page,item,_style){//todo can not adjust the font to center, 
 	_style.push(fontStyleTemplateWrap(item));
@@ -423,7 +560,8 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 	}
 	
 	function fontStyleTemplateWrap(item){
-		var fontStyleTemplate = _.template('fontSize:"<%= font_size%>", color:"<%= item_color%>",fontFamily:"<%= font_family %>",backgroundColor:"<%= bg_color %>"');
+		var fontStyleTemplate = _.template('fontSize:"<%= font_size%>", color:"<%= item_color%>",fontFamily:"<%= font_family %>",backgroundColor:"<%= bg_color %>",borderRadius:"<%= bd_radius %>",' +
+            'borderBottom:"<%= border_bottom %>",borderTop:"<%= border_top %>",borderLeft:"<%= border_left %>",borderRight:"<%= border_right %>"');
 		var color = item.item_color;
 		try{
 			color = JSON.parse(color);
@@ -433,6 +571,44 @@ function phoneRenderItem(page,item,_style){//todo can not adjust the font to cen
 		//normal string
 		}
 		item.item_color = color;
+        //添加边框样式
+        var borderWidth = item.item_border; //边框宽度
+        var borderRadius = item.bd_radius+"";  //边框圆角
+        var borderColor = item.bd_color || "#000";  //边框颜色
+        var borderSide = item.bd_side;   //哪边有值
+        var borderStyle = item.bd_style || "solid";
+        item.border_top = "";
+        item.border_right = "";
+        item.border_bottom = "";
+        item.border_left = "";
+        if(borderWidth){
+            if(borderSide){
+                if(borderSide.indexOf("top") > -1){
+                    item.border_top = borderWidth + "px " +borderStyle +" " +borderColor;
+                }
+                if(borderSide.indexOf("right") > -1){
+                    item.border_right = borderWidth +  "px " +borderStyle +" "  + borderColor;
+                }
+                if(borderSide.indexOf("bottom") > -1){
+                    item.border_bottom = borderWidth +  "px " +borderStyle +" "  + borderColor;
+                }
+                if(borderSide.indexOf("left") > -1){
+                    item.border_left = borderWidth +  "px " +borderStyle +" "  + borderColor;
+                }
+            }
+        }
+        if(borderRadius){
+            if(borderRadius.indexOf("%") > -1){
+
+            }else{
+                if(borderRadius.indexOf("px") > -1){
+
+                }else{
+                    borderRadius = borderRadius + "px";
+                }
+            }
+        }
+        item.bd_radius = borderRadius;
 		return fontStyleTemplate(item);
 	}
 	

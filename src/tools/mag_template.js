@@ -13,6 +13,9 @@ define([], function () {
 	var MeAudio = Renderjs.MeAudio;
     var EventEmitter = Renderjs.EventEmitter;
     var MeSvg = Renderjs.MeSvg;
+    var MeRadio = Renderjs.MeRadio;
+    var MeCheckbox = Renderjs.MeCheckbox;
+    var MeLabel = Renderjs.MeLabel;
 	var MeImage = Renderjs.MeImage;
     var MeText = Renderjs.MeText;
     var MeIFrameVideo= Renderjs.MeIFrameVideo;
