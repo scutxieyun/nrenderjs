@@ -279,6 +279,7 @@ body{
         $popupIframe.append($(myIframe));
         $popupIframe.show();
         myIframe.src =  target;
+        if(!height) height = "100%";
         myIframe.height = height;
         myIframe.width = "100%";
         myIframe.className = "iframeWrapper";

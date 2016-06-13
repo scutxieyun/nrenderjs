@@ -22,6 +22,12 @@ define([], function () {
     var MeInnerVideo= Renderjs.MeInnerVideo;
     var MeClip	= Renderjs.MeClip;
 	var MeGallary = Renderjs.MeGallary;
+    var MeInput = Renderjs.MeInput;
+    var MeSubmit = Renderjs.MeSubmit;
+    var MePhone = Renderjs.MePhone;
+    var MeMap = Renderjs.MeMap;
+    var MeReward = Renderjs.MeReward;
+    var MeRedEnvelopes = Renderjs.MeRedEnvelopes;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
