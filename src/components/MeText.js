@@ -13,7 +13,7 @@ define("MeText", function () {
         getDefaultProps:function(){
             //todo 需要动态配置
             return {
-                commonStyle : {perspective: '1000px', backfaceVisibility: 'hidden', position: 'relative', boxSizing: 'border-box'}
+                commonStyle : {perspective: '1000px', backfaceVisibility: 'hidden', position: 'relative', boxSizing: 'border-box', whiteSpace : "pre-wrap"}
             }
         },
         getInitialState : function(){

@@ -24,25 +24,43 @@ function main(tpl, magObj, callback) {
     var fontIndex = 0;
 	
 	var convertOldCmdWrap = null;//临时为了合并，将convertOldCmd过度一下，减少后面合并的成本
-
     var itemFuncMap = {
-        "1": imgRenderItem,
-        "2": textRenderItem,
-        "3": imgRenderItem,
-        "10": imgRenderItem,
-        "18": imgRenderItem,//带链接
-        "17": grpRenderItem,
-        "34": grpRenderItem,
-		"12": phoneRenderItem,//打电话
-		"7": musicRenderItem,
-        "8": videoRenderItem,
-        "24": clipRenderItem,
-		"37": gallaryRenderItem,
+        "1": imgRenderItem,     //图片
+        "2": textRenderItem,    //文本
+        "3": imgRenderItem,     //水印
+        "7": musicRenderItem,   //音频
+        "8": videoRenderItem,   //视频
+        "10": imgRenderItem,    //边框
+        "12": phoneRenderItem,  //打电话
+        "14":inputRenderItem,   //输入
+        "15":mapRenderItem,     //地图
+        "17": grpRenderItem,    //多图边框对象
+        "18": imgRenderItem,    //带遮罩的图片
+        "19":submitRenderItem,  //提交按钮
+        "20":radioRenderItem,    //单选
+        "21":checkboxRenderItem, //多选
+        "22":voteRenderItem,     //投票
+        "24": clipRenderItem,    //涂抹
+        "25":longPressRenderItem,//长按元素
+        "27":shakeRenderItem,    //摇一摇
+        "34": grpRenderItem,     //多图边框对象
+        "36":rewardRenderItem,   //打赏
+		"37": gallaryRenderItem, //图集
+        "38": labelRenderItem,   //标签
+        "39": svgRenderItem,     //SVG
+        "40":panoramaRenderItem, //360全景图
+        "41":redEnvelopesRenderItem //红包
     };
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
 	var mag = magObj.tplData;
-	var tplObj = magObj.tplObj;
+    //获取临时存储的变量，后续红包和打赏等元素需要
+    var tplObj = magObj.tplObj;
+    var tplId = tplObj.tpl_id;  //作品ID
+    var userId = tplObj.author || ""; //用户ID
+    var userHeaderSrc = tplObj.author_img || ""; //用户头像
+    var userName = tplObj.author_name || "";    //用户名称
+    var userLeave = tplObj.author_vip_level || 0;         //用户等级
     var defaultAnimation = '{animationIterationCount:"1",animationDelay:"0s",animationDuration:"1s"}';
     var index = [];
     index.push(-1);
@@ -279,16 +297,322 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         triggerActions:cmds
 	});
 }
+    /**
+     * 解析单选元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function radioRenderItem(page,item,_style){
+        var radioTemplate = _.template('<MeRadio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRadio>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var itemVal = null;
+        //预防JSON字符串解析出问题
+        try{
+            itemVal = JSON.parse(item.item_val);
+        }catch (e){
+            console.log(e.name + ": " + e.message);
+            return;
+        }
+        if(itemVal == null){
+            return;
+        }
+        var data = {};
+        data.title = itemVal.title;
+        data.options = itemVal.options;
+        data.objectId = item.objectId;
+        data = JSON.stringify(data);
+        return radioTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析多选元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function checkboxRenderItem(page,item,_style){
+        var checkboxTemplate = _.template('<MeCheckbox pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeCheckbox>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var itemVal = null;
+        //预防JSON字符串解析出问题
+        try{
+            itemVal = JSON.parse(item.item_val);
+        }catch (e){
+            console.log(e.name + ": " + e.message);
+            return;
+        }
+        if(itemVal == null){
+            return;
+        }
+        var data = {};
+        data.title = itemVal.title;
+        data.options = itemVal.options;
+        data.objectId = item.objectId;
+        data = JSON.stringify(data);
+        return checkboxTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析label元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function labelRenderItem(page,item,_style){
+        var labelTemplate = _.template('<MeLabel pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeLabel>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var data = {};
+        var itemSubVal = item.item_val_sub;
+        itemSubVal = JSON.parse(itemSubVal);
+        for(var key in itemSubVal){
+            data.type = key;
+            data.typeImg = itemSubVal[key];
+        }
+        data.content = item.item_val;
+        data.direction = item.ext_attr;
+        data = JSON.stringify(data);
+        return labelTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
 
-
-
-function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust the font to center, 
-	_style.push(fontStyleTemplateWrap(item));
-	_style.push(sizeStyleTemplateWrap(item));
-	var phoneTemplate = _.template('<div className="mePhone" style={{<%= _style %>}}><%= item_val%></div>');
-	item._style = _style.join(",");
-	return phoneTemplate(item);
-}
+    /**
+     * 解析svg元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function svgRenderItem(page,item,_style){
+        var svgTemplate = _.template('<MeSvg pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSvg>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var data = {};
+        data.content = item.item_val;
+        var itemSubVal = item.item_val_sub;
+        itemSubVal = JSON.parse(itemSubVal);
+        data.delay = itemSubVal.delay;
+        data.duration = itemSubVal.duration;
+        data.infinite = itemSubVal.infinite;
+        data.a1 = itemSubVal.a1;
+        data.a2 = itemSubVal.a2;
+        data.b1 = itemSubVal.b1;
+        data.b2 = itemSubVal.b2;
+        data = JSON.stringify(data);
+        return svgTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析提交按钮元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function submitRenderItem(page,item,_style){
+        var submitTemplate = _.template('<MeSubmit pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSubmit>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var data = {};
+        data.content = item.item_val;
+        data.cnType = item.item_cntype;
+        //行高特殊处理
+        var borderWidth = item.item_border || 0;
+        data.lineHeight = (item.item_height-2*borderWidth) + "px";
+        data = JSON.stringify(data);
+        return submitTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析map元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function mapRenderItem(page,item,_style){
+        var mapTemplate = _.template('<MeMap pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeMap>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var itemVal = null;
+        //预防JSON字符串解析出问题
+        try{
+            itemVal = JSON.parse(item.item_val);
+        }catch (e){
+            console.log(e.name + ": " + e.message);
+            return;
+        }
+        if(itemVal == null){
+            return;
+        }
+        var data = {};
+        data.lng = itemVal.lng;
+        data.lat = itemVal.lat;
+        data.zoom = itemVal.zoom;
+        data = JSON.stringify(data);
+        return mapTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析input元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function inputRenderItem(page,item,_style){
+        var inputTemplate = _.template('<MeInput pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeInput>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var pageId = page.objectId;
+        var data = {};
+        data.placeholder = item.item_val || "";
+        data.objectId = item.objectId || "";
+        data = JSON.stringify(data);
+        return inputTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析打赏元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function rewardRenderItem(page,item,_style){
+        var rewardTemplate = _.template('<MeReward pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeReward>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var pageId = page.objectId;
+        var data = {};
+        data.content = item.item_val;
+        data.target = item.item_href || "";
+        data.tplId = tplId;
+        data.pageId = pageId;
+        data.userId = userId;
+        data.userName = userName;
+        data.userHeaderSrc = userHeaderSrc;
+        data.userLeave = userLeave;
+        //行高特殊处理
+        var borderWidth = item.item_border || 0;
+        data.lineHeight = (item.item_height-2*borderWidth) + "px";
+        data = JSON.stringify(data);
+        return rewardTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析红包元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function redEnvelopesRenderItem(page,item,_style){
+        var redEnvelopesTemplate = _.template('<MeRedEnvelopes pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRedEnvelopes>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var pageId = page.objectId;
+        var data = {};
+        data.content = item.item_val;
+        data.target = item.item_href || "";
+        data.tplId = tplId;
+        data.pageId = pageId;
+        data.userId = userId;
+        data.userName = userName;
+        data.userHeaderSrc = userHeaderSrc;
+        data.envelopesId = item.item_val_sub || "";
+        data = JSON.stringify(data);
+        return redEnvelopesTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
+    /**
+     * 解析电话元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function phoneRenderItem(page,item,_style){
+        var phoneTemplate = _.template('<MePhone pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MePhone>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var data = {};
+        data.content = item.item_val_sub || "";
+        data.tel = "tel:"+item.item_val;
+        data.extAttr = item.ext_attr || "";
+        //行高特殊处理
+        var borderWidth = item.item_border || 0;
+        data.lineHeight = (item.item_height-2*borderWidth) + "px";
+        data = JSON.stringify(data);
+        return phoneTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id
+        });
+    }
     /**
      * 解析视频元素
      * @param page
@@ -325,8 +649,9 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
         if(src.indexOf("iframe") > -1){
             var tempSrcArr = src.split('src="');
             src = tempSrcArr[1].split('"')[0];
-            //var tempHeightArr = item.item_href.split('height="');
-            var iframeHeight = extractIframe("height");
+            var tempHeightArr = item.item_href.split('height=');
+            var iframeHeight = tempHeightArr[1].split(' ')[0];
+			//var iframeHeight = extractIframe("height");
             data.iframeHeight = iframeHeight;
             audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
@@ -400,6 +725,126 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
         });
     }
 
+    /**
+     * 解析摇一摇元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function shakeRenderItem(page,item,_style){
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        var cmds = convertOldCmdWrap(item.animate_end_act);
+        if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+            cmds.actions = [];
+        }
+        cmds.actions.join(",");
+        var shakeTemplate = _.template('<MeShake pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeShake>');
+        return shakeTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            id:item.item_id,
+            triggerActions:cmds
+
+        });
+    }
+
+    /**
+     * 解析长按元素
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function longPressRenderItem(page,item,_style){
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        if(!item.animate_end_act){
+            item.animate_end_act = "";
+        }
+        item.animate_end_act = item.animate_end_act.replace(/meTap/,'"meTap"');
+        var cmds = convertOldCmdWrap(item.animate_end_act);
+        if (!(cmds.actions != undefined && cmds.actions.length > 0)) {
+            cmds.actions = [];
+        }
+        cmds.actions.join(",");
+        var longPressTemplate = _.template('<MeLongPress pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" data={<%= data %>} normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeLongPress>');
+        var data = {};
+        data.borderWidth = item.item_border;
+        data = JSON.stringify(data);
+        return longPressTemplate({
+            normalStyle:_style.join(","),
+            pageIdx:page.idx,
+            data:data,
+            id:item.item_id,
+            triggerActions:cmds
+
+        });
+    }
+
+    /**
+     * 解析全景图
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function panoramaRenderItem(page,item,_style){
+        var template = _.template('<MePanorama cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MePanorama>');
+        var imgs = item.item_val.split("|");
+        var imgItems = [];
+        _.each(imgs,function(img,i){
+            imgItems.push(img)
+        });
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        return template({
+            pageIdx:page.idx,
+            id:item.item_id,
+            imgItems:JSON.stringify(imgItems),
+            normalStyle:_style.join(",")
+        });
+    }
+
+    /**
+     * 解析投票
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function voteRenderItem(page,item,_style){
+        var template = _.template('<MeVote cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" data={<%=data%>}  normalStyle={{<%= normalStyle%>}}></MeVote>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var voteNum = page.page_vote || 0;
+        var pageId = page.objectId || "";
+        var content = item.item_val;
+        var data = {};
+        data.voteNum = voteNum;
+        data.pageId = pageId;
+        data.content = content;
+        data = JSON.stringify(data);
+        return template({
+            pageIdx:page.idx,
+            id:item.item_id,
+            data:data,
+            normalStyle:_style.join(",")
+        });
+    }
 
     /**
      * 获取设置云字体
@@ -482,7 +927,9 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
 	}
 	
 	function fontStyleTemplateWrap(item){
-		var fontStyleTemplate = _.template('fontSize:"<%= font_size%>", color:"<%= item_color%>",fontFamily:"<%= font_family %>",backgroundColor:"<%= bg_color %>"');
+		var fontStyleTemplate = _.template('fontSize:"<%= font_size%>", color:"<%= item_color%>",fontFamily:"<%= font_family %>",backgroundColor:"<%= bg_color %>",borderRadius:"<%= bd_radius %>",' +
+            'borderBottom:"<%= border_bottom %>",borderTop:"<%= border_top %>",borderLeft:"<%= border_left %>",borderRight:"<%= border_right %>",fontWeight:"<%= font_weight %>",' +
+            'textAlign:"<%= font_halign %>",fontStyle:"<%= font_style %>",textDecoration:"<%= text_decoration %>",letterSpacing:"<%= font_dist %>"');
 		var color = item.item_color;
 		try{
 			color = JSON.parse(color);
@@ -492,6 +939,54 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
 		//normal string
 		}
 		item.item_color = color;
+        //添加边框样式
+        var borderWidth = item.item_border; //边框宽度
+        var borderRadius = item.bd_radius+"";  //边框圆角
+        var borderColor = item.bd_color || "#000";  //边框颜色
+        var borderSide = item.bd_side;   //哪边有值
+        var borderStyle = item.bd_style || "solid";
+        item.border_top = "";
+        item.border_right = "";
+        item.border_bottom = "";
+        item.border_left = "";
+        if(borderWidth){
+            if(borderSide){
+                if(borderSide.indexOf("top") > -1){
+                    item.border_top = borderWidth + "px " +borderStyle +" " +borderColor;
+                }
+                if(borderSide.indexOf("right") > -1){
+                    item.border_right = borderWidth +  "px " +borderStyle +" "  + borderColor;
+                }
+                if(borderSide.indexOf("bottom") > -1){
+                    item.border_bottom = borderWidth +  "px " +borderStyle +" "  + borderColor;
+                }
+                if(borderSide.indexOf("left") > -1){
+                    item.border_left = borderWidth +  "px " +borderStyle +" "  + borderColor;
+                }
+            }
+        }
+        if(borderRadius){
+            if(borderRadius.indexOf("%") > -1){
+
+            }else{
+                if(borderRadius.indexOf("px") > -1){
+
+                }else{
+                    borderRadius = borderRadius + "px";
+                }
+            }
+        }
+        item.bd_radius = borderRadius;
+        //对齐方式
+        var align = item.font_halign=="mid"?"center":item.font_halign;
+        var textAlign = align || "center";
+        item.font_halign = textAlign;
+        //letterSpacing
+        item.font_dist = item.font_dist + "px";
+        //字权重
+        item.font_weight = item.font_weight || "";
+        item.text_decoration = item.text_decoration || "";
+        item.font_style = item.font_style || "";
 		return fontStyleTemplate(item);
 	}
 	

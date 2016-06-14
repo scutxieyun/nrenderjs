@@ -59,6 +59,8 @@ module.exports = function(){
     MeInnerVideo:MeInnerVideo,
     MeClip:MeClip,
 	MeGallary:MeGallary,
+<<<<<<< HEAD
+=======
     MeInput:MeInput,
     MeSubmit:MeSubmit,
     MePhone:MePhone,
@@ -69,6 +71,7 @@ module.exports = function(){
     MeLongPress:MeLongPress,
     MePanorama:MePanorama,
     MeVote:MeVote,
+>>>>>>> develop-jun-2
 	ee:new EventEmitter(),	//因为需要ee建立，容器，Pads和作品之间的联系，所以在这里创建ee
 	React:React,
 	ReactDOM:ReactDOM,

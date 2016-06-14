@@ -13,12 +13,25 @@ define([], function () {
 	var MeAudio = Renderjs.MeAudio;
     var EventEmitter = Renderjs.EventEmitter;
     var MeSvg = Renderjs.MeSvg;
+    var MeRadio = Renderjs.MeRadio;
+    var MeCheckbox = Renderjs.MeCheckbox;
+    var MeLabel = Renderjs.MeLabel;
 	var MeImage = Renderjs.MeImage;
     var MeText = Renderjs.MeText;
     var MeIFrameVideo= Renderjs.MeIFrameVideo;
     var MeInnerVideo= Renderjs.MeInnerVideo;
     var MeClip	= Renderjs.MeClip;
 	var MeGallary = Renderjs.MeGallary;
+    var MeInput = Renderjs.MeInput;
+    var MeSubmit = Renderjs.MeSubmit;
+    var MePhone = Renderjs.MePhone;
+    var MeMap = Renderjs.MeMap;
+    var MeReward = Renderjs.MeReward;
+    var MeRedEnvelopes = Renderjs.MeRedEnvelopes;
+    var MeShake = Renderjs.MeShake;
+    var MeLongPress = Renderjs.MeLongPress;
+    var MePanorama = Renderjs.MePanorama;
+    var MeVote = Renderjs.MeVote;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
