@@ -20,7 +20,16 @@ var MeIFrameVideo = require("../dist/MeIFrameVideo.js");
 var MeInnerVideo = require("../dist/MeInnerVideo.js");
 var MeClip = require("../dist/MeClip.js");
 var MeGallary = require("../dist/MeGallary.js");
-
+var MeInput = require("../dist/MeInput.js");
+var MeSubmit = require("../dist/MeSubmit.js");
+var MePhone = require("../dist/MePhone.js");
+var MeMap = require("../dist/MeMap.js");
+var MeReward = require("../dist/MeReward.js");
+var MeRedEnvelopes = require("../dist/MeRedEnvelopes.js");
+var MeShake = require("../dist/MeShake.js");
+var MeLongPress = require("../dist/MeLongPress.js");
+var MePanorama = require("../dist/MePanorama.js");
+var MeVote = require("../dist/MeVote.js");
 
 var EventEmitter = require("wolfy87-eventemitter");
 var React = require("react");
@@ -50,6 +59,16 @@ module.exports = function(){
     MeInnerVideo:MeInnerVideo,
     MeClip:MeClip,
 	MeGallary:MeGallary,
+    MeInput:MeInput,
+    MeSubmit:MeSubmit,
+    MePhone:MePhone,
+    MeMap:MeMap,
+    MeReward:MeReward,
+    MeRedEnvelopes:MeRedEnvelopes,
+    MeShake:MeShake,
+    MeLongPress:MeLongPress,
+    MePanorama:MePanorama,
+    MeVote:MeVote,
 	ee:new EventEmitter(),	//因为需要ee建立，容器，Pads和作品之间的联系，所以在这里创建ee
 	React:React,
 	ReactDOM:ReactDOM,

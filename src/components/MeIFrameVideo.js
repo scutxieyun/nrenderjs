@@ -53,7 +53,7 @@ define("MeIFrameVideo", function () {
             var self = this;
             var poster = this.props.data.poster;
             if(poster){
-                this.props.normalStyle.backgroundImage = poster;
+                this.props.normalStyle.backgroundImage = "url("+poster+")";
             }
             return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)}><div className={"video-player-btn"} ></div> <div style={this.props.animationStyle}></div></div>);
         }
