@@ -6,12 +6,12 @@ function main(tpl, magObj, callback) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
-    var imgTemplate = _.template('<MeImage src="<%= src%>" displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
-    var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
+    var imgTemplate = _.template('<MeImage src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
+    var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
-    var animationTemplate = _.template('<MeAnimation id="<%= id%>" displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
-    var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
+    var animationTemplate = _.template('<MeAnimation id=<%= id%> displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
+    var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
    //最终返回的对象
     var pageTemp;
     //页容器的字符串
@@ -101,8 +101,9 @@ function main(tpl, magObj, callback) {
 
     function renderPage(page) {
         var items = [];
-        var grps = indexItems(page.item_object);
-
+        var idxRes = indexItems(page.item_object);
+		var grps = idxRes.grps;
+		page.referredItems = idxRes.referredItems;
         _.each(grps, function (grp, key) {
             var newGrps = []
             _.each(grp.items, function (item, idx) {
@@ -121,12 +122,25 @@ function main(tpl, magObj, callback) {
     }
 
     function indexItems(items) {
-        var grps = {};
+        var res = {
+			grps:{},
+			referredItems:{}
+		};
+		var grps = res.grps;
         grps["0"] = {
             items: [],
             owner: null
         }
+		var referredItems = res.referredItems;
+		var referedPattern = /([0-9]+)/g
         for (var i = 0; i < items.length; i++) {
+			if (items[i].animate_end_act != null && items[i].animate_end_act != ""){
+				registerItem4Referred(items[i].animate_end_act,referredItems);
+			}
+			if (items[i].item_href != null && items[i].item_href != ""){
+				//分析那些item被引用
+				registerItem4Referred(items[i].item_href,referredItems);
+			}
             if (items[i].group_id == undefined) items[i].group_id = "0";
             if (grps.hasOwnProperty(items[i].group_id)) {
                 if ((items[i].item_id == items[i].group_id) || items[i].item_type == 17 || items[i] == 34) {
@@ -143,7 +157,23 @@ function main(tpl, magObj, callback) {
                 else grps[items[i].group_id].items.push(items[i]);
             }
         }
-        return grps;
+		return res;
+		
+		function registerItem4Referred(val,referredItems){
+			var m = referedPattern.exec(val);
+			if(m != null){
+					debugger;
+					for(var j = 1;j < m.length;j ++){
+						if(m[j] != null){
+							if(referredItems.hasOwnProperty(m[j]) == false){
+								referredItems[m[j]] = true;
+							}else{
+								referredItems[m[j]] = false; //重复id定义,不能使用这个id
+							}
+						}
+					}
+			}
+		}
     }
 
     function noTypeDefined(page, item) {
@@ -169,7 +199,7 @@ function main(tpl, magObj, callback) {
     }
 	
 function gallaryRenderItem(page,item,_style,content,hasWrap){
-	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
+	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id=%= id%> imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
 	var imgs = item.item_val.split("|");
 	var urls = item.item_href.split("@");
 	var imgItems = [];
@@ -182,10 +212,21 @@ function gallaryRenderItem(page,item,_style,content,hasWrap){
 	_style.push(sizeStyleTemplateWrap(item));
 	return template({
 		pageIdx:page.idx,
-		id:item.item_id + (hasWrap ? "Ga" : ""),
+		id:generateId(page,item,hasWrap),
 		imgItems:JSON.stringify(imgItems),
 		normalStyle:_style.join(",")
 	});
+}
+
+function generateId(page,item,hasWrap){
+	if(page.referredItems.hasOwnProperty(item.item_id) == false || page.referredItems[item.item_id] == false ){
+		return '{null}';
+	}else{
+		if(hasWrap)
+			return '"' + item.item_id + 's"';
+		else
+			return '"' + item.item_id + '"';
+	}
 }
 	
 function imgRenderItem(page,item,_style,content,hasWrap){
@@ -212,7 +253,7 @@ function imgRenderItem(page,item,_style,content,hasWrap){
     return imgTemplate({src:item.item_val,
 						displayType:item.item_display_status,
 						style:_style.join(","),
-						id:item.item_id + ( hasWrap ? "I" :"")});
+						id:generateId(page,item,hasWrap)});
 }
 function musicRenderItem(page,item,_style,content,hasWrap){
     var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
@@ -234,7 +275,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 		music_name:item.music_name,
 		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
 		pageIdx:page.idx,
-		id:item.item_id + ( hasWrap ? "M":""),
+		id:generateId(page,item,hasWrap),
         triggerActions:cmds
 	});
 }
@@ -284,8 +325,8 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
         if(src.indexOf("iframe") > -1){
             var tempSrcArr = src.split('src="');
             src = tempSrcArr[1].split('"')[0];
-            var tempHeightArr = item.item_href.split('height="');
-            var iframeHeight = tempHeightArr[1].split('"')[0];
+            //var tempHeightArr = item.item_href.split('height="');
+            var iframeHeight = extractIframe("height");
             data.iframeHeight = iframeHeight;
             audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
@@ -304,9 +345,19 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id + ( hasWrap ? "V" :""),
+            id:generateId(page,item,hasWrap),
             triggerActions:cmds
         });
+		
+		
+		function extractIframe(key){
+			var pat = new RegExp(key + "=" + "(\S*)");
+			var m = pat.exec(key);
+			if(m != null && m.length == 2){
+				return m[1];
+			}
+			return "";
+		}
     }
     /**
      * 解析涂抹元素
@@ -343,7 +394,7 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id + ( hasWrap ? "C" :""),
+            id:generateId(page,item,hasWrap),
 			triggerActions:cmds
 			
         });
@@ -485,7 +536,7 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
         if (tem != "")
         _style.push(tem);
         return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(","),
-			id:item.item_id + ( hasWrap ? "V" :""),
+			id:generateId(page,item,hasWrap),
 		});
     }
 
@@ -497,7 +548,7 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
         _style.push('overflow:"hidden"');
         return grpTemplate({displayType: item.item_display_status,
             pageIdx: page.idx,
-            id:item.item_id + ( hasWrap ? "G" :""),
+            id:generateId(page,item,hasWrap),
             style: _style,
             children: content});
     }
@@ -574,7 +625,7 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
                 normalStyle: conStyle.join(','),
                 pageIdx: page.idx,
                 displayType: item.item_display_status,
-                id: item.item_id});
+                id:generateId(page,item,false)});
         }
         if (animationData != null) {
             _itemContent = animationTemplate({animationClass: animationData.animationClass,
@@ -583,7 +634,7 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
                 normalStyle: "",
                 pageIdx: page.idx,
                 displayType: 0,
-                id: item.item_id});
+                id:generateId(page,item,false)});
         }
         if ((cmds.actions != undefined && cmds.actions.length > 0)) {
 			cmds.actions = cmds.actions.join(",");
@@ -591,7 +642,7 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
                 normalStyle: conStyle.join(','),
                 children: _itemContent,
                 pageIdx: page.idx,
-                id: item.item_id + "T",
+                id:generateId(page,item,true),
                 triggerActions: cmds
             });
         }
@@ -661,14 +712,13 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
 					return null;
 				}
             }
-			debugger;
-            var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
+			var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
             //hide_el:-2|hide_el:65185725, 
 			var cmds = null;
 			try{
 				cmds = JSON.parse(item_href);
 			}catch(e){
-				console.log("old cmd format");
+				//console.log("old cmd format");
 			}
 			
 			if(cmds != null && cmds instanceof Array){
@@ -713,7 +763,6 @@ function phoneRenderItem(page,item,_style,content,hasWrap){//todo can not adjust
 				var res = {evt:"tap",actions:[]};
 				_.each(cmds,function(cmd){
 					if(cmd.meTap != undefined){//放弃多事件的case
-						debugger;
 						if(cmd.meTap.hasOwnProperty("value"))
 							res.actions.push('{action:"' + linkToAction(cmd.meTap.value,cmd.meTap.target) + '",propagate:true}');
 						else if(typeof cmd.meTap == "string"){
