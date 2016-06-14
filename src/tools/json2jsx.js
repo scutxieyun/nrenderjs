@@ -1156,7 +1156,12 @@ function musicRenderItem(page,item,_style,content,hasWrap){
                 if (temp != null) {
                     if (temp instanceof Array) {
                         animation = [];
-                        var tempClass = JSON.parse(item.item_animation_val);
+                        var tempClass = [];
+						try{						
+							tempClass = JSON.parse(item.item_animation);
+						}catch(e){
+							tempClass = ["fadeIn"];
+						}
                         _.each(temp, function (a, idx) {
 							if(a.duration < 0.2){return;}//如果动画太短，就忽略他算了。
                             animation.push({
