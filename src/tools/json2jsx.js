@@ -217,7 +217,7 @@ function main(tpl, magObj, callback) {
     }
 	
 function gallaryRenderItem(page,item,_style,content,hasWrap){
-	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id=%= id%> imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
+	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id=<%= id%> imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
 	var imgs = item.item_val.split("|");
 	var urls = item.item_href.split("@");
 	var imgItems = [];
