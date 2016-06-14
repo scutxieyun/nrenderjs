@@ -33,6 +33,7 @@ define("MeSubmit", function () {
         },
         clickHandle : function(ev){
             console.log("submit");
+            //todo 获取当前页的所有表单数据，保存数据到数据库
         },
         render: function () {
             this.props.normalStyle.lineHeight = this.props.data.lineHeight;

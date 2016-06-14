@@ -25,30 +25,31 @@ function main(tpl, magObj, callback) {
 	
 	var convertOldCmdWrap = null;//临时为了合并，将convertOldCmd过度一下，减少后面合并的成本
     var itemFuncMap = {
-        "1": imgRenderItem,
-        "2": textRenderItem,
-        "3": imgRenderItem,
-        "10": imgRenderItem,
-        "18": imgRenderItem,//带链接
-        "17": grpRenderItem,
-        "34": grpRenderItem,
-		"12": phoneRenderItem,//打电话
-		"7": musicRenderItem,
-        "8": videoRenderItem,
-        "24": clipRenderItem,
-		"37": gallaryRenderItem,
-        "39": svgRenderItem,        //SVG
+        "1": imgRenderItem,     //图片
+        "2": textRenderItem,    //文本
+        "3": imgRenderItem,     //水印
+        "7": musicRenderItem,   //音频
+        "8": videoRenderItem,   //视频
+        "10": imgRenderItem,    //边框
+        "12": phoneRenderItem,  //打电话
+        "14":inputRenderItem,   //输入
+        "15":mapRenderItem,     //地图
+        "17": grpRenderItem,    //多图边框对象
+        "18": imgRenderItem,    //带遮罩的图片
+        "19":submitRenderItem,  //提交按钮
         "20":radioRenderItem,    //单选
-        "21":checkboxRenderItem,    //多选
-        "38": labelRenderItem,       //标签
-        "19":submitRenderItem,      //提交按钮
-        "14":inputRenderItem,      //输入
-        "15":mapRenderItem,      //地图
-        "36":rewardRenderItem,      //打赏
-        "41":redEnvelopesRenderItem,      //红包
-        "27":shakeRenderItem,            //摇一摇
-        "25":longPressRenderItem        //长按元素
-
+        "21":checkboxRenderItem, //多选
+        "22":voteRenderItem,     //投票
+        "24": clipRenderItem,    //涂抹
+        "25":longPressRenderItem,//长按元素
+        "27":shakeRenderItem,    //摇一摇
+        "34": grpRenderItem,     //多图边框对象
+        "36":rewardRenderItem,   //打赏
+		"37": gallaryRenderItem, //图集
+        "38": labelRenderItem,   //标签
+        "39": svgRenderItem,     //SVG
+        "40":panoramaRenderItem, //360全景图
+        "41":redEnvelopesRenderItem //红包
     };
     //给一个初始的随机数
     var gId = (0 | (Math.random() * 998));
@@ -732,6 +733,60 @@ function musicRenderItem(page,item,_style){
         });
     }
 
+    /**
+     * 解析全景图
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function panoramaRenderItem(page,item,_style){
+        var template = _.template('<MePanorama cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MePanorama>');
+        var imgs = item.item_val.split("|");
+        var imgItems = [];
+        _.each(imgs,function(img,i){
+            imgItems.push(img)
+        });
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        return template({
+            pageIdx:page.idx,
+            id:item.item_id,
+            imgItems:JSON.stringify(imgItems),
+            normalStyle:_style.join(",")
+        });
+    }
+
+    /**
+     * 解析投票
+     * @param page
+     * @param item
+     * @param _style
+     * @returns {*}
+     */
+    function voteRenderItem(page,item,_style){
+        var template = _.template('<MeVote cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" data={<%=data%>}  normalStyle={{<%= normalStyle%>}}></MeVote>');
+        if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
+        //增加处理背景颜色
+        if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
+        _style.push(fontStyleTemplateWrap(item));
+        var voteNum = page.page_vote || 0;
+        var pageId = page.objectId || "";
+        var content = item.item_val;
+        var data = {};
+        data.voteNum = voteNum;
+        data.pageId = pageId;
+        data.content = content;
+        data = JSON.stringify(data);
+        return template({
+            pageIdx:page.idx,
+            id:item.item_id,
+            data:data,
+            normalStyle:_style.join(",")
+        });
+    }
 
     /**
      * 获取设置云字体

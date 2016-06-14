@@ -30,6 +30,8 @@ define([], function () {
     var MeRedEnvelopes = Renderjs.MeRedEnvelopes;
     var MeShake = Renderjs.MeShake;
     var MeLongPress = Renderjs.MeLongPress;
+    var MePanorama = Renderjs.MePanorama;
+    var MeVote = Renderjs.MeVote;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
