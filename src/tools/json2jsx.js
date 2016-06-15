@@ -747,7 +747,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             cmds.actions = [];
         }
         cmds.actions.join(",");
-        var shakeTemplate = _.template('<MeShake pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeShake>');
+        var shakeTemplate = _.template('<MeShake pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeShake>');
         return shakeTemplate({
             normalStyle:_style.join(","),
             pageIdx:page.idx,
@@ -778,7 +778,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             cmds.actions = [];
         }
         cmds.actions.join(",");
-        var longPressTemplate = _.template('<MeLongPress pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" data={<%= data %>} normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeLongPress>');
+        var longPressTemplate = _.template('<MeLongPress pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> data={<%= data %>} normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeLongPress>');
         var data = {};
         data.borderWidth = item.item_border;
         data = JSON.stringify(data);
@@ -800,7 +800,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @returns {*}
      */
     function panoramaRenderItem(page,item,_style,content,hasWrap){
-        var template = _.template('<MePanorama cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MePanorama>');
+        var template = _.template('<MePanorama cxt={cxt} pageIdx={<%= pageIdx%>} id=<%= id%> imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MePanorama>');
         var imgs = item.item_val.split("|");
         var imgItems = [];
         _.each(imgs,function(img,i){
@@ -988,6 +988,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         item.font_weight = item.font_weight || "";
         item.text_decoration = item.text_decoration || "";
         item.font_style = item.font_style || "";
+        //预防没有px
+        item.font_size = item.font_size.indexOf("px") > 0 ? item.font_size : item.font_size + "px";
 		return fontStyleTemplate(item);
 	}
 	

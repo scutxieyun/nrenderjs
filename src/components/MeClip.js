@@ -13,7 +13,7 @@ define("MeClip", function () {
         getDefaultProps:function(){
             //todo 需要动态配置
             return {
-                commonStyle : {position: 'absolute',top:0,left:0,opacity:1,transition:'opacity .5s',"-webkit-transition":'opacity .5s'}
+                commonStyle : {position: 'absolute',top:0,left:0,opacity:1,transition:'opacity .5s',"WebkitTransition":'opacity .5s'}
             }
         },
         getInitialState : function(){
