@@ -6,12 +6,12 @@ function main(tpl, magObj, callback) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
-    var imgTemplate = _.template('<MeImage src="<%= src%>" displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
-    var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= style %>}}><%= children%></MeDiv>');
+    var imgTemplate = _.template('<MeImage src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
+    var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
-    var animationTemplate = _.template('<MeAnimation id="<%= id%>" displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
-    var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
+    var animationTemplate = _.template('<MeAnimation id=<%= id%> displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
+    var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
    //最终返回的对象
     var pageTemp;
     //页容器的字符串
@@ -90,7 +90,10 @@ function main(tpl, magObj, callback) {
     }
     index.push(-1);
     pagesContentTemp = pageContent.join(",");
-    pageTemp = (_.template(tpl))({pages: pagesContentTemp, layout: JSON.stringify(index), music_src: mag.tpl_music});
+    pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
+									layout: JSON.stringify(index),
+									music_src: tplObj.tpl_music,
+									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false"});
     //循环下载云字体
     loop(callback);
 
@@ -116,8 +119,9 @@ function main(tpl, magObj, callback) {
 
     function renderPage(page) {
         var items = [];
-        var grps = indexItems(page.item_object);
-
+        var idxRes = indexItems(page.item_object);
+		var grps = idxRes.grps;
+		page.referredItems = idxRes.referredItems;
         _.each(grps, function (grp, key) {
             var newGrps = []
             _.each(grp.items, function (item, idx) {
@@ -136,12 +140,24 @@ function main(tpl, magObj, callback) {
     }
 
     function indexItems(items) {
-        var grps = {};
+        var res = {
+			grps:{},
+			referredItems:{}
+		};
+		var grps = res.grps;
         grps["0"] = {
             items: [],
             owner: null
         }
-        for (var i = 0; i < items.length; i++) {
+		var referredItems = res.referredItems;
+		for (var i = 0; i < items.length; i++) {
+			if (items[i].animate_end_act != null && items[i].animate_end_act != ""){
+				registerItem4Referred(items[i].animate_end_act,referredItems);
+			}
+			if (items[i].item_href != null && items[i].item_href != ""){
+				//分析那些item被引用
+				registerItem4Referred(items[i].item_href,referredItems);
+			}
             if (items[i].group_id == undefined) items[i].group_id = "0";
             if (grps.hasOwnProperty(items[i].group_id)) {
                 if ((items[i].item_id == items[i].group_id) || items[i].item_type == 17 || items[i] == 34) {
@@ -158,7 +174,25 @@ function main(tpl, magObj, callback) {
                 else grps[items[i].group_id].items.push(items[i]);
             }
         }
-        return grps;
+		console.log(referredItems);
+		return res;
+		
+		function registerItem4Referred(val,referredItems){
+			var referedPattern = /([0-9]+)/g
+			var m = val.match(referedPattern);
+			if(m != null){
+					for(var j = 0;j < m.length;j ++){
+						if(m[j] != null && m[j].length > 4){
+							//debugger;
+							if(referredItems.hasOwnProperty(m[j]) == false){
+								referredItems[m[j]] = true;
+							}else{
+								referredItems[m[j]] = false; //重复id定义,不能使用这个id
+							}
+						}
+					}
+			}
+		}
     }
 
     function noTypeDefined(page, item) {
@@ -183,8 +217,8 @@ function main(tpl, magObj, callback) {
         return "";
     }
 	
-function gallaryRenderItem(page,item,_style){
-	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
+function gallaryRenderItem(page,item,_style,content,hasWrap){
+	var template = _.template('<MeGallary cxt={cxt} pageIdx={<%= pageIdx%>} id=<%= id%> imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MeGallary>');
 	var imgs = item.item_val.split("|");
 	var urls = item.item_href.split("@");
 	var imgItems = [];
@@ -197,13 +231,24 @@ function gallaryRenderItem(page,item,_style){
 	_style.push(sizeStyleTemplateWrap(item));
 	return template({
 		pageIdx:page.idx,
-		id:item.item_id,
+		id:generateId(page,item,hasWrap),
 		imgItems:JSON.stringify(imgItems),
 		normalStyle:_style.join(",")
 	});
 }
+
+function generateId(page,item,hasWrap){
+	if(page.referredItems.hasOwnProperty(item.item_id) == false || page.referredItems[item.item_id] == false ){
+		return '{null}';
+	}else{
+		if(hasWrap)
+			return '"' + item.item_id + 's"';
+		else
+			return '"' + item.item_id + '"';
+	}
+}
 	
-function imgRenderItem(page,item,_style){
+function imgRenderItem(page,item,_style,content,hasWrap){
     //人工实现Scale,
     if(item.x_scale == null) item.x_scale = 1;
     if(item.y_scale == null) item.y_scale = 1;
@@ -224,10 +269,13 @@ function imgRenderItem(page,item,_style){
         _style.push(tem);	
 	
 	
-    return imgTemplate({src:item.item_val,displayType:item.item_display_status,style:_style.join(",")});
+    return imgTemplate({src:item.item_val,
+						displayType:item.item_display_status,
+						style:_style.join(","),
+						id:generateId(page,item,hasWrap)});
 }
-function musicRenderItem(page,item,_style){
-    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
+function musicRenderItem(page,item,_style,content,hasWrap){
+    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
     //处理音频的事件
     if(!item.animate_end_act){
         item.animate_end_act = "";
@@ -246,7 +294,7 @@ function musicRenderItem(page,item,_style){
 		music_name:item.music_name,
 		music_img:item.music_img,//实际没有用，后续怎么处理看产品部todo
 		pageIdx:page.idx,
-		id:item.item_id,
+		id:generateId(page,item,hasWrap),
         triggerActions:cmds
 	});
 }
@@ -257,8 +305,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function radioRenderItem(page,item,_style){
-        var radioTemplate = _.template('<MeRadio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRadio>');
+    function radioRenderItem(page,item,_style,content,hasWrap){
+        var radioTemplate = _.template('<MeRadio pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRadio>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -283,7 +331,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -293,8 +341,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function checkboxRenderItem(page,item,_style){
-        var checkboxTemplate = _.template('<MeCheckbox pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeCheckbox>');
+    function checkboxRenderItem(page,item,_style,content,hasWrap){
+        var checkboxTemplate = _.template('<MeCheckbox pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeCheckbox>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -319,7 +367,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -329,8 +377,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function labelRenderItem(page,item,_style){
-        var labelTemplate = _.template('<MeLabel pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeLabel>');
+    function labelRenderItem(page,item,_style,content,hasWrap){
+        var labelTemplate = _.template('<MeLabel pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeLabel>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -349,7 +397,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
 
@@ -360,8 +408,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function svgRenderItem(page,item,_style){
-        var svgTemplate = _.template('<MeSvg pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSvg>');
+    function svgRenderItem(page,item,_style,content,hasWrap){
+        var svgTemplate = _.template('<MeSvg pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSvg>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -382,7 +430,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -392,8 +440,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function submitRenderItem(page,item,_style){
-        var submitTemplate = _.template('<MeSubmit pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSubmit>');
+    function submitRenderItem(page,item,_style,content,hasWrap){
+        var submitTemplate = _.template('<MeSubmit pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSubmit>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -409,7 +457,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -419,8 +467,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function mapRenderItem(page,item,_style){
-        var mapTemplate = _.template('<MeMap pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeMap>');
+    function mapRenderItem(page,item,_style,content,hasWrap){
+        var mapTemplate = _.template('<MeMap pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeMap>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -445,7 +493,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -455,8 +503,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function inputRenderItem(page,item,_style){
-        var inputTemplate = _.template('<MeInput pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeInput>');
+    function inputRenderItem(page,item,_style,content,hasWrap){
+        var inputTemplate = _.template('<MeInput pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeInput>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -470,7 +518,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -480,8 +528,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function rewardRenderItem(page,item,_style){
-        var rewardTemplate = _.template('<MeReward pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeReward>');
+    function rewardRenderItem(page,item,_style,content,hasWrap){
+        var rewardTemplate = _.template('<MeReward pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeReward>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -504,7 +552,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -514,8 +562,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function redEnvelopesRenderItem(page,item,_style){
-        var redEnvelopesTemplate = _.template('<MeRedEnvelopes pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRedEnvelopes>');
+    function redEnvelopesRenderItem(page,item,_style,content,hasWrap){
+        var redEnvelopesTemplate = _.template('<MeRedEnvelopes pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRedEnvelopes>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -535,7 +583,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -545,8 +593,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function phoneRenderItem(page,item,_style){
-        var phoneTemplate = _.template('<MePhone pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MePhone>');
+    function phoneRenderItem(page,item,_style,content,hasWrap){
+        var phoneTemplate = _.template('<MePhone pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MePhone>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -563,7 +611,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -573,7 +621,7 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function videoRenderItem(page,item,_style){
+    function videoRenderItem(page,item,_style,content,hasWrap){
         if(!item.item_href){
             return;
         }
@@ -604,10 +652,11 @@ function musicRenderItem(page,item,_style){
             src = tempSrcArr[1].split('"')[0];
             var tempHeightArr = item.item_href.split('height=');
             var iframeHeight = tempHeightArr[1].split(' ')[0];
+			//var iframeHeight = extractIframe("height");
             data.iframeHeight = iframeHeight;
-            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
+            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
-            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
+            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
             data.width = width;
             data.height = height;
         }
@@ -622,9 +671,19 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             triggerActions:cmds
         });
+		
+		
+		function extractIframe(key){
+			var pat = new RegExp(key + "=" + "(\S*)");
+			var m = pat.exec(key);
+			if(m != null && m.length == 2){
+				return m[1];
+			}
+			return "";
+		}
     }
     /**
      * 解析涂抹元素
@@ -633,7 +692,7 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function clipRenderItem(page,item,_style){
+    function clipRenderItem(page,item,_style,content,hasWrap){
         if(!item.item_href){
             return;
         }
@@ -650,7 +709,7 @@ function musicRenderItem(page,item,_style){
 			cmds.actions = [];
         }
         cmds.actions.join(",");
-        var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} data={<%= data%>}  ></MeClip>');
+        var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} data={<%= data%>}  ></MeClip>');
         var data = {};
 
         data.src = item.item_href;
@@ -661,7 +720,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
 			triggerActions:cmds
 			
         });
@@ -674,7 +733,7 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function shakeRenderItem(page,item,_style){
+    function shakeRenderItem(page,item,_style,content,hasWrap){
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -688,11 +747,11 @@ function musicRenderItem(page,item,_style){
             cmds.actions = [];
         }
         cmds.actions.join(",");
-        var shakeTemplate = _.template('<MeShake pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeShake>');
+        var shakeTemplate = _.template('<MeShake pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeShake>');
         return shakeTemplate({
             normalStyle:_style.join(","),
             pageIdx:page.idx,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             triggerActions:cmds
 
         });
@@ -705,7 +764,7 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function longPressRenderItem(page,item,_style){
+    function longPressRenderItem(page,item,_style,content,hasWrap){
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -719,7 +778,7 @@ function musicRenderItem(page,item,_style){
             cmds.actions = [];
         }
         cmds.actions.join(",");
-        var longPressTemplate = _.template('<MeLongPress pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" data={<%= data %>} normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeLongPress>');
+        var longPressTemplate = _.template('<MeLongPress pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> data={<%= data %>} normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} ></MeLongPress>');
         var data = {};
         data.borderWidth = item.item_border;
         data = JSON.stringify(data);
@@ -727,7 +786,7 @@ function musicRenderItem(page,item,_style){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             triggerActions:cmds
 
         });
@@ -740,8 +799,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function panoramaRenderItem(page,item,_style){
-        var template = _.template('<MePanorama cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MePanorama>');
+    function panoramaRenderItem(page,item,_style,content,hasWrap){
+        var template = _.template('<MePanorama cxt={cxt} pageIdx={<%= pageIdx%>} id=<%= id%> imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MePanorama>');
         var imgs = item.item_val.split("|");
         var imgItems = [];
         _.each(imgs,function(img,i){
@@ -753,7 +812,7 @@ function musicRenderItem(page,item,_style){
         _style.push(fontStyleTemplateWrap(item));
         return template({
             pageIdx:page.idx,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             imgItems:JSON.stringify(imgItems),
             normalStyle:_style.join(",")
         });
@@ -766,8 +825,8 @@ function musicRenderItem(page,item,_style){
      * @param _style
      * @returns {*}
      */
-    function voteRenderItem(page,item,_style){
-        var template = _.template('<MeVote cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" data={<%=data%>}  normalStyle={{<%= normalStyle%>}}></MeVote>');
+    function voteRenderItem(page,item,_style,content,hasWrap){
+        var template = _.template('<MeVote cxt={cxt} pageIdx={<%= pageIdx%>} id=<%= id%> data={<%=data%>}  normalStyle={{<%= normalStyle%>}}></MeVote>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -782,7 +841,7 @@ function musicRenderItem(page,item,_style){
         data = JSON.stringify(data);
         return template({
             pageIdx:page.idx,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             data:data,
             normalStyle:_style.join(",")
         });
@@ -817,7 +876,10 @@ function musicRenderItem(page,item,_style){
                     //替换文字
                     var patt1 = new RegExp(key, "g");
                     pagesContentTemp = pagesContentTemp.replace(patt1, temp);
-                    pageTemp = (_.template(tpl))({pages: pagesContentTemp, layout: JSON.stringify(index), music_src: mag.tpl_music});
+                    pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
+									layout: JSON.stringify(index),
+									music_src: tplObj.tpl_music,
+									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false"});
                 }
                 cb();
             }).on("error", function () {
@@ -926,11 +988,13 @@ function musicRenderItem(page,item,_style){
         item.font_weight = item.font_weight || "";
         item.text_decoration = item.text_decoration || "";
         item.font_style = item.font_style || "";
+        //预防没有px
+        item.font_size = item.font_size.indexOf("px") > 0 ? item.font_size : item.font_size + "px";
 		return fontStyleTemplate(item);
 	}
 	
 
-    function textRenderItem(page, item, _style) {
+    function textRenderItem(page, item, _style,content,hasWrap) {
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -969,10 +1033,12 @@ function musicRenderItem(page,item,_style){
 		var tem = renderTransform(item);
         if (tem != "")
         _style.push(tem);
-        return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(",")});
+        return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(","),
+			id:generateId(page,item,hasWrap),
+		});
     }
 
-    function grpRenderItem(page, item, _style, content) {
+    function grpRenderItem(page, item, _style, content,hasWrap) {
         var tem = renderTransform(item);
         if (tem != "")
             _style.push(tem);
@@ -980,7 +1046,7 @@ function musicRenderItem(page,item,_style){
         _style.push('overflow:"hidden"');
         return grpTemplate({displayType: item.item_display_status,
             pageIdx: page.idx,
-            id: item.item_id,
+            id:generateId(page,item,hasWrap),
             style: _style,
             children: content});
     }
@@ -1043,10 +1109,10 @@ function musicRenderItem(page,item,_style){
         if (animationData == null && (cmds.actions == undefined || cmds.actions.length == 0)) {
             genStyle.push(posStyle);
             if (transformStyle != "") genStyle.push(transformStyle);
-            return renderFunc(page, item, genStyle, content)
+            return renderFunc(page, item, genStyle, content,false);//最终元素，没有包裹
         }
 
-        var _itemContent = renderFunc(page, item, genStyle, content);//内容自己决定大小,位置有容器决定
+        var _itemContent = renderFunc(page, item, genStyle, content,true);//内容自己决定大小,位置有容器决定
 
         var conStyle = [posStyle];
         if (transformStyle != "")conStyle.push(transformStyle);
@@ -1057,7 +1123,7 @@ function musicRenderItem(page,item,_style){
                 normalStyle: conStyle.join(','),
                 pageIdx: page.idx,
                 displayType: item.item_display_status,
-                id: item.item_id + "A"});
+                id:generateId(page,item,false)});
         }
         if (animationData != null) {
             _itemContent = animationTemplate({animationClass: animationData.animationClass,
@@ -1066,7 +1132,7 @@ function musicRenderItem(page,item,_style){
                 normalStyle: "",
                 pageIdx: page.idx,
                 displayType: 0,
-                id: item.item_id});
+                id:generateId(page,item,false)});
         }
         if ((cmds.actions != undefined && cmds.actions.length > 0)) {
 			cmds.actions = cmds.actions.join(",");
@@ -1074,7 +1140,7 @@ function musicRenderItem(page,item,_style){
                 normalStyle: conStyle.join(','),
                 children: _itemContent,
                 pageIdx: page.idx,
-                id: item.item_id + "T",
+                id:generateId(page,item,true),
                 triggerActions: cmds
             });
         }
@@ -1093,7 +1159,12 @@ function musicRenderItem(page,item,_style){
                 if (temp != null) {
                     if (temp instanceof Array) {
                         animation = [];
-                        var tempClass = JSON.parse(item.item_animation_val);
+                        var tempClass = [];
+						try{						
+							tempClass = JSON.parse(item.item_animation);
+						}catch(e){
+							tempClass = ["fadeIn"];
+						}
                         _.each(temp, function (a, idx) {
 							if(a.duration < 0.2){return;}//如果动画太短，就忽略他算了。
                             animation.push({
@@ -1144,14 +1215,13 @@ function musicRenderItem(page,item,_style){
 					return null;
 				}
             }
-			debugger;
-            var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
+			var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
             //hide_el:-2|hide_el:65185725, 
 			var cmds = null;
 			try{
 				cmds = JSON.parse(item_href);
 			}catch(e){
-				console.log("old cmd format");
+				//console.log("old cmd format");
 			}
 			
 			if(cmds != null && cmds instanceof Array){
@@ -1196,7 +1266,6 @@ function musicRenderItem(page,item,_style){
 				var res = {evt:"tap",actions:[]};
 				_.each(cmds,function(cmd){
 					if(cmd.meTap != undefined){//放弃多事件的case
-						debugger;
 						if(cmd.meTap.hasOwnProperty("value"))
 							res.actions.push('{action:"' + linkToAction(cmd.meTap.value,cmd.meTap.target) + '",propagate:true}');
 						else if(typeof cmd.meTap == "string"){

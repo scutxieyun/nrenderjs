@@ -48,12 +48,12 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 				if(enable == false){ 
 					this.props.cxt.interactHandler.off(
 									MeTouchTrigger.getTriggerEvents(this.props.triggerActions),
-									this.props.id);
+									this.getId());
 				}
 				else{
 					this.props.cxt.interactHandler.on(
 									MeTouchTrigger.getTriggerEvents(this.props.triggerActions),
-									this.props.id,
+									this.getId(),
 									this._triggerEvent);
 				}
 			}
@@ -73,7 +73,7 @@ var MeComponentMixin = require("../src/MeComponentMixin.js");
 		render:function(){
 			var _style = this.props.normalStyle;
 			this.updateStyleForDisplay(_style);
-			return <div ref="meswipe" id={this.props.id} style={_style}>{this.props.children}</div>
+			return <div ref="meswipe" id={this.getId()} style={_style}>{this.props.children}</div>
 		}});
 	return MeTouchTrigger;
 });

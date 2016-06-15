@@ -34,10 +34,13 @@ var _assign = require("object-assign");
 				}
 				this.container[compId] = comRef;
 			}
-			var comHeight = ReactDOM.findDOMNode(comRef).height;
-			if(comHeight > this.pageHeight){
-				this.pageHeight = comHeight;
-			}
+            //TODO 这边需要判断有些组件可能不渲染的情况，即打赏组件在微信里面才渲染
+            if(ReactDOM.findDOMNode(comRef)){
+                var comHeight = ReactDOM.findDOMNode(comRef).height;
+                if(comHeight > this.pageHeight){
+                    this.pageHeight = comHeight;
+                }
+            }
 			return this;
 		},
 		getComponent:function(compId){

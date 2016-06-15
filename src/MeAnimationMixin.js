@@ -22,5 +22,15 @@ define("MeAnimationMixin",function(){
 			this.setState({animationState:"no start"});
 
 		},
+		shouldComponentUpdate :function(nextProps, nextState){
+			if(nextState.display == true && this.state.display == false){
+				setTimeout(0,function(){
+										this.setState({animationState:"start",
+										animationIndex:0});
+							}
+				);
+			}
+			return true;
+		}
 	}
 });

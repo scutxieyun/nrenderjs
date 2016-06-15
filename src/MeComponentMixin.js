@@ -20,7 +20,7 @@ var selfIncCounter = 0;
 			};//React会将调用chain中的数据进行合并
 		},
 		componentWillMount:function(){
-			if(this.props.id == undefined){ 
+			if(this.props.id == undefined || this.props.id == null){ 
 				this._cid = "MeComponentMixin" + this.getIncId();
 			}
 		},

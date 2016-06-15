@@ -85,7 +85,7 @@ var MeGallary  = React.createClass({
 		var self = this;
 		var width = this.getWidth();
 		var _transform = "translate(-" + this.state.actIdx * width + "px,0px)"; 
-		for(var i = 0; i < this.props.imgItems.length;i ++){
+		for(var i = 0; i < this.props.imgItems.length; i++){
 			imgComps.push(<img src={self.props.imgItems[i].src} key={i} className="img-item" style={{height:self.props.normalStyle.height
 																,width:self.props.normalStyle.width
 																}}></img>);

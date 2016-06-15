@@ -42,7 +42,7 @@ define([], function () {
 		pages:[<%= pages%>],
 		layout:<%= layout%>,
 		"toolBar": <MeToolBar>
-            <MeMusic cxt={cxt} id="magazine-music" autoplay={true} src="<%= music_src%>">
+            <MeMusic cxt={cxt} id="magazine-music" autoplay={<%= music_autoplay%>} src="<%= music_src%>">
 			</MeMusic>
         </MeToolBar>,
 		"cxt"   : cxt
