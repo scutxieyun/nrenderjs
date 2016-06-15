@@ -28,7 +28,7 @@ var MeAnimationMxin = require("../src/MeAnimationMixin.js");
 		},
 		pageActive:function(){
 			this.componentPageActive();
-			if(this.props.autoActive)
+			if(this.props.autoActive && this.state.display == true)
 				this.animationActive();
 			var myDOM = ReactDOM.findDOMNode(this);
 			myDOM.addEventListener("animationend",this.animationEnd, false);
@@ -77,7 +77,6 @@ var MeAnimationMxin = require("../src/MeAnimationMixin.js");
 			}
 			return animation;
 		},
-		
 		render:function(){
 			var className = this.getAnimationClass();
 			var _style = _assign(this.getAnimationCss(),this.props.normalStyle);

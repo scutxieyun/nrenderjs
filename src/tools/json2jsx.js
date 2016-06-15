@@ -150,8 +150,7 @@ function main(tpl, magObj, callback) {
             owner: null
         }
 		var referredItems = res.referredItems;
-		var referedPattern = /([0-9]+)/g
-        for (var i = 0; i < items.length; i++) {
+		for (var i = 0; i < items.length; i++) {
 			if (items[i].animate_end_act != null && items[i].animate_end_act != ""){
 				registerItem4Referred(items[i].animate_end_act,referredItems);
 			}
@@ -175,14 +174,16 @@ function main(tpl, magObj, callback) {
                 else grps[items[i].group_id].items.push(items[i]);
             }
         }
+		console.log(referredItems);
 		return res;
 		
 		function registerItem4Referred(val,referredItems){
-			var m = referedPattern.exec(val);
+			var referedPattern = /([0-9]+)/g
+			var m = val.match(referedPattern);
 			if(m != null){
-					debugger;
-					for(var j = 1;j < m.length;j ++){
-						if(m[j] != null){
+					for(var j = 0;j < m.length;j ++){
+						if(m[j] != null && m[j].length > 4){
+							//debugger;
 							if(referredItems.hasOwnProperty(m[j]) == false){
 								referredItems[m[j]] = true;
 							}else{
@@ -274,7 +275,7 @@ function imgRenderItem(page,item,_style,content,hasWrap){
 						id:generateId(page,item,hasWrap)});
 }
 function musicRenderItem(page,item,_style,content,hasWrap){
-    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
+    var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
     //处理音频的事件
     if(!item.animate_end_act){
         item.animate_end_act = "";
@@ -304,8 +305,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function radioRenderItem(page,item,_style){
-        var radioTemplate = _.template('<MeRadio pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRadio>');
+    function radioRenderItem(page,item,_style,content,hasWrap){
+        var radioTemplate = _.template('<MeRadio pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRadio>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -330,7 +331,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -340,8 +341,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function checkboxRenderItem(page,item,_style){
-        var checkboxTemplate = _.template('<MeCheckbox pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeCheckbox>');
+    function checkboxRenderItem(page,item,_style,content,hasWrap){
+        var checkboxTemplate = _.template('<MeCheckbox pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeCheckbox>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -366,7 +367,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -376,8 +377,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function labelRenderItem(page,item,_style){
-        var labelTemplate = _.template('<MeLabel pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeLabel>');
+    function labelRenderItem(page,item,_style,content,hasWrap){
+        var labelTemplate = _.template('<MeLabel pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeLabel>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -396,7 +397,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
 
@@ -407,8 +408,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function svgRenderItem(page,item,_style){
-        var svgTemplate = _.template('<MeSvg pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSvg>');
+    function svgRenderItem(page,item,_style,content,hasWrap){
+        var svgTemplate = _.template('<MeSvg pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSvg>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -429,7 +430,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -439,8 +440,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function submitRenderItem(page,item,_style){
-        var submitTemplate = _.template('<MeSubmit pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSubmit>');
+    function submitRenderItem(page,item,_style,content,hasWrap){
+        var submitTemplate = _.template('<MeSubmit pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeSubmit>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -456,7 +457,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -466,8 +467,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function mapRenderItem(page,item,_style){
-        var mapTemplate = _.template('<MeMap pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeMap>');
+    function mapRenderItem(page,item,_style,content,hasWrap){
+        var mapTemplate = _.template('<MeMap pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeMap>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -492,7 +493,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -502,8 +503,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function inputRenderItem(page,item,_style){
-        var inputTemplate = _.template('<MeInput pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeInput>');
+    function inputRenderItem(page,item,_style,content,hasWrap){
+        var inputTemplate = _.template('<MeInput pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeInput>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -517,7 +518,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -527,8 +528,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function rewardRenderItem(page,item,_style){
-        var rewardTemplate = _.template('<MeReward pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeReward>');
+    function rewardRenderItem(page,item,_style,content,hasWrap){
+        var rewardTemplate = _.template('<MeReward pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeReward>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -551,7 +552,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -561,8 +562,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function redEnvelopesRenderItem(page,item,_style){
-        var redEnvelopesTemplate = _.template('<MeRedEnvelopes pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRedEnvelopes>');
+    function redEnvelopesRenderItem(page,item,_style,content,hasWrap){
+        var redEnvelopesTemplate = _.template('<MeRedEnvelopes pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MeRedEnvelopes>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -582,7 +583,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -592,8 +593,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function phoneRenderItem(page,item,_style){
-        var phoneTemplate = _.template('<MePhone pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MePhone>');
+    function phoneRenderItem(page,item,_style,content,hasWrap){
+        var phoneTemplate = _.template('<MePhone pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>   normalStyle={{<%= normalStyle%>}} data={<%= data%>} ></MePhone>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -610,7 +611,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id
+            id:generateId(page,item,hasWrap),
         });
     }
     /**
@@ -653,9 +654,9 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             var iframeHeight = tempHeightArr[1].split(' ')[0];
 			//var iframeHeight = extractIframe("height");
             data.iframeHeight = iframeHeight;
-            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>" triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
+            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
-            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
+            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
             data.width = width;
             data.height = height;
         }
@@ -708,7 +709,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 			cmds.actions = [];
         }
         cmds.actions.join(",");
-        var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id="<%= id%>"  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} data={<%= data%>}  ></MeClip>');
+        var clipTemplate = _.template('<MeClip pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} data={<%= data%>}  ></MeClip>');
         var data = {};
 
         data.src = item.item_href;
@@ -732,7 +733,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function shakeRenderItem(page,item,_style){
+    function shakeRenderItem(page,item,_style,content,hasWrap){
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -750,7 +751,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         return shakeTemplate({
             normalStyle:_style.join(","),
             pageIdx:page.idx,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             triggerActions:cmds
 
         });
@@ -763,7 +764,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function longPressRenderItem(page,item,_style){
+    function longPressRenderItem(page,item,_style,content,hasWrap){
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -785,7 +786,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             triggerActions:cmds
 
         });
@@ -798,7 +799,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function panoramaRenderItem(page,item,_style){
+    function panoramaRenderItem(page,item,_style,content,hasWrap){
         var template = _.template('<MePanorama cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" imgItems={<%=imgItems%>} normalStyle={{<%= normalStyle%>}}></MePanorama>');
         var imgs = item.item_val.split("|");
         var imgItems = [];
@@ -811,7 +812,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         _style.push(fontStyleTemplateWrap(item));
         return template({
             pageIdx:page.idx,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             imgItems:JSON.stringify(imgItems),
             normalStyle:_style.join(",")
         });
@@ -824,8 +825,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
      * @param _style
      * @returns {*}
      */
-    function voteRenderItem(page,item,_style){
-        var template = _.template('<MeVote cxt={cxt} pageIdx={<%= pageIdx%>} id="<%= id%>" data={<%=data%>}  normalStyle={{<%= normalStyle%>}}></MeVote>');
+    function voteRenderItem(page,item,_style,content,hasWrap){
+        var template = _.template('<MeVote cxt={cxt} pageIdx={<%= pageIdx%>} id=<%= id%> data={<%=data%>}  normalStyle={{<%= normalStyle%>}}></MeVote>');
         if ((item.item_width != undefined && item.item_width != 0 ) || (item.item_height != undefined && item.item_height != 0)) _style.push(sizeStyleTemplateWrap(item));
         //增加处理背景颜色
         if (item.bg_color == undefined || item.bg_color == null || item.bg_color == "null") item.bg_color = "transparent";
@@ -840,7 +841,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         data = JSON.stringify(data);
         return template({
             pageIdx:page.idx,
-            id:item.item_id,
+            id:generateId(page,item,hasWrap),
             data:data,
             normalStyle:_style.join(",")
         });
