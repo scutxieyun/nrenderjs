@@ -205,7 +205,7 @@ body{
 		<div id="magazine-container" style='height:100%;width:100%'>
 		</div>
 	</div>
-	<div style="position:absolute; left:20px; top:200px;font-size:30px" > <input type="checkbox" id="autoplay" checked="checked">自动播放</input></div>
+	<div style="position:absolute; left:20px; top:200px;font-size:30px" > <input type="checkbox" id="autoplay" checked="checked" onclick="changeMagazine(this);">自动播放</input></div>
     <div id="popup-iframe" class="popupIframe">
         <div class="closeBtn"></div>
 
@@ -214,8 +214,11 @@ body{
 
 </body>
 <script type="text/javascript">
+    var defaultInterval = 2000;   //默认初始的时间为10s
+    var magazineInterval = 0;   //默认初始的时间为10s
+    var playTimer = null;       //自动播放的控制timer
+    var magazinePlaying = false;
 	$(function(){
-	
 		$('#pageContent').bind('mousewheel', function(e){
 			if(e.originalEvent.wheelDelta /120 > 0) {
 				renderjs.helper.gotoPrev();
@@ -224,10 +227,7 @@ body{
 				renderjs.helper.gotoNext();
 			}
 		});
-	
-	
-	
-	
+
 		var article_file = "mag_lf.js"
 		var _xparam = /article=([^&]+)/.exec(location.href);
 		var magUrl = 'dist/mag_1.js';
@@ -244,11 +244,12 @@ body{
 				globalLoadTid(_xparam[1],function(mag){
 					if(mag != undefined && renderjs != undefined){
 						renderjs.helper.load(mag);
-						setInterval(function(){
-							if(document.getElementById("autoplay").checked){
-								renderjs.helper.gotoNext();
-								}
-						},3000);
+                        //todo设置自动播放
+                        setTimeout(function(){
+                            if(document.getElementById("autoplay").checked){
+                                playMagazine();
+                            }
+                        }, 10);
 					}
 				});
 				return;
@@ -257,6 +258,11 @@ body{
 		require([magUrl],function(mag_1){
 			if(mag_1 != undefined && renderjs != undefined){
 				renderjs.helper.load(mag_1);
+                setTimeout(function(){
+                    if(document.getElementById("autoplay").checked){
+                        playMagazine();
+                    }
+                }, 10);
 			}
 		});
 		
@@ -265,7 +271,40 @@ body{
 			renderjs.helper.gotoPos(0,2);
 		});
 	});
-	
+
+    function changeMagazine(e){
+        if(e.checked){
+            playMagazine();
+        }else{
+            pauseMagazine();
+        }
+    }
+    function playMagazine(){
+        //todo 根据每一页的设置播放时间来改变自动播放的时间,这里获取不到json数据了，怎么获取每页的控制参数
+        //获取当前页的自动播放时间
+//        magazineInterval = ???;
+        magazinePlaying = true;
+        magazineInterval = defaultInterval;
+        playMagazineHandle();
+    }
+    function playMagazineHandle(){
+        playTimer = setTimeout(function(){
+            //todo 先获取每页的自动播放时间，没有的话就是默认
+            magazineInterval = defaultInterval;
+            if(magazinePlaying){
+                if(renderjs){
+                    renderjs.helper.gotoNext();
+                }
+            }
+            playMagazineHandle();
+        },magazineInterval);
+    }
+    function pauseMagazine(){
+        magazinePlaying = false;
+        if(playTimer){
+            window.clearTimeout(playTimer);
+        }
+    }
 	function globalLoadTid(tid,cb){
 		var magUrl = "jsx?tid=" + tid;
 		setTimeout(function(){
@@ -276,7 +315,6 @@ body{
 	}
 
     function globalOpenWithInnerBrowse(target, height){
-        console.log("点击了4", target);
         var myIframe = document.createElement("iframe");
         var $popupIframe = $("#popup-iframe");
         var $closeBtn = $(".closeBtn");
