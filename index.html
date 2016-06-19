@@ -50,7 +50,8 @@
 	background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAgCAMAAADOixOHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABGlBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAACz+Fa2AAAAXHRSTlMAhHeK/mmR+jxx5RSHnwO2OwYW674Hs6QBXjkKuHUC05z4JVryCEb8qO1CgP0dg+R0X359MdlKEfDJDn/P+1ISeD3d2qlkF2Kmha4QDESBCekNBNxNbMXAP5ahFZTSyTUAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAABLklEQVQoz22S11bDMBAFBYgaIISShBaaTTMh9G7A9FBC7/v/38G9CvKxj6wHa3ZWWq8lK5UeLa0qa7SJbs/QHSLS2eX6bnjpybmJXib6XN+fh9cDSVUo8Dk4hMRwQo8US2XOo6w0FuvxCZFJQmUKfjr2rDszS5oDeb718wsIF0n+Emg53hAgWqmSSqDV2Ps1hGukdUAR80bzqDYR5glbgG1o0Ts2rBF2AXtm2T7DAzZudvKT1SGeRyYMQeyvYjwS+pg6hzAknJg6SJya5RHCM/ui8/SdXBAu//tsjisP4TXpBlC3unzLY7kD3XPBg/UNdtmwZbzH5PE8PQNeXtM3GYh+4/zOjVHiwgLTbpXVP9x7/+THfjn+m1V+HF03/9Wv49lVGCmVlcj6b21XSv0Br5lN9OvlDGIAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMDEtMjBUMTQ6NDE6NTcrMDg6MDBBCJ6JAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTAxLTIwVDE0OjQxOjU3KzA4OjAwMFUmNQAAAABJRU5ErkJggg==");
 	background-repeat:no-repeat;
 	background-position:center;
-	perspective: 1000px; 
+	perspective: 1000px;
+    background-color: rgba(0,0,0,.5);
 	backface-visibility: hidden; 
 	position: relative; 
 	border: none; 
@@ -62,6 +63,9 @@
 	width: 62px; 
 	height: 62px;
 }
+.pausedAudio{
+    background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAaAgMAAADK7ZTuAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACVBMVEUAAAD///8AAABzxoNxAAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAARSURBVAjXYwhlYGAIZRiUJABDnxFF8v/L5gAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxNi0wMS0yMFQxNDo0MTo0NCswODowMLxKhIoAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTYtMDEtMjBUMTQ6NDE6NDQrMDg6MDDNFzw2AAAAAElFTkSuQmCC") !important;
+}
 .audioWrapper .audioBack.playing{
 	width: 72px;
 	height: 72px; 
@@ -70,10 +74,10 @@
 	left: calc(50% - 36px);
 	z-index: 1;
 	margin: 0px auto;
-	animation-name: player-button;
-	animation-duration: 2.6s;
-	animation-iteration-count: infinite;
-	animation-timing-function: linear;
+	-webkit-animation-name: player-button;
+    -webkit-animation-duration: 2.6s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
 	border-radius: 100%;
 	display: block; 
 	background: rgba(31, 29, 27, 0.4);
@@ -201,7 +205,7 @@ body{
 		<div id="magazine-container" style='height:100%;width:100%'>
 		</div>
 	</div>
-	<div style="position:absolute; left:20px; top:200px;font-size:30px" > <input type="checkbox" id="autoplay" checked="checked">自动播放</input></div>
+	<div style="position:absolute; left:20px; top:200px;font-size:30px" > <input type="checkbox" id="autoplay" checked="checked" onclick="changeMagazine(this);">自动播放</input></div>
     <div id="popup-iframe" class="popupIframe">
         <div class="closeBtn"></div>
 
@@ -210,8 +214,11 @@ body{
 
 </body>
 <script type="text/javascript">
+    var defaultInterval = 2000;   //默认初始的时间为10s
+    var magazineInterval = 0;   //默认初始的时间为10s
+    var playTimer = null;       //自动播放的控制timer
+    var magazinePlaying = false;
 	$(function(){
-	
 		$('#pageContent').bind('mousewheel', function(e){
 			if(e.originalEvent.wheelDelta /120 > 0) {
 				renderjs.helper.gotoPrev();
@@ -220,10 +227,7 @@ body{
 				renderjs.helper.gotoNext();
 			}
 		});
-	
-	
-	
-	
+
 		var article_file = "mag_lf.js"
 		var _xparam = /article=([^&]+)/.exec(location.href);
 		var magUrl = 'dist/mag_1.js';
@@ -240,11 +244,12 @@ body{
 				globalLoadTid(_xparam[1],function(mag){
 					if(mag != undefined && renderjs != undefined){
 						renderjs.helper.load(mag);
-						setInterval(function(){
-							if(document.getElementById("autoplay").checked){
-								renderjs.helper.gotoNext();
-								}
-						},3000);
+                        //todo设置自动播放
+                        setTimeout(function(){
+                            if(document.getElementById("autoplay").checked){
+                                playMagazine();
+                            }
+                        }, 10);
 					}
 				});
 				return;
@@ -253,6 +258,11 @@ body{
 		require([magUrl],function(mag_1){
 			if(mag_1 != undefined && renderjs != undefined){
 				renderjs.helper.load(mag_1);
+                setTimeout(function(){
+                    if(document.getElementById("autoplay").checked){
+                        playMagazine();
+                    }
+                }, 10);
 			}
 		});
 		
@@ -261,7 +271,40 @@ body{
 			renderjs.helper.gotoPos(0,2);
 		});
 	});
-	
+
+    function changeMagazine(e){
+        if(e.checked){
+            playMagazine();
+        }else{
+            pauseMagazine();
+        }
+    }
+    function playMagazine(){
+        //todo 根据每一页的设置播放时间来改变自动播放的时间,这里获取不到json数据了，怎么获取每页的控制参数
+        //获取当前页的自动播放时间
+//        magazineInterval = ???;
+        magazinePlaying = true;
+        magazineInterval = defaultInterval;
+        playMagazineHandle();
+    }
+    function playMagazineHandle(){
+        playTimer = setTimeout(function(){
+            //todo 先获取每页的自动播放时间，没有的话就是默认
+            magazineInterval = defaultInterval;
+            if(magazinePlaying){
+                if(renderjs){
+                    renderjs.helper.gotoNext();
+                }
+            }
+            playMagazineHandle();
+        },magazineInterval);
+    }
+    function pauseMagazine(){
+        magazinePlaying = false;
+        if(playTimer){
+            window.clearTimeout(playTimer);
+        }
+    }
 	function globalLoadTid(tid,cb){
 		var magUrl = "jsx?tid=" + tid;
 		setTimeout(function(){
@@ -272,7 +315,6 @@ body{
 	}
 
     function globalOpenWithInnerBrowse(target, height){
-        console.log("点击了4", target);
         var myIframe = document.createElement("iframe");
         var $popupIframe = $("#popup-iframe");
         var $closeBtn = $(".closeBtn");
