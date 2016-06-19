@@ -1207,12 +1207,40 @@ function musicRenderItem(page,item,_style,content,hasWrap){
                 "hide_el": ["componentDo", "hide"],
                 "show_el": ["componentDo", "show"],
 				"telto"  : ["phoneFunc","telto"],
+				"pageto" : ["pageTo"],
+				"animate_el": ["componentDo","animate"],
 				"http":function(_link){
 					var tid = _articleLinkDetect(_link);
 					if(tid != null){
 						return '{action:"' + linkToAction(_link,"_self") + '",propagate:true}';
 					}
 					return null;
+				},
+				"move_el":function(params){
+					try{
+						var pat = /move_el:(.*)/;
+						m = pat.exec(params);
+						if(m == null) return null;
+						params = m[1];
+						var obj = JSON.parse(params);
+						if(obj != null){
+							obj = obj[0]; 
+							var innerP = [];
+							innerP.push("move");
+							innerP.push(obj.id);
+							innerP.push(obj.position[0]);
+							innerP.push(obj.position[1]);
+							innerP.push(obj.duration);
+							innerP.push(obj.delay);
+							return '{action:"componentDo(' + innerP.join(",") + ')",propagate:true}';
+						}else{
+							return null;
+						}
+						
+					}catch(e){
+						console.log("decode json failed",params);
+						return null;
+					}
 				}
             }
 			var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');

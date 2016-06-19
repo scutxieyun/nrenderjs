@@ -16,7 +16,9 @@ var selfIncCounter = 0;
 			},
 		getInitialState:function(){
 			return {
-				display:true
+				display:true,
+				innerXOffset:0,
+				interYOffset:0,
 			};//React会将调用chain中的数据进行合并
 		},
 		componentWillMount:function(){
@@ -66,6 +68,9 @@ var selfIncCounter = 0;
 		},
 		hide:function(){
 			this.setState({display:false});
+		},
+		move:function(x,y,isRelative){
+			
 		},
 		addClass:function(str){
 		},

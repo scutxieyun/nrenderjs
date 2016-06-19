@@ -343,6 +343,9 @@ var MeVPads = React.createClass({
 		
 	},
 	gotoPos:function(x,y){
+		if(x == -1){
+			x = this.posXIdx;//-1,表示在当前组
+		}
 		if(x >= 0 && x < this.props.article.getL1Num()){
 			if(this.loadPageByPos(x,y) != -1){
 				this.posXIdx = x;

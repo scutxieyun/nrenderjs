@@ -74,11 +74,18 @@ define([],function(){
             if(this.props.cxt.system != undefined){
                 var renderjs = this.props.cxt.system;
                 console.log(args);
-//                var target = args[0];
-//                var height = args[1];
-//                setTimeout(function(){
-//                    renderjs.helper.openWithInnerBrowse(target, height);
-//                },0);
+				var L1Pos = -1;
+				var L2Pos = -1;
+				if(args.length <= 0) return;
+				if(args.length == 1){
+					L2Pos = parseInt(args[0]);
+					L1Pos = -1;//代表当前组
+				}
+				if(args.length == 2){
+					L1Pos = parseInt(args[0]);
+					L2Pos = parseInt(args[1]);
+				}
+				renderjs.helper.gotoPos(L1Pos,L2Pos); //
             }
 		},
 		//componentDo(method, element，args...)
