@@ -63,6 +63,14 @@ var selfIncCounter = 0;
 			}
 			return null;
 		},
+        /**
+         * 根据各自的refs,获取dom对象
+         * @returns {*}
+         */
+        getRef:function(){
+            if(this.myRef) return this.refs[this.myRef];
+            return null;
+        },
 		show:function(){
 			this.setState({display:true});
 		},
@@ -74,6 +82,16 @@ var selfIncCounter = 0;
 		},
 		addClass:function(str){
 		},
+        /**
+         * 动画执行脚本
+         * @param option
+         */
+        animate:function(option){
+            //TODO 根据dom对象来实现动画
+            console.log(option, "5555", el);
+            var el = this.getRef();
+
+        },
         isPC:function(){    //判断是否是浏览器平台
             var userAgentInfo = navigator.userAgent;
             var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");

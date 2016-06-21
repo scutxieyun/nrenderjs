@@ -16,6 +16,7 @@ define("MeLongPress", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeLongPress";
             this.timeOutEvent = 0;//定时器
             return {};
         },
@@ -103,7 +104,7 @@ define("MeLongPress", function () {
             var bdRaidus = this.props.normalStyle.borderRaidus;
             var rgbaColor = color.substring(3, color.lastIndexOf(")"));
             this.props.normalStyle.fontFamily = "";
-            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeLongPress" data-type={"me-fingerprint"} className={"noDownLoad"}>
+            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} data-type={"me-fingerprint"} className={"noDownLoad"}>
                 <div style={{position:"absolute",zIndex:"1",width:cornerWidth,height:cornerHeight,left:0,top:0,borderTopLeftRadius:bdRaidus,border:0,borderTop:commonBorder,borderLeft:commonBorder}}></div>
                 <div style={{position:"absolute",zIndex:"1",width:cornerWidth,height:cornerHeight,right:0,top:0,borderTopRightRadius:bdRaidus,border:0,borderTop:commonBorder,borderRight:commonBorder}}></div>
                 <div style={{position:"absolute",zIndex:"1",width:cornerWidth,height:cornerHeight,left:0,bottom:0,borderBottomLeftRadius:bdRaidus,border:0,borderBottom:commonBorder,borderLeft:commonBorder}}></div>

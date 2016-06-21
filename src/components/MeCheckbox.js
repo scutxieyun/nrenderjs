@@ -16,6 +16,7 @@ define("MeCheckbox", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeCheckbox";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -75,7 +76,7 @@ define("MeCheckbox", function () {
         },
         render: function () {
             console.log(this.props.normalStyle);
-            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeCheckbox" dangerouslySetInnerHTML={{__html:this.createCheckbox()}}></div>);
+            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} dangerouslySetInnerHTML={{__html:this.createCheckbox()}}></div>);
         },
         componentDidMount: function () {
 

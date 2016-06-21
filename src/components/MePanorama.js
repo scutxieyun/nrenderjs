@@ -16,6 +16,7 @@ define("MePanorama", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMePanorama";
             this.reLoadIndex = 0; //预加载图片索引
             this.reLoadEdNum = 0;
             this.startPosX = 0;                     //开始位置
@@ -130,7 +131,7 @@ define("MePanorama", function () {
         },
         render: function () {
             var src = this.props.imgItems[this.state.currentIndex];
-            return (<img  src={src} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMePanorama"/>);
+            return (<img  src={src} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} />);
         },
         componentDidMount: function () {
             this.initEvent();

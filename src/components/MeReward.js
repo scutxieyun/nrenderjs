@@ -16,6 +16,7 @@ define("MeReward", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeReward";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -59,7 +60,7 @@ define("MeReward", function () {
             if (userAgent.indexOf("micromessenger") > 0) { //微信里面
                 var content = this.props.data.content || "";
                 this.props.normalStyle.lineHeight = this.props.data.lineHeight;
-                res = (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeReward">{content}</div>);
+                res = (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>{content}</div>);
             }
             return res;
         },

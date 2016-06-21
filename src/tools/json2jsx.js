@@ -9,7 +9,7 @@ function main(tpl, magObj, callback) {
     var imgTemplate = _.template('<MeImage src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
     var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
-    var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
+    var textTemplate = _.template('<MeText data={<%= data%>}  displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
     var animationTemplate = _.template('<MeAnimation id=<%= id%> displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
     var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
    //最终返回的对象
@@ -174,7 +174,6 @@ function main(tpl, magObj, callback) {
                 else grps[items[i].group_id].items.push(items[i]);
             }
         }
-		console.log(referredItems);
 		return res;
 		
 		function registerItem4Referred(val,referredItems){
@@ -272,7 +271,8 @@ function imgRenderItem(page,item,_style,content,hasWrap){
     return imgTemplate({src:item.item_val,
 						displayType:item.item_display_status,
 						style:_style.join(","),
-						id:generateId(page,item,hasWrap)});
+                        id:generateId(page,item,hasWrap)
+                       });
 }
 function musicRenderItem(page,item,_style,content,hasWrap){
     var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
@@ -1033,8 +1033,9 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 		var tem = renderTransform(item);
         if (tem != "")
         _style.push(tem);
-        return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(","),
-			id:generateId(page,item,hasWrap),
+        return textTemplate({data: data,
+            displayType: item.item_display_status,
+            style: _style.join(",")
 		});
     }
 
@@ -1267,8 +1268,20 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 				var _cmds = item_href.split("|");
 				var actions = [];
 				_.each(_cmds, function (cmd) {
+                    //TODO 这个会出现问题，例如
+                    /*
+                     animate_el: [{id:opt_item_id,name:动画名称,delay:延迟时间, duration:持续事间,infinite:循环次数,"type":"in/out/stress"},{id:opt_item_id,name:动画名称,delay:延迟时间, duration:持续事间,infinite:循环次数 ,"type":"in/out/stress"}
+                     ,...]
+                     */
 					var args = cmd.split(":");
 					var new_cmd = _cmdMap[args[0]];
+                    //包含[{id:opt_item_id的情况
+                    if(cmd.indexOf("[") > 0){
+                        var tempIndex = cmd.indexOf(":") + 1;
+                        var tempArgs = cmd.substr(tempIndex);
+                        tempArgs = tempArgs.split(",");
+                        args.splice(1, args.length-1, tempArgs);
+                    }
 					var resStr = "";
 					if(new_cmd != undefined){
 						if (new_cmd instanceof Array) {
@@ -1276,7 +1289,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 							new_cmd = new_cmd.concat(args);
 							var _method = new_cmd[0];
 							new_cmd.splice(0, 1);
-							resStr = _method + "(" + new_cmd.join(",") + ")";
+							resStr = _method + "(" + new_cmd.join(",").replace(/"/g, "'").replace(/"/g,"'") + ")";  //把双引号里面的双引号更换为单引号
 							actions.push(actionTemplate({cmd: resStr, propagate: true}));
 						} else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
 							var cmd = new_cmd.apply(null,[cmd]);
@@ -1295,8 +1308,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 				_.each(cmds,function(cmd){
 					if(cmd.meTap != undefined){//放弃多事件的case
 						if(cmd.meTap.hasOwnProperty("value"))
-							res.actions.push('{action:"' + linkToAction(cmd.meTap.value,cmd.meTap.target) + '",propagate:true}');
-						else if(typeof cmd.meTap == "string"){
+                            res.actions.push('{action:"' + linkToAction(cmd.meTap.value,cmd.meTap.target) + '",propagate:true}');
+                        else if(typeof cmd.meTap == "string"){
 							res.actions = res.actions.concat(strToActions(cmd.meTap));
 						}
 					}

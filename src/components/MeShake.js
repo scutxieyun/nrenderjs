@@ -16,6 +16,7 @@ define("MeShake", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeShake";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -81,7 +82,7 @@ define("MeShake", function () {
 
         },
         render: function () {
-            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeShake" data-type={"me-shake"} className={"me-yaoyiyao yaoYiYao"}></div>);
+            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} data-type={"me-shake"} className={"me-yaoyiyao yaoYiYao"}></div>);
         },
         componentDidMount: function () {
 

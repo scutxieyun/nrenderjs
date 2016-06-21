@@ -15,6 +15,10 @@ var MeMusic = React.createClass({
 			autoplay:true
 		}
 	},
+    getInitialState : function(){
+        this.myRef = "myMeMusic";
+        return {};
+    },
 	componentDidMount   :function(){
 		if(this.props.autoplay) this.play();
 	},
@@ -25,7 +29,7 @@ var MeMusic = React.createClass({
 		var spinClass = this.state.isPlay ? "spin" : "";
 		var noteClass = this.state.isPlay ? "note" : "";
 		return( 
-		<div id="magazine-music-wrapper" className="half-zoom" style={{display:"block"}}>
+		<div id="magazine-music-wrapper" className="half-zoom" style={{display:"block"}} ref={this.myRef}>
 			<span>开启音乐</span>
 			<audio src={this.props.src} preload="none" loop="loop" className="main-audio" autoplay ref="mediaPlay" ></audio>
 			<div className={"fly-note1 " + noteClass}></div>

@@ -17,6 +17,7 @@ define("MeVote", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeVote";
             return {
                 voteNum:0
             };
@@ -44,7 +45,7 @@ define("MeVote", function () {
             //更换云字体样式,有云字体的时候
             var voteNum = this.state.voteNum;
             this.props.normalStyle.fontFamily = "";
-            return (<div onClick={this.clickHandle} data-vote={this.props.data.content} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeVote" >{voteNum}</div>);
+            return (<div onClick={this.clickHandle} data-vote={this.props.data.content} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} >{voteNum}</div>);
         },
         componentDidMount: function () {
         }

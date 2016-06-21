@@ -16,6 +16,7 @@ define("MePhone", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMePhone";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -50,7 +51,7 @@ define("MePhone", function () {
             }else{
                 this.props.normalStyle.backgroundImage = "url('"+extAttr+"')";
             }
-            return (<a style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMePhone" data-type={dataType} href={this.props.data.tel}>{content}</a>);
+            return (<a style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} data-type={dataType} href={this.props.data.tel}>{content}</a>);
         },
         componentDidMount: function () {
 

@@ -17,6 +17,7 @@ define("MeSvg", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeSvg";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -151,7 +152,7 @@ define("MeSvg", function () {
 
         },
         render: function () {
-            return (<div style={_assign(this.props.commonStyle,this.props.normalStyle)} ref="myMeSvg" dangerouslySetInnerHTML={{__html:this.props.data.content}}></div>)
+            return (<div style={_assign(this.props.commonStyle,this.props.normalStyle)} ref={this.myRef} dangerouslySetInnerHTML={{__html:this.props.data.content}}></div>)
         },
         componentDidMount: function () {
             this.createSvgAnimate();

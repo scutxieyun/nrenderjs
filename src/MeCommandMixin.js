@@ -69,16 +69,18 @@ define([],function(){
                 }
             }
 		},
-		"pageTo:":function(cxt,callee,args){
+		"pageTo":function(cxt,callee,args){
+            console.log("pageTo calls: ",args);
             //TODO 需要增加根据页ID跳转，和页序号跳转
             if(this.props.cxt.system != undefined){
                 var renderjs = this.props.cxt.system;
-                console.log(args);
 				var L1Pos = -1;
 				var L2Pos = -1;
 				if(args.length <= 0) return;
 				if(args.length == 1){
+                    //TODO args[0] 可能就是一个字符串   ["7ca13843-8ef0-4bf1-8f3d-b8c2161cfe6d"]  7
 					L2Pos = parseInt(args[0]);
+                    console.log(L2Pos);
 					L1Pos = -1;//代表当前组
 				}
 				if(args.length == 2){
@@ -106,19 +108,44 @@ define([],function(){
 		},
 		"phoneFunc":function(cxt,callee,args){
 			console.log("phonefunc calls: ",args);
+            var option = args[0];
+            var target = args[1];
+            target = "tel:"+target;
+            window.open(target);
 		},
 		"componentDo":function(cxt,callee,args){
 			var pageInstance = callee.getPageInstance();
 			if(pageInstance != null && args.length > 1){
-				var el = pageInstance.getComponent(args[1]);
-				if(el != null && el.hasOwnProperty(args[0])){
-					var compMethod = el[args[0]];
-					if(!!(compMethod && compMethod.constructor && compMethod.call && compMethod.apply)){
-						compMethod(args.slice(2));
-					}
-				}
+                //用于处理animate
+                if(args[0] == "animate"){
+                    var option = utils["toJSON"](args[1]);
+                    for(var i = 0; i < option.length; i++){
+                        var obj = option[i];
+                        var comId = obj.id;
+                        cmdTable["componentDoHandle"](pageInstance, args[0], comId,obj);
+                    }
+                }
+                cmdTable["componentDoHandle"](pageInstance, args[0], args[1],args.slice(2));
+//				var el = pageInstance.getComponent(args[1]);
+//				if(el != null && el.hasOwnProperty(args[0])){
+//					var compMethod = el[args[0]];
+//					if(!!(compMethod && compMethod.constructor && compMethod.call && compMethod.apply)){
+//						compMethod(args.slice(2));
+//					}
+//				}
 			}
 		},
+        "componentDoHandle": function(pageInstance, funName, comId, option){
+            //TODO 这里获取不到el
+            var el = pageInstance.getComponent(comId);
+            console.log(el, 99999);
+            if(el != null && el.hasOwnProperty(funName)){
+                var compMethod = el[funName];
+                if(!!(compMethod && compMethod.constructor && compMethod.call && compMethod.apply)){
+                    compMethod(option);
+                }
+            }
+        },
         "openWithIFrame":function(cxt,callee,args){
             if(this.props.cxt.system != undefined){
                 var renderjs = this.props.cxt.system;
@@ -130,6 +157,15 @@ define([],function(){
             }
         }
 	};
+    /**
+     * 工具类--把json字符串转换成json
+     * @type {{toJSON: "toJSON"}}
+     */
+    var utils = {
+        "toJSON" : function(jsonStr){
+            return (new Function("", "return " + jsonStr))();
+        }
+    };
 	var MeCommandMixin ={
 		_handleCmd:function(cmd){
 			var p = /([\D|_][a-z|A-Z|_|0-9]*)\((.*)\)/;
@@ -137,6 +173,11 @@ define([],function(){
 			if(m != null){
 				var method = m[1];
 				var params = m[2].split(",");
+                //TODO 需要区分animate这个脚本 "animate,[{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'14791081'},{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'19905875'}]"
+                if(params[0] == "animate"){
+                    //去掉animate,  只包含具体操作的脚本
+                    params[1] = m[2].substr(m[2].indexOf(",") +1, m[2].length);
+                }
 				if(cmdTable[method] != undefined){
 					cmdTable[method].apply(this,[this.props.cxt,this,params]);
 				}

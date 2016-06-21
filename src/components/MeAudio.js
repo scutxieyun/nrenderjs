@@ -8,6 +8,10 @@ define("MeAudio", function () {
     var MeComponentMixin = require("../src/MeComponentMixin");
     var MeAudio = React.createClass({
         mixins     : [MeComponentMixin,MeCommandMixin,MeMediaMixin],
+        getInitialState:function(){
+            this.myRef = "myMeAudio";
+            return {};
+        },
         pageActive:function(){
 			if(this.props.autoplay){
 				this.play();
@@ -36,7 +40,7 @@ define("MeAudio", function () {
 			var playingClass = this.state.isPlay ? "" : "playing";
             this.props.normalStyle.borderRadius = "";   //预防和class里面的样式冲突
             var pausedImg = this.state.isPlay ? "pausedAudio" : "";  //暂停的时候更换背景图片
-            return (<div className={"audioWrapper " + pausedImg}  onClick={this.togglePlay} style={this.props.normalStyle}>
+            return (<div className={"audioWrapper " + pausedImg}  onClick={this.togglePlay} ref={this.myRef} style={this.props.normalStyle}>
                 <audio src={this.props.src} preload="none"
                        play-status="play-current" ref="mediaPlay"></audio>
 				<div className={"audioBack " + playingClass}></div>

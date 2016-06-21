@@ -34,6 +34,7 @@ define("MeIFrameVideo", function () {
             this.pause();
         },
         getInitialState : function(){
+            this.myRef = "myMeIFrameVideo";
             return {};
         },
         /**
@@ -55,7 +56,7 @@ define("MeIFrameVideo", function () {
             if(poster){
                 this.props.normalStyle.backgroundImage = "url("+poster+")";
             }
-            return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)}><div className={"video-player-btn"} ></div> <div style={this.props.animationStyle}></div></div>);
+            return (<div onClick={this.clickHandle} ref={this.myRef} style={_assign(this.props.normalStyle,this.props.commonStyle)}><div className={"video-player-btn"} ></div> <div style={this.props.animationStyle}></div></div>);
         }
     });
     return MeIFrameVideo;

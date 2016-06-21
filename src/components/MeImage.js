@@ -8,10 +8,14 @@ var MeImage  = React.createClass({
 	**/
 	mixins:[MeComponentMixin],
 	displayName:"MeImage",
+    getInitialState:function(){
+        this.myRef = "myMeImage";
+        return {};
+    },
 	render:function(){
 		var _style = this.props.normalStyle;
 		this.updateStyleForDisplay(_style);
-		return <img id={this.getId()} src={this.props.src} style={_style}>{this.props.children}</img>
+		return <img id={this.getId()} src={this.props.src} ref={this.myRef} style={_style}>{this.props.children}</img>
 	}
 });
 return MeImage;

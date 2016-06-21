@@ -431,9 +431,9 @@ var MeVPads = React.createClass({
 			return;
 		}
 	},
-	handleTap:function(evt){
-		console.log("tap");
-	},
+//	handleTap:function(evt){
+//		console.log("tap");
+//	},
 	_cancelPan:function(){ //not a good method, hook to react directly
 		if(this.state.yOffset != 0)
 		this.setState({yOffset:0});
