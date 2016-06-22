@@ -477,21 +477,20 @@ var MeVPads = React.createClass({
 			items.push(<PadBuffer id={i} key={i} posIdx={i} ref={self._registerBuffer} article = {self.props.article}></PadBuffer>)
 		}
 		return (
-	<Hammer ref={this._registerHammer} id="oper-area" className ="magazine-page-container show" vertical={true}>
-			<div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
-			<div style={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/15509a86b6c9ab79.png?imageView2/2/w/640")',
-			height:"100%",width:"100%"}}>
-			<div id="buffer-container" ref="bufferContainer" onTouchEnd={this._cancelPan}style={{transform:bufContainerTransform}}>
-			{items}
-			</div>
-			{self.props.article.getToolBar()}
-			</div>
-			</div>
+	        <Hammer ref={this._registerHammer} id="oper-area" className ="magazine-page-container show" vertical={true}>
+			    <div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
+			        <div style={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/3c2d462ae56458d68746.jpg")',
+			            height:"100%",width:"100%"}}>
+			            <div id="buffer-container" ref="bufferContainer" onTouchEnd={this._cancelPan}style={{transform:bufContainerTransform}}>
+			                {items}
+			            </div>
+			            {self.props.article.getToolBar()}
+                        {self.props.article.getMessageBox()}
+			        </div>
+			    </div>
 			</Hammer>
 		);
-	},
-	
+	}
 });
-
 	return MeVPads;
 });

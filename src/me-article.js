@@ -84,5 +84,12 @@ define("MeArtical",[],function(){
 	MeArticle.prototype.getToolBar = function(){
 		return this.article.toolBar;
 	}
+    /**
+     * 增加全局的消息提示框
+     * @returns {*}
+     */
+    MeArticle.prototype.getMessageBox = function(){
+        return this.article.msgBox;
+    }
 	return MeArticle;
 });

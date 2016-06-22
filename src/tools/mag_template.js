@@ -32,6 +32,7 @@ define([], function () {
     var MeLongPress = Renderjs.MeLongPress;
     var MePanorama = Renderjs.MePanorama;
     var MeVote = Renderjs.MeVote;
+    var MeMessageBox = Renderjs.MeMessageBox;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
@@ -45,6 +46,7 @@ define([], function () {
             <MeMusic cxt={cxt} id="magazine-music" autoplay={<%= music_autoplay%>} src="<%= music_src%>">
 			</MeMusic>
         </MeToolBar>,
+        "msgBox" : <MeMessageBox cxt={cxt}></MeMessageBox>,
 		"cxt"   : cxt
 	};
 	return article;

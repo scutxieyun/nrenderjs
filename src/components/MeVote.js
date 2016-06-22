@@ -18,6 +18,7 @@ define("MeVote", function () {
         },
         getInitialState : function(){
             this.myRef = "myMeVote";
+            this._isVote = true;
             return {
                 voteNum:0
             };
@@ -38,8 +39,14 @@ define("MeVote", function () {
             this.setState({voteNum:this.props.data.voteNum});
         },
         clickHandle : function(){
-            this.setState({voteNum:this.state.voteNum+1});
-            //TODO 保存数据库修改数据库数据根据页  ID  this.props.data.pageId,同时需要更改静态文件
+            if(this._isVote){
+                this.setState({voteNum:this.state.voteNum+1});
+                //TODO 保存数据库修改数据库数据根据页  ID  this.props.data.pageId,同时需要更改静态文件
+            }else{
+                //TODO 派发自定义事件
+                this.props.cxt.ee.emitEvent("show:message:box",[{msg:"您已经投过票了",btn:"确定"}]);
+            }
+            this._isVote = false;
         },
         render: function () {
             //更换云字体样式,有云字体的时候

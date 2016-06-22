@@ -141,7 +141,8 @@ define("MeSubmit", function () {
             }
             //表单至少有一项有值,并且至少有一个输入框
             if(!hasContent){
-                alert("请填写表单");
+                //TODO 派发自定义事件
+                this.props.cxt.ee.emitEvent("show:message:box",[{msg:"请填写表单",btn:"确定"}]);
                 return;
             }
             //TODO 提交数据 并且清空输入的信息

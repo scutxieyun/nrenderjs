@@ -30,6 +30,7 @@ var MeShake = require("../dist/MeShake.js");
 var MeLongPress = require("../dist/MeLongPress.js");
 var MePanorama = require("../dist/MePanorama.js");
 var MeVote = require("../dist/MeVote.js");
+var MeMessageBox = require("../dist/MeMessageBox.js");
 
 var EventEmitter = require("wolfy87-eventemitter");
 var React = require("react");
@@ -69,6 +70,7 @@ module.exports = function(){
     MeLongPress:MeLongPress,
     MePanorama:MePanorama,
     MeVote:MeVote,
+    MeMessageBox:MeMessageBox,
 	ee:new EventEmitter(),	//因为需要ee建立，容器，Pads和作品之间的联系，所以在这里创建ee
 	React:React,
 	ReactDOM:ReactDOM,
@@ -99,10 +101,7 @@ module.exports = function(){
 				var _article = new MeArticle(mag);
 				cfg.article = _article;
 				_article.getCxt().system = myself;
-				pads = ReactDOM.render(React.createElement(MeVPads,
-															cfg), 
-											elem);
-							
+				pads = ReactDOM.render(React.createElement(MeVPads,cfg), elem);
 			}
 		}
 		function _unload(){
