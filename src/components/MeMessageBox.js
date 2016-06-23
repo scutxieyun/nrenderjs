@@ -34,8 +34,6 @@ define("MeMessageBox", function () {
             }
         },
         customEventHandle : function(data){
-            this.setState({isShow: true});
-            console.log(data, 7899);
             if(data.callBack){
                 this.callBack = data.callBack;
             }
@@ -45,6 +43,7 @@ define("MeMessageBox", function () {
             if(data.btn){
                 this.msgBtnContent = data.btn;
             }
+            this.setState({isShow: true});
         },
         render: function () {
             var res = null;

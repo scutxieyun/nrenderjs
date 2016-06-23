@@ -34,6 +34,8 @@ define("MeSubmit", function () {
             console.log("deactive checkbox");
         },
         clickHandle : function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
             console.log("submit");
             //todo 获取当前页的所有表单数据，保存数据到数据库
             var inst = this.getPageInstance();
