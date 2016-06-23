@@ -72,6 +72,7 @@ function main(tpl, magObj, callback) {
             }
         ];
     }
+    var initPageLength = 1;     //初始页长度，第一组的页长度。用于计算页码用
     var pageNum = 0;
     for (grpIdx = 0; grpIdx < mag.groups.length; grpIdx++) {
         var pages = mag.groups[grpIdx].pages;
@@ -87,13 +88,52 @@ function main(tpl, magObj, callback) {
         subIndex.push(-1);
         index.push(subIndex);
         pageNum += pages.length;
+        if(grpIdx == 0){
+            initPageLength = pageNum;
+        }
     }
     index.push(-1);
     pagesContentTemp = pageContent.join(",");
+    //以下为设置页码属性
+    //TODO 做一个字段类型的兼容老的page_style，新的page_num_style:'{"style":0,"color":"rgb(0,0,0)"}'
+    var page_num_style = tplObj.page_num_style;
+    var pageStyle = 0;
+    var numStyle = {};
+    numStyle.color = "#000";
+    if(page_num_style == undefined){        //没有值的情况
+        pageStyle = tplObj.page_style;   //页码样式
+    }else{
+        page_num_style = JSON.parse(page_num_style);
+        pageStyle = page_num_style.style;
+        numStyle.color = page_num_style.color;
+    }
+    if(pageStyle == 1){
+        numStyle.width = "30px";
+        numStyle.WebkitColumnCount = "1";
+        numStyle.MozColumnCount = "1";
+        numStyle.OColumnCount = "1";
+        numStyle.columnCount = "1";
+    }else if(pageStyle == 2){
+        numStyle.width = "80px";
+        numStyle.lineHeight = "52px";
+        numStyle.WebkitColumnCount = "3";
+        numStyle.MozColumnCount = "3";
+        numStyle.OColumnCount = "3";
+        numStyle.columnCount = "3";
+        numStyle.WebkitColumnGap = "0px";
+        numStyle.MozColumnGap = "0px";
+        numStyle.OColumnGap = "0px";
+        numStyle.columnGap = "0px";
+    }
+    numStyle = JSON.stringify(numStyle);
     pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
 									layout: JSON.stringify(index),
 									music_src: tplObj.tpl_music,
-									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false"});
+									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false",
+                                    pageStyle : pageStyle,
+                                    normalStyle : numStyle,
+                                    initPageLength : initPageLength
+                                  });
     //循环下载云字体
     loop(callback);
 

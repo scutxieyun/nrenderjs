@@ -358,6 +358,8 @@ var MeVPads = React.createClass({
 		var tempX,tempY;
 		tempX = this.posXIdx + 1;
 		tempY = this._pageRecorder[this.posXIdx] || 0;
+        //TODO 派发修改页码的事件,后期可能需要更具这个组的show_page_num字段来派发不同事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:tempY, pageLength: this.props.article.getL2Num(tempX)}]);
 		if(this.loadPageByPos(tempX,tempY) != -1){
 			this.posXIdx = tempX;
 			this.posYIdx = tempY;
@@ -369,30 +371,39 @@ var MeVPads = React.createClass({
 		var tempX,tempY;
 		tempX = this.posXIdx - 1;
 		tempY = this._pageRecorder[this.posXIdx] || 0;
+        //TODO 派发修改页码的事件,后期可能需要更具这个组的show_page_num字段来派发不同事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:tempY, pageLength: this.props.article.getL2Num(tempX)}]);
 		if(this.loadPageByPos(tempX,tempY) != -1){
 			this.posXIdx = tempX;
 			this.posYIdx = tempY;
 		}
+
 		return this.posXIdx;
 	},
 	moveYNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx + 1) == -1) return -1;//翻到尽头
 		var tempY;
 		tempY = this.posYIdx + 1;
+        //TODO 派发修改页码的事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:tempY, pageLength: this.props.article.getL2Num(this.posXIdx)}]);
 		if(this.loadPageByPos(this.posXIdx,tempY) != -1){ // 只有成功才去更新索引
 			this.posYIdx = tempY;
 			this._pageRecorder[this.posXIdx] = this.posYIdx;
 		}
+
 		return this.posYIdx;
 	},
 	moveYPrev:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx - 1) == -1) return -1;//翻到尽头
 		var tempY;
 		tempY = this.posYIdx - 1 ;
+        //TODO 派发修改页码的事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:tempY, pageLength: this.props.article.getL2Num(this.posXIdx)}]);
 		if(this.loadPageByPos(this.posXIdx,tempY) != -1){
 			this.posYIdx = tempY;
 			this._pageRecorder[this.posXIdx] = this.posYIdx;
 		}
+
 		return this.posYIdx;
 	},
 	getPos:function(){
@@ -481,6 +492,7 @@ var MeVPads = React.createClass({
 			    <div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
 			        <div style={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/3c2d462ae56458d68746.jpg")',
 			            height:"100%",width:"100%"}}>
+                        {self.props.article.getPageNumWidget()}
 			            <div id="buffer-container" ref="bufferContainer" onTouchEnd={this._cancelPan}style={{transform:bufContainerTransform}}>
 			                {items}
 			            </div>

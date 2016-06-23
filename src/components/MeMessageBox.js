@@ -15,7 +15,7 @@ define("MeMessageBox", function () {
             }
         },
         getInitialState : function(){
-            this.myRef = "MeMessageBox";
+            this.myRef = "myMeMessageBox";
             this.msgBtnContent = "确认";
             this.msgContent = "请填写表单";
             this.callBack = null;

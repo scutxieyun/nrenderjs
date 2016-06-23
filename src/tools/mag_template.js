@@ -32,7 +32,9 @@ define([], function () {
     var MeLongPress = Renderjs.MeLongPress;
     var MePanorama = Renderjs.MePanorama;
     var MeVote = Renderjs.MeVote;
+    //以下为全局组件
     var MeMessageBox = Renderjs.MeMessageBox;
+    var MePageNum = Renderjs.MePageNum;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
@@ -47,6 +49,7 @@ define([], function () {
 			</MeMusic>
         </MeToolBar>,
         "msgBox" : <MeMessageBox cxt={cxt}></MeMessageBox>,
+        "pageNum" : <MePageNum cxt={cxt} pageNumType={<%= pageStyle %>} normalStyle={<%= normalStyle%>} initPageLength={<%= initPageLength%>}></MePageNum>,
 		"cxt"   : cxt
 	};
 	return article;
