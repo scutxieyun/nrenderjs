@@ -8,6 +8,9 @@
 	<link href="css/mobile.min.css" rel="stylesheet" type="text/css"/>-->
 	<link href="css/base.css" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="lib/jquery-2.1.3.min.js"></script>
+    <!--用于保存数据-->
+    <script>var me_logo_ok = false;  var fmawr = "999";</script>
+    <script src="lib/fmacapi.interface.min.js"></script>
 	<script type="text/javascript" src="lib/require.js"></script>
 	<script type="text/javascript" src="lib/renderjs.js"></script>
 	<!--<script type="text/javascript" src="lib/log4javascript.js"></script>-->
@@ -218,7 +221,7 @@ body{
     var magazineInterval = 0;   //默认初始的时间为10s
     var playTimer = null;       //自动播放的控制timer
     var magazinePlaying = false;
-	$(function(){
+    $(function(){
 		$('#pageContent').bind('mousewheel', function(e){
 			if(e.originalEvent.wheelDelta /120 > 0) {
 				renderjs.helper.gotoPrev();
@@ -329,6 +332,34 @@ body{
             $popupIframe.hide();
             $(myIframe).remove();
         });
+    }
+    var CustomerData = fmacloud.Object.extend("me_customerdata");
+    /**
+     * 这里调用外部的保存数据
+     * @param data  保存的数据
+     * @param type  保存的数据类型，有表单数据，和投票数据1---表单数据， 2-----投票数据
+     */
+    function globalSubmitDataToCloud(data, type){
+        if(type == 1){  //表单保存数据
+            var customerData = new CustomerData();
+            //暂时不需要考虑头像,只是设置一个默认头像
+            customerData.set("cd_userhead", "http://ac-hf3jpeco.clouddn.com/XqjQmhDhDLz4rQzeKaQVyVW7OKqPU4CvQ7QKJlPm.jpg");
+            for(var key in data){
+                customerData.set(key, data[key]);
+            }
+            customerData.save(null, {
+                success: function(obj) {
+                    //消息提示框
+                    renderjs.helper.getEE().emitEvent("show:message:box",[{msg:"感谢您的参与",btn:"确定"}]);
+                    console.log(obj);
+                },
+                error: function(obj, error) {
+                    console.log('Failed to create new object, with error code: ' + error.message);
+                }
+            });
+        }else{ //投票保存
+
+        }
     }
 	
 	</script>	

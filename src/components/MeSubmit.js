@@ -44,6 +44,8 @@ define("MeSubmit", function () {
             var hasContent = false;
             //找出所有input
             var data = {};
+            data.cd_userid = this.props.data.author;
+            data.cd_tplid = this.props.data.tplId;
             //拼接输入框的值
             var inputContent = {};
             var inputContentArr = [];
@@ -108,8 +110,10 @@ define("MeSubmit", function () {
                         }
                     }
                 }
-                data["cd_radio"] = JSON.stringify(radioTitleArr);
-                data["cd_radio_val"] = JSON.stringify(radioContentArr);
+                if(radioContentArr.length > 0){
+                    data["cd_radio"] = JSON.stringify(radioTitleArr);
+                    data["cd_radio_val"] = JSON.stringify(radioContentArr);
+                }
             }
             /**
              * 获取多选框所有输入的值
@@ -136,18 +140,24 @@ define("MeSubmit", function () {
                         checkboxContentArr.push(checkboxContent);
                     }
                 }
-                data["cd_checkbox"] = JSON.stringify(checkboxTitleArr);
-                data["cd_checkbox_val"] = JSON.stringify(checkboxContentArr);
+                if(checkboxContentArr.length > 0){
+                    data["cd_checkbox"] = JSON.stringify(checkboxTitleArr);
+                    data["cd_checkbox_val"] = JSON.stringify(checkboxContentArr);
+                }
+
             }
             //表单至少有一项有值,并且至少有一个输入框
             if(!hasContent){
                 //TODO 派发自定义事件
+                console.log(415);
                 this.props.cxt.ee.emitEvent("show:message:box",[{msg:"请填写表单",btn:"确定"}]);
                 return;
             }
+            data = JSON.stringify(data);
             //TODO 提交数据 并且清空输入的信息
-//            this._handleCmd(action);
-            console.log(data);
+            var action = "submit(" + data+",1)";
+            this._handleCmd(action);
+//            console.log(data);
             //清除数据
             this._clearForm(inputArr, false);
             this._clearForm(radioArr, true);

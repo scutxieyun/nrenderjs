@@ -101,7 +101,15 @@ define([],function(){
 			
 		},
 		"submit":function(cxt,callee,args){
-			
+            if(this.props.cxt.system != undefined){
+                var renderjs = this.props.cxt.system;
+                var data = args[0];
+                var type = args[1];     //1 -- 表单数据  ，  2 --- 投票数据
+                console.log(data, "submit", type);
+                setTimeout(function(){
+                    renderjs.helper.submitDataToCloud(data, type);
+                },0);
+            }
 		},
 		"systemCall":function(){
 			
@@ -172,11 +180,17 @@ define([],function(){
 			var m = p.exec(cmd);
 			if(m != null){
 				var method = m[1];
-				var params = m[2].split(",");
-                //TODO 需要区分animate这个脚本 "animate,[{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'14791081'},{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'19905875'}]"
-                if(params[0] == "animate"){
-                    //去掉animate,  只包含具体操作的脚本
-                    params[1] = m[2].substr(m[2].indexOf(",") +1, m[2].length);
+                var params = [];
+                if(method == "submit"){
+                    params = (utils["toJSON"])("["+m[2]+"]");
+                }else{
+                    params = m[2].split(",");
+                    console.log(params, 999999);
+                    //TODO 需要区分animate这个脚本 "animate,[{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'14791081'},{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'19905875'}]"
+                    if(params[0] == "animate"){
+                        //去掉animate,  只包含具体操作的脚本
+                        params[1] = m[2].substr(m[2].indexOf(",") +1, m[2].length);
+                    }
                 }
 				if(cmdTable[method] != undefined){
 					cmdTable[method].apply(this,[this.props.cxt,this,params]);

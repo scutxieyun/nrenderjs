@@ -264,7 +264,7 @@ function gallaryRenderItem(page,item,_style,content,hasWrap){
 	_.each(imgs,function(img,i){
 		imgItems.push({
 			src:img,
-			action:urls[i],
+			action:urls[i]
 		})
 	});
 	_style.push(sizeStyleTemplateWrap(item));
@@ -371,7 +371,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -407,7 +407,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -437,7 +437,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
 
@@ -470,7 +470,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -492,12 +492,14 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         //行高特殊处理
         var borderWidth = item.item_border || 0;
         data.lineHeight = (item.item_height-2*borderWidth) + "px";
+        data.tplId = tplId;
+        data.author = userId;
         data = JSON.stringify(data);
         return submitTemplate({
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -533,7 +535,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -558,7 +560,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -592,7 +594,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -623,7 +625,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -651,7 +653,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**

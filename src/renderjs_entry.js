@@ -161,6 +161,16 @@ module.exports = function(){
                 if(elem == null) return;
                 if(globalOpenWithInnerBrowse == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
                 globalOpenWithInnerBrowse(target,height);
+            },
+            /**
+             * 这里调用外部的保存数据
+             * @param data  保存的数据
+             * @param type  保存的数据类型，有表单数据，和投票数据1---表单数据， 2-----投票数据
+             */
+            submitDataToCloud : function(data,type){
+                if(elem == null) return;
+                if(globalSubmitDataToCloud == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
+                globalSubmitDataToCloud(data,type);
             }
 		};
 		}()

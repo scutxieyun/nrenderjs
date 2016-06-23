@@ -492,12 +492,12 @@ var MeVPads = React.createClass({
 			    <div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
 			        <div style={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/3c2d462ae56458d68746.jpg")',
 			            height:"100%",width:"100%"}}>
+                        {self.props.article.getMessageBox()}
                         {self.props.article.getPageNumWidget()}
 			            <div id="buffer-container" ref="bufferContainer" onTouchEnd={this._cancelPan}style={{transform:bufContainerTransform}}>
 			                {items}
 			            </div>
 			            {self.props.article.getToolBar()}
-                        {self.props.article.getMessageBox()}
 			        </div>
 			    </div>
 			</Hammer>
