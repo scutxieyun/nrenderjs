@@ -358,7 +358,29 @@ body{
                 }
             });
         }else{ //投票保存
-
+            if (!data) {
+                return
+            }
+            var query = new fmacloud.Query("page");
+            query.equalTo("objectId", data);
+            query.descending("createdAt");
+            query.first({
+                success: function (pageobj) {
+                    var page_vote = pageobj.get("page_vote") || 0;
+                    pageobj.set("page_vote", page_vote + 1);
+                    pageobj.save(null, {
+                        success: function (obj) {
+                            //TODO 需要去更新静态文件，数据库里面的数据已经更新，但是静态文件数据还是初始状态
+                            console.log(obj)
+                        },
+                        error: function (err) {
+                            console.log(err)
+                        }
+                    });
+                }, error: function (err) {
+                    console.log(err)
+                }
+            });
         }
     }
 	

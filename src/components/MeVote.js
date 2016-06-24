@@ -8,8 +8,9 @@ define("MeVote", function () {
     var React = require("react");
     var _assign = require("object-assign");
     var MeComponentMixin = require("../src/MeComponentMixin");
+    var MeCommandMixin = require("../src/MeCommandMixin.js");
     var MeVote = React.createClass({
-        mixins:[MeComponentMixin],
+        mixins:[MeComponentMixin, MeCommandMixin],
         getDefaultProps:function(){
             //todo 需要动态配置
             return {
@@ -42,6 +43,8 @@ define("MeVote", function () {
             if(this._isVote){
                 this.setState({voteNum:this.state.voteNum+1});
                 //TODO 保存数据库修改数据库数据根据页  ID  this.props.data.pageId,同时需要更改静态文件
+                var action = "submit(" + this.props.data.pageId+",2)";
+                this._handleCmd(action);
             }else{
                 //TODO 派发自定义事件
                 this.props.cxt.ee.emitEvent("show:message:box",[{msg:"您已经投过票了",btn:"确定"}]);

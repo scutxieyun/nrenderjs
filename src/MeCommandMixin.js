@@ -182,7 +182,12 @@ define([],function(){
 				var method = m[1];
                 var params = [];
                 if(method == "submit"){
-                    params = (utils["toJSON"])("["+m[2]+"]");
+                    if(m[2].indexOf("{") > 0){
+                        params = (utils["toJSON"])("["+m[2]+"]");
+                    }else{
+                        params = m[2].split(",");
+                    }
+
                 }else{
                     params = m[2].split(",");
                     console.log(params, 999999);
