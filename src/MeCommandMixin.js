@@ -78,9 +78,7 @@ define([],function(){
 				var L2Pos = -1;
 				if(args.length <= 0) return;
 				if(args.length == 1){
-                    //TODO args[0] 可能就是一个字符串   ["7ca13843-8ef0-4bf1-8f3d-b8c2161cfe6d"]  7
 					L2Pos = parseInt(args[0]);
-                    console.log(L2Pos);
 					L1Pos = -1;//代表当前组
 				}
 				if(args.length == 2){
@@ -125,7 +123,7 @@ define([],function(){
 			var pageInstance = callee.getPageInstance();
 			if(pageInstance != null && args.length > 1){
                 //用于处理animate
-                if(args[0] == "animate"){
+                if(args[0] == "animate" || args[0] == "move"){
                     var option = utils["toJSON"](args[1]);
                     for(var i = 0; i < option.length; i++){
                         var obj = option[i];
@@ -187,12 +185,11 @@ define([],function(){
                     }else{
                         params = m[2].split(",");
                     }
-
                 }else{
                     params = m[2].split(",");
                     console.log(params, 999999);
                     //TODO 需要区分animate这个脚本 "animate,[{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'14791081'},{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'19905875'}]"
-                    if(params[0] == "animate"){
+                    if(params[0] == "animate" || params[0] == "move"){
                         //去掉animate,  只包含具体操作的脚本
                         params[1] = m[2].substr(m[2].indexOf(",") +1, m[2].length);
                     }

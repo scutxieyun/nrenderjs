@@ -36,6 +36,7 @@ var selfIncCounter = 0;
 		componentDidMount:function(){
 			//if(this.props.display != )
 			var cId = this.getId();
+            console.log(this.props.pageIdx, cId, "图片有时候不能添加 ");
 			if(this.props.pageIdx != undefined && cId != undefined){
 				this.pageInstance = this.props.cxt.pageMgr.registerComponent(this.props.pageIdx,cId,this);	
 			}
@@ -77,7 +78,50 @@ var selfIncCounter = 0;
 		hide:function(){
 			this.setState({display:false});
 		},
-		move:function(x,y,isRelative){
+		move:function(param){
+            //TODO 根据dom对象来实现动画, 依赖jquery
+            if(param) {
+                var paramObj = param;
+                var elId = paramObj.id;
+                var displayObject = document.getElementById(elId);
+                if (displayObject) {
+                    var $element = $(displayObject);
+                    var left = parseInt($element.css("left"));
+                    var top = parseInt($element.css("top"));
+                    var toX = paramObj.to.x;
+                    var toY = paramObj.to.y;
+                    var obj = {};
+                    //add by fishYu 20164-12 9:29增加
+                    var position = paramObj.position;
+                    if (position == "relative") {
+                        //有可能是0， 负数，正数
+                        toX = parseFloat(toX) + left;
+                        obj.left = toX;
+
+                        toY = parseFloat(toY) + top;
+                        obj.top = toY;
+                    } else if (position == "absolute") {
+                        //有可能是0， 负数，正数
+                        obj.left = parseFloat(toX);
+                        obj.top = parseFloat(toY);
+                    }
+                    var speed = paramObj.speed || 0.5;
+                    var ease = paramObj.easing || "linear";
+                    speed = speed * 1000;
+                    var delay = paramObj.delay || 0;
+                    delay = delay * 1000;
+                    $element.stop(true, true).delay(delay).animate(obj, {
+                        duration: speed,
+                        easing: ease,
+                        complete : function(){
+                            console.log("complete");
+                        },
+                        step : function(param){
+//                            console.log('56666', param);
+                        }
+                    });
+                }
+            }
 			
 		},
 		addClass:function(str){
@@ -88,8 +132,7 @@ var selfIncCounter = 0;
          */
         animate:function(option){
             //TODO 根据dom对象来实现动画
-            console.log(option, "5555", el);
-            var el = this.getRef();
+            console.log(option, "5555");
 
         },
         isPC:function(){    //判断是否是浏览器平台

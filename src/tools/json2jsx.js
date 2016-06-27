@@ -6,7 +6,7 @@ function main(tpl, magObj, callback) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
-    var imgTemplate = _.template('<MeImage src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
+    var imgTemplate = _.template('<MeImage pageIdx={<%= pageIdx %>} src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
     var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>}  displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
@@ -309,6 +309,7 @@ function imgRenderItem(page,item,_style,content,hasWrap){
 	
 	
     return imgTemplate({src:item.item_val,
+                        pageIdx:page.idx,
 						displayType:item.item_display_status,
 						style:_style.join(","),
                         id:generateId(page,item,hasWrap)
@@ -1268,17 +1269,20 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 						m = pat.exec(params);
 						if(m == null) return null;
 						params = m[1];
-						var obj = JSON.parse(params);
+//						var obj = JSON.parse(params);
+                        var obj = params.split(",");
 						if(obj != null){
-							obj = obj[0]; 
-							var innerP = [];
-							innerP.push("move");
-							innerP.push(obj.id);
-							innerP.push(obj.position[0]);
-							innerP.push(obj.position[1]);
-							innerP.push(obj.duration);
-							innerP.push(obj.delay);
-							return '{action:"componentDo(' + innerP.join(",") + ')",propagate:true}';
+                            obj.unshift("move");
+//							obj = obj[0];
+//							var innerP = [];
+//							innerP.push("move");
+//							innerP.push(obj.id);
+//							innerP.push(obj.position[0]);
+//							innerP.push(obj.position[1]);
+//							innerP.push(obj.duration);
+//							innerP.push(obj.delay);
+//							return '{action:"componentDo(' + innerP.join(",") + ')",propagate:true}';
+                            return '{action:"componentDo(' + obj.join(",").replace(/"/g, "'").replace(/"/g,"'") + ')",propagate:true}';
 						}else{
 							return null;
 						}
