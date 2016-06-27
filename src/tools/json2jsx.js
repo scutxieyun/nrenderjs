@@ -6,7 +6,7 @@ function main(tpl, magObj, callback) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
-    var imgTemplate = _.template('<MeImage pageIdx={<%= pageIdx %>} src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
+    var imgTemplate = _.template('<MeImage cxt={cxt} pageIdx={<%= pageIdx %>} src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
     var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
     var textTemplate = _.template('<MeText data={<%= data%>}  displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
