@@ -22,7 +22,7 @@ function main(tpl, magObj, callback) {
     var fontServer = "http://agoodme.com:3000";
     //默认从第0个其实加载
     var fontIndex = 0;
-	
+
 	var convertOldCmdWrap = null;//临时为了合并，将convertOldCmd过度一下，减少后面合并的成本
     var itemFuncMap = {
         "1": imgRenderItem,     //图片
@@ -97,23 +97,23 @@ function main(tpl, magObj, callback) {
     //以下为设置页码属性
     //TODO 做一个字段类型的兼容老的page_style，新的page_num_style:'{"style":0,"color":"rgb(0,0,0)"}'
     var page_num_style = tplObj.page_num_style;
-    var pageStyle = 0;
+    var _pageStyle = 0;
     var numStyle = {};
     numStyle.color = "#000";
     if(page_num_style == undefined){        //没有值的情况
-        pageStyle = tplObj.page_style;   //页码样式
+        _pageStyle = tplObj.page_style;   //页码样式
     }else{
         page_num_style = JSON.parse(page_num_style);
-        pageStyle = page_num_style.style;
+        _pageStyle = page_num_style.style;
         numStyle.color = page_num_style.color;
     }
-    if(pageStyle == 1){
+    if(_pageStyle == 1){
         numStyle.width = "30px";
         numStyle.WebkitColumnCount = "1";
         numStyle.MozColumnCount = "1";
         numStyle.OColumnCount = "1";
         numStyle.columnCount = "1";
-    }else if(pageStyle == 2){
+    }else if(_pageStyle == 2){
         numStyle.width = "80px";
         numStyle.lineHeight = "52px";
         numStyle.WebkitColumnCount = "3";
@@ -130,7 +130,7 @@ function main(tpl, magObj, callback) {
 									layout: JSON.stringify(index),
 									music_src: tplObj.tpl_music,
 									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false",
-                                    pageStyle : pageStyle,
+                                    pageStyle : _pageStyle,
                                     normalStyle : numStyle,
                                     initPageLength : initPageLength
                                   });
@@ -918,10 +918,13 @@ function musicRenderItem(page,item,_style,content,hasWrap){
                     //替换文字
                     var patt1 = new RegExp(key, "g");
                     pagesContentTemp = pagesContentTemp.replace(patt1, temp);
-                    pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
-									layout: JSON.stringify(index),
-									music_src: tplObj.tpl_music,
-									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false"});
+                    pageTemp = (_.template(tpl))({pages: pagesContentTemp,
+                        layout: JSON.stringify(index),
+                        music_src: tplObj.tpl_music,
+                        music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false",
+                        pageStyle : _pageStyle,
+                        normalStyle : numStyle,
+                        initPageLength : initPageLength});
                 }
                 cb();
             }).on("error", function () {
@@ -1331,6 +1334,10 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 							new_cmd = new_cmd.concat(args);
 							var _method = new_cmd[0];
 							new_cmd.splice(0, 1);
+                            //todo 把page_uid转换成[x,y]
+                            if(_method == "pageTo"){
+                                new_cmd = (getPagePosById(new_cmd[0]));
+                            }
 							resStr = _method + "(" + new_cmd.join(",").replace(/"/g, "'").replace(/"/g,"'") + ")";  //把双引号里面的双引号更换为单引号
 							actions.push(actionTemplate({cmd: resStr, propagate: true}));
 						} else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
@@ -1377,6 +1384,34 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 				return null;
 			}
         }
+        //TODO 根据页objectId或者page_uid 来获取页的位置
+        /**
+         * 根据page_uid 或者page objectId获取页在显示中的位置
+         */
+        function getPagePosById(id){
+            var i1 = -1;
+            var sps = mag.groups,sp;
+            for(var i = 0;i < sps.length;i++){
+                sp = sps[i];
+                i1 = getPageIndex(i, id);
+                if(i1 != -1){
+                    return [i,i1];
+                }
+            }
+            return [-1,-1];
+            function getPageIndex (grpIdx, objectId){
+                var datas = mag.groups[grpIdx].pages,data;
+                for(var i = 0;i < datas.length;i++){
+                    data = datas[i];
+                    //console.log(data);
+                    //根据page_uid或者objectId来跳转
+                    if(objectId === data.page_uid || objectId === data.objectId){
+                        return i;
+                    }
+                }
+                return -1;
+            }
+        };
     }
 
 }

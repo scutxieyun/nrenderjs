@@ -352,6 +352,8 @@ var MeVPads = React.createClass({
 				this.posYIdx = y;
 			}
 		}
+        //TODO 派发修改页码的事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:y, pageLength: this.props.article.getL2Num(x)}]);
 	},
 	moveXNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return -1;//翻到尽头
@@ -390,7 +392,6 @@ var MeVPads = React.createClass({
 			this.posYIdx = tempY;
 			this._pageRecorder[this.posXIdx] = this.posYIdx;
 		}
-
 		return this.posYIdx;
 	},
 	moveYPrev:function(){
@@ -426,6 +427,7 @@ var MeVPads = React.createClass({
 	},
 	handlePan:function(evt){
 		if(evt.additionalEvent == "panleft" || evt.additionalEvent == "panright"){
+            console.log("pan left right", this.posXIdx,this.posYIdx);
 			if(this.props.article.getL1Num() <= 1) return;
 		}else{
 			if(evt.additionalEvent == "panup"){
@@ -439,6 +441,7 @@ var MeVPads = React.createClass({
 			this.setState({
 				yOffset:Math.abs(evt.deltaY) < this.props.containerHeight / 2 ? evt.deltaY : Math.sign(evt.deltaY) * this.props.containerHeight / 2 
 			});
+            console.log("pan up down", this.posXIdx,this.posYIdx);
 			return;
 		}
 	},
