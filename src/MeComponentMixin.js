@@ -36,7 +36,6 @@ var selfIncCounter = 0;
 		componentDidMount:function(){
 			//if(this.props.display != )
 			var cId = this.getId();
-            console.log(this.props.pageIdx, cId, "图片有时候不能添加 ");
 			if(this.props.pageIdx != undefined && cId != undefined){
 				this.pageInstance = this.props.cxt.pageMgr.registerComponent(this.props.pageIdx,cId,this);	
 			}
@@ -130,10 +129,49 @@ var selfIncCounter = 0;
          * 动画执行脚本
          * @param option
          */
-        animate:function(option){
+        animate:function(param){
             //TODO 根据dom对象来实现动画
-            console.log(option, "5555");
-
+            if(param) {
+                var obj = param;
+                var paramObj = param;
+                var elId = paramObj.id;
+                var displayObject = document.getElementById(elId);
+                if (displayObject) {
+                    displayObject.className = "";
+                    var style = displayObject.style;
+                    var animateName = obj.name;
+                    displayObject.className = animateName + " animated";
+                    //modify by fishYu 2016-4-29 11:22增加播放动画的类型
+                    var type = obj.type || "in";
+                    //动画持续时间
+                    if (obj.duration) {
+                        style["WebkitAnimationDuration"] = obj.duration + "s";
+                        style["animationDuration"] = obj.duration + "s";
+                    }
+                    //动画次数
+                    if (obj.infinite) {
+                        style["WebkitAnimationIterationCount"] = obj.infinite;
+                        style["animationIterationCount"] = obj.infinite;
+                    } else {
+                        style["WebkitAnimationIterationCount"] = 1;
+                        style["animationIterationCount"] = 1;
+                    }
+                    //延迟时间
+                    if (obj.delay) {
+                        style["WebkitAnimationDelay"] = obj.delay + "s";
+                        style["animationDelay"] = obj.delay + "s";
+                    }else{
+                        style["WebkitAnimationDelay"] = "0.3s";
+                        style["animationDelay"] =  "0.3s";
+                    }
+                    $(displayObject).on("webkitAnimationEnd",function(){
+                        $(this).off("webkitAnimationEnd");
+                        if(type != "out"){
+                            this.className = "";
+                        }
+                    });
+                }
+            }
         },
         isPC:function(){    //判断是否是浏览器平台
             var userAgentInfo = navigator.userAgent;

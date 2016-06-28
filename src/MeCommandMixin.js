@@ -144,7 +144,6 @@ define([],function(){
         "componentDoHandle": function(pageInstance, funName, comId, option){
             //TODO 这里获取不到el
             var el = pageInstance.getComponent(comId);
-            console.log(el, 99999);
             if(el != null && el.hasOwnProperty(funName)){
                 var compMethod = el[funName];
                 if(!!(compMethod && compMethod.constructor && compMethod.call && compMethod.apply)){
@@ -187,7 +186,6 @@ define([],function(){
                     }
                 }else{
                     params = m[2].split(",");
-                    console.log(params, 999999);
                     //TODO 需要区分animate这个脚本 "animate,[{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'14791081'},{'name':'zoomInUp','delay':1,'duration':1,'infinite':1,'type':'in','id':'19905875'}]"
                     if(params[0] == "animate" || params[0] == "move"){
                         //去掉animate,  只包含具体操作的脚本
