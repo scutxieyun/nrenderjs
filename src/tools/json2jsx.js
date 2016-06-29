@@ -225,9 +225,11 @@ function main(tpl, magObj, callback) {
 							//debugger;
 							if(referredItems.hasOwnProperty(m[j]) == false){
 								referredItems[m[j]] = true;
-							}else{
-								referredItems[m[j]] = false; //重复id定义,不能使用这个id
 							}
+                            //todo 这里可能会出现对一个组件的多次操作，会出现最后这个组件的生成id 为{null}  注释掉
+//                            else{
+//								referredItems[m[j]] = false; //重复id定义,不能使用这个id
+//							}
 						}
 					}
 			}
@@ -327,7 +329,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         cmds.actions = [];
     }
 
-    cmds.actions.join(",")
+    cmds.actions.join(",");
     return audioTemplate({
 		normalStyle:_style.join(","),
 		src:item.item_val,
@@ -682,7 +684,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             cmds.actions = [];
         }
         cmds.actions.join(",");
-        var audioTemplate;
+        var videoTemplate;
         var data = {};
         //todo 最好用正则表达式获取 src height
         //<iframe frameborder="0" width="640" height="498" src="http://v.qq.com/iframe/player.html?vid=b0020d8wsqm&tiny=0&auto=0" allowfullscreen></iframe>
@@ -697,9 +699,9 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             var iframeHeight = tempHeightArr[1].split(' ')[0];
 			//var iframeHeight = extractIframe("height");
             data.iframeHeight = iframeHeight;
-            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
+            videoTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
-            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
+            videoTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
             data.width = width;
             data.height = height;
         }
@@ -710,7 +712,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         }
         data.poster = poster;
         data = JSON.stringify(data);
-        return audioTemplate({
+        return videoTemplate({
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
@@ -1254,6 +1256,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
                 "hide_el": ["componentDo", "hide"],
                 "show_el": ["componentDo", "show"],
 				"telto"  : ["phoneFunc","telto"],
+                "play_el": ["componentDo", "play"],
+                "pause_el": ["componentDo", "pause"],
 				"pageto" : ["pageTo"],
 				"animate_el": ["componentDo","animate"],
 				"http":function(_link){
