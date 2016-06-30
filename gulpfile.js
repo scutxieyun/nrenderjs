@@ -18,23 +18,8 @@ var obfuscate_tag = true;
 var zip_tag = true;
 var source_set = null;
 jsx = ["src/MeVPads.js",
-//	"src/components/MePage.js",
-//	"src/components/MeAnimation.js",
-//	"src/components/MeTouchTrigger.js",
-//	"src/components/MeToolBar.js",
-//	"src/components/MeMusic.js",
-//	"src/components/MePanArea.js",
-//	"src/components/MeSvg.js",
-//    "src/components/MeRadio.js",
-//    "src/components/MeCheckbox.js",
     "src/components/*.js",
-	"samples/mag_1.jsx",
-	"samples/mag_2.jsx",
-	"samples/mag_lf.jsx",
-	"samples/test1.js",
-	"src/components/MeSvg.js",
-	"samples/mag_page_test.jsx",
-	"samples/mag_gallary.jsx",
+    "src/inner_components/*.js",
 	"index.js"
 ];
 gulp.task("babel", function(){
