@@ -103,7 +103,6 @@ define([],function(){
                 var renderjs = this.props.cxt.system;
                 var data = args[0];
                 var type = args[1];     //1 -- 表单数据  ，  2 --- 投票数据
-                console.log(data, "submit", type);
                 setTimeout(function(){
                     renderjs.helper.submitDataToCloud(data, type);
                 },0);
@@ -179,7 +178,7 @@ define([],function(){
 				var method = m[1];
                 var params = [];
                 if(method == "submit"){
-                    if(m[2].indexOf("{") > 0){
+                    if(m[2].indexOf("{") > -1){
                         params = (utils["toJSON"])("["+m[2]+"]");
                     }else{
                         params = m[2].split(",");
