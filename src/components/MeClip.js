@@ -17,6 +17,7 @@ define("MeClip", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeClip";
             this._clipCtx = null;
             this._clipPopupView = null;
             this.x1 = 0;
@@ -330,7 +331,7 @@ define("MeClip", function () {
             this.props.commonStyle.zIndex = "100000";
             var ref = null;
             if(!this.state.isOver){
-                ref = (<canvas ref="myMeClip" style={this.props.commonStyle}/>);
+                ref = (<canvas ref={this.myRef} style={this.props.commonStyle}/>);
             }
             return ref;
         },

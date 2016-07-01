@@ -7,6 +7,7 @@ var MeGallary  = React.createClass({
 	mixins:[MeComponentMixin],
 	displayName:"MeGallary",
 	getInitialState:function(){
+        this.myRef = "myMeGallary";
 		this.timer = null;
 		return {
 			actIdx:0,
@@ -93,7 +94,7 @@ var MeGallary  = React.createClass({
 			inds.push(<span className={indClass}></span>);
 		}
 		this.updateStyleForDisplay(_style);
-		return <div className="me-gallary"  id={this.props.id} style={_assign(_style)}> 
+		return <div className="me-gallary"  id={this.props.id} style={_assign(_style)} ref={this.myRef}>
 					<div className="img-collection" style={{width:width*this.props.imgItems.length,transform:_transform}}>
 						{imgComps}
 					</div>

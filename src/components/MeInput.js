@@ -16,6 +16,7 @@ define("MeInput", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeInput";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -37,7 +38,7 @@ define("MeInput", function () {
         render: function () {
             this.props.normalStyle.backgroundColor = this.props.normalStyle.backgroundColor || "transparent";
             this.props.normalStyle.lineHeight = this.props.normalStyle.height;
-            return (<input style={_assign(this.props.normalStyle,this.props.commonStyle)}
+            return (<input style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}
                 dtat-input={"user-input"} data-objectId={this.props.data.objectId} placeholder={this.props.data.placeholder} />);
         },
         componentDidMount: function () {

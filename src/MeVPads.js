@@ -343,18 +343,25 @@ var MeVPads = React.createClass({
 		
 	},
 	gotoPos:function(x,y){
+		if(x == -1){
+			x = this.posXIdx;//-1,表示在当前组
+		}
 		if(x >= 0 && x < this.props.article.getL1Num()){
 			if(this.loadPageByPos(x,y) != -1){
 				this.posXIdx = x;
 				this.posYIdx = y;
 			}
 		}
+        //TODO 派发修改页码的事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:y, pageLength: this.props.article.getL2Num(x)}]);
 	},
 	moveXNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return -1;//翻到尽头
 		var tempX,tempY;
 		tempX = this.posXIdx + 1;
 		tempY = this._pageRecorder[this.posXIdx] || 0;
+        //TODO 派发修改页码的事件,后期可能需要更具这个组的show_page_num字段来派发不同事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:tempY, pageLength: this.props.article.getL2Num(tempX)}]);
 		if(this.loadPageByPos(tempX,tempY) != -1){
 			this.posXIdx = tempX;
 			this.posYIdx = tempY;
@@ -366,16 +373,21 @@ var MeVPads = React.createClass({
 		var tempX,tempY;
 		tempX = this.posXIdx - 1;
 		tempY = this._pageRecorder[this.posXIdx] || 0;
+        //TODO 派发修改页码的事件,后期可能需要更具这个组的show_page_num字段来派发不同事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:tempY, pageLength: this.props.article.getL2Num(tempX)}]);
 		if(this.loadPageByPos(tempX,tempY) != -1){
 			this.posXIdx = tempX;
 			this.posYIdx = tempY;
 		}
+
 		return this.posXIdx;
 	},
 	moveYNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx + 1) == -1) return -1;//翻到尽头
 		var tempY;
 		tempY = this.posYIdx + 1;
+        //TODO 派发修改页码的事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:tempY, pageLength: this.props.article.getL2Num(this.posXIdx)}]);
 		if(this.loadPageByPos(this.posXIdx,tempY) != -1){ // 只有成功才去更新索引
 			this.posYIdx = tempY;
 			this._pageRecorder[this.posXIdx] = this.posYIdx;
@@ -386,10 +398,13 @@ var MeVPads = React.createClass({
 		if(this.props.article.getPageIdxInLayout(this.posXIdx,this.posYIdx - 1) == -1) return -1;//翻到尽头
 		var tempY;
 		tempY = this.posYIdx - 1 ;
+        //TODO 派发修改页码的事件
+        this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:tempY, pageLength: this.props.article.getL2Num(this.posXIdx)}]);
 		if(this.loadPageByPos(this.posXIdx,tempY) != -1){
 			this.posYIdx = tempY;
 			this._pageRecorder[this.posXIdx] = this.posYIdx;
 		}
+
 		return this.posYIdx;
 	},
 	getPos:function(){
@@ -412,6 +427,7 @@ var MeVPads = React.createClass({
 	},
 	handlePan:function(evt){
 		if(evt.additionalEvent == "panleft" || evt.additionalEvent == "panright"){
+            console.log("pan left right", this.posXIdx,this.posYIdx);
 			if(this.props.article.getL1Num() <= 1) return;
 		}else{
 			if(evt.additionalEvent == "panup"){
@@ -425,12 +441,13 @@ var MeVPads = React.createClass({
 			this.setState({
 				yOffset:Math.abs(evt.deltaY) < this.props.containerHeight / 2 ? evt.deltaY : Math.sign(evt.deltaY) * this.props.containerHeight / 2 
 			});
+            console.log("pan up down", this.posXIdx,this.posYIdx);
 			return;
 		}
 	},
-	handleTap:function(evt){
-		console.log("tap");
-	},
+//	handleTap:function(evt){
+//		console.log("tap");
+//	},
 	_cancelPan:function(){ //not a good method, hook to react directly
 		if(this.state.yOffset != 0)
 		this.setState({yOffset:0});
@@ -474,21 +491,21 @@ var MeVPads = React.createClass({
 			items.push(<PadBuffer id={i} key={i} posIdx={i} ref={self._registerBuffer} article = {self.props.article}></PadBuffer>)
 		}
 		return (
-	<Hammer ref={this._registerHammer} id="oper-area" className ="magazine-page-container show" vertical={true}>
-			<div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
-			<div style={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/15509a86b6c9ab79.png?imageView2/2/w/640")',
-			height:"100%",width:"100%"}}>
-			<div id="buffer-container" ref="bufferContainer" onTouchEnd={this._cancelPan}style={{transform:bufContainerTransform}}>
-			{items}
-			</div>
-			{self.props.article.getToolBar()}
-			</div>
-			</div>
+	        <Hammer ref={this._registerHammer} id="oper-area" className ="magazine-page-container show" vertical={true}>
+			    <div style={{height:this.props.pageHeight + "px",width:this.props.pageWidth + "px", transform:this._smartAdjustTranform()}}>
+			        <div style={{backgroundImage:'url("http://ac-hf3jpeco.clouddn.com/3c2d462ae56458d68746.jpg")',
+			            height:"100%",width:"100%"}}>
+                        {self.props.article.getMessageBox()}
+                        {self.props.article.getPageNumWidget()}
+			            <div id="buffer-container" ref="bufferContainer" onTouchEnd={this._cancelPan}style={{transform:bufContainerTransform}}>
+			                {items}
+			            </div>
+			            {self.props.article.getToolBar()}
+			        </div>
+			    </div>
 			</Hammer>
 		);
-	},
-	
+	}
 });
-
 	return MeVPads;
 });

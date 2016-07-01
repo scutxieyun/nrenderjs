@@ -16,7 +16,9 @@ var selfIncCounter = 0;
 			},
 		getInitialState:function(){
 			return {
-				display:true
+				display:true,
+				innerXOffset:0,
+				interYOffset:0,
 			};//React会将调用chain中的数据进行合并
 		},
 		componentWillMount:function(){
@@ -61,14 +63,116 @@ var selfIncCounter = 0;
 			}
 			return null;
 		},
+        /**
+         * 根据各自的refs,获取dom对象
+         * @returns {*}
+         */
+        getRef:function(){
+            if(this.myRef) return this.refs[this.myRef];
+            return null;
+        },
 		show:function(){
 			this.setState({display:true});
 		},
 		hide:function(){
 			this.setState({display:false});
 		},
+		move:function(param){
+            //TODO 根据dom对象来实现动画, 依赖jquery
+            if(param) {
+                var paramObj = param;
+                var elId = paramObj.id;
+                var displayObject = document.getElementById(elId);
+                if (displayObject) {
+                    var $element = $(displayObject);
+                    var left = parseInt($element.css("left"));
+                    var top = parseInt($element.css("top"));
+                    var toX = paramObj.to.x;
+                    var toY = paramObj.to.y;
+                    var obj = {};
+                    //add by fishYu 20164-12 9:29增加
+                    var position = paramObj.position;
+                    if (position == "relative") {
+                        //有可能是0， 负数，正数
+                        toX = parseFloat(toX) + left;
+                        obj.left = toX;
+
+                        toY = parseFloat(toY) + top;
+                        obj.top = toY;
+                    } else if (position == "absolute") {
+                        //有可能是0， 负数，正数
+                        obj.left = parseFloat(toX);
+                        obj.top = parseFloat(toY);
+                    }
+                    var speed = paramObj.speed || 0.5;
+                    var ease = paramObj.easing || "linear";
+                    speed = speed * 1000;
+                    var delay = paramObj.delay || 0;
+                    delay = delay * 1000;
+                    $element.stop(true, true).delay(delay).animate(obj, {
+                        duration: speed,
+                        easing: ease,
+                        complete : function(){
+                            console.log("complete");
+                        },
+                        step : function(param){
+//                            console.log('56666', param);
+                        }
+                    });
+                }
+            }
+			
+		},
 		addClass:function(str){
 		},
+        /**
+         * 动画执行脚本
+         * @param option
+         */
+        animate:function(param){
+            //TODO 根据dom对象来实现动画
+            if(param) {
+                var obj = param;
+                var paramObj = param;
+                var elId = paramObj.id;
+                var displayObject = document.getElementById(elId);
+                if (displayObject) {
+                    displayObject.className = "";
+                    var style = displayObject.style;
+                    var animateName = obj.name;
+                    displayObject.className = animateName + " animated";
+                    //modify by fishYu 2016-4-29 11:22增加播放动画的类型
+                    var type = obj.type || "in";
+                    //动画持续时间
+                    if (obj.duration) {
+                        style["WebkitAnimationDuration"] = obj.duration + "s";
+                        style["animationDuration"] = obj.duration + "s";
+                    }
+                    //动画次数
+                    if (obj.infinite) {
+                        style["WebkitAnimationIterationCount"] = obj.infinite;
+                        style["animationIterationCount"] = obj.infinite;
+                    } else {
+                        style["WebkitAnimationIterationCount"] = 1;
+                        style["animationIterationCount"] = 1;
+                    }
+                    //延迟时间
+                    if (obj.delay) {
+                        style["WebkitAnimationDelay"] = obj.delay + "s";
+                        style["animationDelay"] = obj.delay + "s";
+                    }else{
+                        style["WebkitAnimationDelay"] = "0.3s";
+                        style["animationDelay"] =  "0.3s";
+                    }
+                    $(displayObject).on("webkitAnimationEnd",function(){
+                        $(this).off("webkitAnimationEnd");
+                        if(type != "out"){
+                            this.className = "";
+                        }
+                    });
+                }
+            }
+        },
         isPC:function(){    //判断是否是浏览器平台
             var userAgentInfo = navigator.userAgent;
             var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");

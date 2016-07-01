@@ -6,10 +6,10 @@ function main(tpl, magObj, callback) {
     var MePageT = _.template('<MePage idx={<%= idx %>} cxt={cxt} normalStyle={{height:"<%= page_height%>px",width:"<%= page_width%>px"}} >\n<%= children%>\n</MePage>');
     var NoTypeDefinedT = _.template('<div cxt={cxt} style={{<%= style%>}}> No Such Type defined <%= item_type %></div>');
     var posStyleTemplate = _.template('top:"<%= item_top%>px",left:"<%= item_left%>px",zIndex:<%= item_layer%>,position:"absolute"');
-    var imgTemplate = _.template('<MeImage src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
+    var imgTemplate = _.template('<MeImage cxt={cxt} pageIdx={<%= pageIdx %>} src="<%= src%>" id=<%= id%> displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeImage>');
     var grpTemplate = _.template('<MeDiv displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= style %>}}><%= children%></MeDiv>');
     var divTemplate = _.template('<div style={{<%= style %>}}><%= content%></div>');
-    var textTemplate = _.template('<MeText data={<%= data%>} displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
+    var textTemplate = _.template('<MeText data={<%= data%>}  displayType = {<%= displayType%>} normalStyle={{<%= style %>}}></MeText>');
     var animationTemplate = _.template('<MeAnimation id=<%= id%> displayType = {<%= displayType%>} pageIdx={<%= pageIdx %>} cxt={cxt} animationClass={<%= animationClass%>} animation={<%= animation%>} normalStyle={{<%= normalStyle%>}}><%= children %></MeAnimation>');
     var touchTriggerTemplate = _.template('<MeTouchTrigger pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> normalStyle={{<%= normalStyle%>}} triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}><%= children %></MeTouchTrigger>');
    //最终返回的对象
@@ -22,7 +22,7 @@ function main(tpl, magObj, callback) {
     var fontServer = "http://agoodme.com:3000";
     //默认从第0个其实加载
     var fontIndex = 0;
-	
+
 	var convertOldCmdWrap = null;//临时为了合并，将convertOldCmd过度一下，减少后面合并的成本
     var itemFuncMap = {
         "1": imgRenderItem,     //图片
@@ -72,6 +72,7 @@ function main(tpl, magObj, callback) {
             }
         ];
     }
+    var initPageLength = 1;     //初始页长度，第一组的页长度。用于计算页码用
     var pageNum = 0;
     for (grpIdx = 0; grpIdx < mag.groups.length; grpIdx++) {
         var pages = mag.groups[grpIdx].pages;
@@ -87,13 +88,74 @@ function main(tpl, magObj, callback) {
         subIndex.push(-1);
         index.push(subIndex);
         pageNum += pages.length;
+        if(grpIdx == 0){
+            initPageLength = pageNum;
+        }
     }
     index.push(-1);
     pagesContentTemp = pageContent.join(",");
+    //以下为设置页码属性
+    //TODO 做一个字段类型的兼容老的page_style，新的page_num_style:'{"style":0,"color":"rgb(0,0,0)"}'
+    var page_num_style = tplObj.page_num_style;
+    var _pageStyle = 0;
+    var numStyle = {};
+    numStyle.color = "#000";
+    if(page_num_style == undefined){        //没有值的情况
+        _pageStyle = tplObj.page_style;   //页码样式
+    }else{
+        page_num_style = JSON.parse(page_num_style);
+        _pageStyle = page_num_style.style;
+        numStyle.color = page_num_style.color;
+    }
+    if(_pageStyle == 1){
+        numStyle.width = "30px";
+        numStyle.WebkitColumnCount = "1";
+        numStyle.MozColumnCount = "1";
+        numStyle.OColumnCount = "1";
+        numStyle.columnCount = "1";
+    }else if(_pageStyle == 2){
+        numStyle.width = "80px";
+        numStyle.lineHeight = "52px";
+        numStyle.WebkitColumnCount = "3";
+        numStyle.MozColumnCount = "3";
+        numStyle.OColumnCount = "3";
+        numStyle.columnCount = "3";
+        numStyle.WebkitColumnGap = "0px";
+        numStyle.MozColumnGap = "0px";
+        numStyle.OColumnGap = "0px";
+        numStyle.columnGap = "0px";
+    }
+    numStyle = JSON.stringify(numStyle);
+    //以下为设置目录样式
+    var directoryType = 1;
+    var directoryData = {};
+    if(tplObj.list_style){
+        directoryType = tplObj.list_style;
+    }
+    directoryData.directoryType = directoryType;
+    var imgData = [];
+    for(var i = 0; i < (mag.groups).length; i++ ){
+        if((mag.groups)[i].pages.length < 1 ){
+            //TODO 可能第一大组没有作品
+            continue;
+        }else{
+            var tempData = {};
+            tempData.img = (mag.groups)[i].f_cover + "?imageView2/2/w/170";
+            tempData.name = (mag.groups)[i].f_name;
+            imgData.push(tempData);
+        }
+    }
+    directoryData.imgData = imgData;
+    directoryData = JSON.stringify(directoryData);
     pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
 									layout: JSON.stringify(index),
 									music_src: tplObj.tpl_music,
-									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false"});
+									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false",
+                                    pageStyle : _pageStyle,
+                                    normalStyle : numStyle,
+                                    initPageLength : initPageLength,
+                                    data : directoryData
+                                  });
     //循环下载云字体
     loop(callback);
 
@@ -174,7 +236,6 @@ function main(tpl, magObj, callback) {
                 else grps[items[i].group_id].items.push(items[i]);
             }
         }
-		console.log(referredItems);
 		return res;
 		
 		function registerItem4Referred(val,referredItems){
@@ -186,9 +247,11 @@ function main(tpl, magObj, callback) {
 							//debugger;
 							if(referredItems.hasOwnProperty(m[j]) == false){
 								referredItems[m[j]] = true;
-							}else{
-								referredItems[m[j]] = false; //重复id定义,不能使用这个id
 							}
+                            //todo 这里可能会出现对一个组件的多次操作，会出现最后这个组件的生成id 为{null}  注释掉
+//                            else{
+//								referredItems[m[j]] = false; //重复id定义,不能使用这个id
+//							}
 						}
 					}
 			}
@@ -225,7 +288,7 @@ function gallaryRenderItem(page,item,_style,content,hasWrap){
 	_.each(imgs,function(img,i){
 		imgItems.push({
 			src:img,
-			action:urls[i],
+			action:urls[i]
 		})
 	});
 	_style.push(sizeStyleTemplateWrap(item));
@@ -270,9 +333,11 @@ function imgRenderItem(page,item,_style,content,hasWrap){
 	
 	
     return imgTemplate({src:item.item_val,
+                        pageIdx:page.idx,
 						displayType:item.item_display_status,
 						style:_style.join(","),
-						id:generateId(page,item,hasWrap)});
+                        id:generateId(page,item,hasWrap)
+                       });
 }
 function musicRenderItem(page,item,_style,content,hasWrap){
     var audioTemplate = _.template('<MeAudio pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} src="<%= src%>" autoplay={<%= autoplay%>} musicImg="<%= music_img%>" musicName="<%= music_name%>" ></MeAudio>');
@@ -286,7 +351,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         cmds.actions = [];
     }
 
-    cmds.actions.join(",")
+    cmds.actions.join(",");
     return audioTemplate({
 		normalStyle:_style.join(","),
 		src:item.item_val,
@@ -331,7 +396,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -367,7 +432,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -397,7 +462,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
 
@@ -430,7 +495,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -452,12 +517,14 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         //行高特殊处理
         var borderWidth = item.item_border || 0;
         data.lineHeight = (item.item_height-2*borderWidth) + "px";
+        data.tplId = tplId;
+        data.author = userId;
         data = JSON.stringify(data);
         return submitTemplate({
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -493,7 +560,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -518,7 +585,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -552,7 +619,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -583,7 +650,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -611,7 +678,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             normalStyle:_style.join(","),
             pageIdx:page.idx,
             data:data,
-            id:generateId(page,item,hasWrap),
+            id:generateId(page,item,hasWrap)
         });
     }
     /**
@@ -639,7 +706,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             cmds.actions = [];
         }
         cmds.actions.join(",");
-        var audioTemplate;
+        var videoTemplate;
         var data = {};
         //todo 最好用正则表达式获取 src height
         //<iframe frameborder="0" width="640" height="498" src="http://v.qq.com/iframe/player.html?vid=b0020d8wsqm&tiny=0&auto=0" allowfullscreen></iframe>
@@ -654,9 +721,9 @@ function musicRenderItem(page,item,_style,content,hasWrap){
             var iframeHeight = tempHeightArr[1].split(' ')[0];
 			//var iframeHeight = extractIframe("height");
             data.iframeHeight = iframeHeight;
-            audioTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
+            videoTemplate = _.template('<MeIFrameVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%> triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}}  normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeIFrameVideo>');
         }else{
-            audioTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
+            videoTemplate = _.template('<MeInnerVideo pageIdx={<%= pageIdx %>} cxt={cxt} id=<%= id%>  triggerActions={{"<%= triggerActions.evt %>":[<%= triggerActions.actions%>]}} normalStyle={{<%= normalStyle%>}} data={<%= data%>}  ></MeInnerVideo>');
             data.width = width;
             data.height = height;
         }
@@ -667,7 +734,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         }
         data.poster = poster;
         data = JSON.stringify(data);
-        return audioTemplate({
+        return videoTemplate({
             normalStyle:_style.join(","),
             data:data,
             pageIdx:page.idx,
@@ -876,10 +943,14 @@ function musicRenderItem(page,item,_style,content,hasWrap){
                     //替换文字
                     var patt1 = new RegExp(key, "g");
                     pagesContentTemp = pagesContentTemp.replace(patt1, temp);
-                    pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
-									layout: JSON.stringify(index),
-									music_src: tplObj.tpl_music,
-									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false"});
+                    pageTemp = (_.template(tpl))({pages: pagesContentTemp,
+                        layout: JSON.stringify(index),
+                        music_src: tplObj.tpl_music,
+                        music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false",
+                        pageStyle : _pageStyle,
+                        normalStyle : numStyle,
+                        initPageLength : initPageLength,
+                        data : directoryData});
                 }
                 cb();
             }).on("error", function () {
@@ -1033,8 +1104,9 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 		var tem = renderTransform(item);
         if (tem != "")
         _style.push(tem);
-        return textTemplate({data: data, displayType: item.item_display_status, style: _style.join(","),
-			id:generateId(page,item,hasWrap),
+        return textTemplate({data: data,
+            displayType: item.item_display_status,
+            style: _style.join(",")
 		});
     }
 
@@ -1207,12 +1279,45 @@ function musicRenderItem(page,item,_style,content,hasWrap){
                 "hide_el": ["componentDo", "hide"],
                 "show_el": ["componentDo", "show"],
 				"telto"  : ["phoneFunc","telto"],
+                "play_el": ["componentDo", "play"],
+                "pause_el": ["componentDo", "pause"],
+				"pageto" : ["pageTo"],
+				"animate_el": ["componentDo","animate"],
 				"http":function(_link){
 					var tid = _articleLinkDetect(_link);
 					if(tid != null){
 						return '{action:"' + linkToAction(_link,"_self") + '",propagate:true}';
 					}
 					return null;
+				},
+				"move_el":function(params){
+					try{
+						var pat = /move_el:(.*)/;
+						m = pat.exec(params);
+						if(m == null) return null;
+						params = m[1];
+//						var obj = JSON.parse(params);
+                        var obj = params.split(",");
+						if(obj != null){
+                            obj.unshift("move");
+//							obj = obj[0];
+//							var innerP = [];
+//							innerP.push("move");
+//							innerP.push(obj.id);
+//							innerP.push(obj.position[0]);
+//							innerP.push(obj.position[1]);
+//							innerP.push(obj.duration);
+//							innerP.push(obj.delay);
+//							return '{action:"componentDo(' + innerP.join(",") + ')",propagate:true}';
+                            return '{action:"componentDo(' + obj.join(",").replace(/"/g, "'").replace(/"/g,"'") + ')",propagate:true}';
+						}else{
+							return null;
+						}
+						
+					}catch(e){
+						console.log("decode json failed",params);
+						return null;
+					}
 				}
             }
 			var actionTemplate = _.template('{action:"<%= cmd %>",propagate:<%= propagate%>}');
@@ -1239,8 +1344,20 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 				var _cmds = item_href.split("|");
 				var actions = [];
 				_.each(_cmds, function (cmd) {
+                    //TODO 这个会出现问题，例如
+                    /*
+                     animate_el: [{id:opt_item_id,name:动画名称,delay:延迟时间, duration:持续事间,infinite:循环次数,"type":"in/out/stress"},{id:opt_item_id,name:动画名称,delay:延迟时间, duration:持续事间,infinite:循环次数 ,"type":"in/out/stress"}
+                     ,...]
+                     */
 					var args = cmd.split(":");
 					var new_cmd = _cmdMap[args[0]];
+                    //包含[{id:opt_item_id的情况
+                    if(cmd.indexOf("[") > 0){
+                        var tempIndex = cmd.indexOf(":") + 1;
+                        var tempArgs = cmd.substr(tempIndex);
+                        tempArgs = tempArgs.split(",");
+                        args.splice(1, args.length-1, tempArgs);
+                    }
 					var resStr = "";
 					if(new_cmd != undefined){
 						if (new_cmd instanceof Array) {
@@ -1248,7 +1365,11 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 							new_cmd = new_cmd.concat(args);
 							var _method = new_cmd[0];
 							new_cmd.splice(0, 1);
-							resStr = _method + "(" + new_cmd.join(",") + ")";
+                            //todo 把page_uid转换成[x,y]
+                            if(_method == "pageTo"){
+                                new_cmd = (getPagePosById(new_cmd[0]));
+                            }
+							resStr = _method + "(" + new_cmd.join(",").replace(/"/g, "'").replace(/"/g,"'") + ")";  //把双引号里面的双引号更换为单引号
 							actions.push(actionTemplate({cmd: resStr, propagate: true}));
 						} else if(!!(new_cmd && new_cmd.constructor && new_cmd.call && new_cmd.apply)){
 							var cmd = new_cmd.apply(null,[cmd]);
@@ -1267,8 +1388,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 				_.each(cmds,function(cmd){
 					if(cmd.meTap != undefined){//放弃多事件的case
 						if(cmd.meTap.hasOwnProperty("value"))
-							res.actions.push('{action:"' + linkToAction(cmd.meTap.value,cmd.meTap.target) + '",propagate:true}');
-						else if(typeof cmd.meTap == "string"){
+                            res.actions.push('{action:"' + linkToAction(cmd.meTap.value,cmd.meTap.target) + '",propagate:true}');
+                        else if(typeof cmd.meTap == "string"){
 							res.actions = res.actions.concat(strToActions(cmd.meTap));
 						}
 					}
@@ -1294,6 +1415,34 @@ function musicRenderItem(page,item,_style,content,hasWrap){
 				return null;
 			}
         }
+        //TODO 根据页objectId或者page_uid 来获取页的位置
+        /**
+         * 根据page_uid 或者page objectId获取页在显示中的位置
+         */
+        function getPagePosById(id){
+            var i1 = -1;
+            var sps = mag.groups,sp;
+            for(var i = 0;i < sps.length;i++){
+                sp = sps[i];
+                i1 = getPageIndex(i, id);
+                if(i1 != -1){
+                    return [i,i1];
+                }
+            }
+            return [-1,-1];
+            function getPageIndex (grpIdx, objectId){
+                var datas = mag.groups[grpIdx].pages,data;
+                for(var i = 0;i < datas.length;i++){
+                    data = datas[i];
+                    //console.log(data);
+                    //根据page_uid或者objectId来跳转
+                    if(objectId === data.page_uid || objectId === data.objectId){
+                        return i;
+                    }
+                }
+                return -1;
+            }
+        };
     }
 
 }

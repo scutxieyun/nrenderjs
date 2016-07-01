@@ -16,6 +16,7 @@ define("MeRedEnvelopes", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeRedEnvelopes";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -59,7 +60,7 @@ define("MeRedEnvelopes", function () {
         },
         render: function () {
             var content = this.props.data.content || "";
-            return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeRedEnvelopes">
+            return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>
                 <img src={content} style={{width:"100%", height:"100%"}}/>
             </div>);
         },

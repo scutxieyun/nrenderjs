@@ -27,6 +27,7 @@ define("MeInnerVideo", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeInnerVideo";
             return {};
         },
         /**
@@ -81,7 +82,7 @@ define("MeInnerVideo", function () {
         },
         render: function () {
             this.props.commonPopupStyle.background ="url("+this.props.data.poster+") no-repeat center rgba(0, 0, 0, 0.65098)";
-            return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)}>
+            return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} >
                 <video width={this.props.data.width} height={this.props.data.height} id={"vjs_video_1"} preload={"auto"} controls={"controls"}
                     ref="mediaPlay" x-webkit-airplay={"true"} webkit-playsinline={"true"} style={{"position":"absolute","zIndex":1}} poster={this.props.data.poster}>
                 <source type={"video/mp4"} src={this.props.data.src} ></source></video>

@@ -16,6 +16,7 @@ define("MeRadio", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeRadio";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -74,7 +75,7 @@ define("MeRadio", function () {
 
         },
         render: function () {
-            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeRadio" dangerouslySetInnerHTML={{__html:this.createRadio()}}></div>);
+            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} dangerouslySetInnerHTML={{__html:this.createRadio()}}></div>);
         },
         componentDidMount: function () {
 

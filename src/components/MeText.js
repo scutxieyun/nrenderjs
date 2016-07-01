@@ -17,6 +17,7 @@ define("MeText", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeText";
             return {};
         },
         /**
@@ -64,7 +65,7 @@ define("MeText", function () {
             if(this.props.data != undefined && this.props.data &&this.props.data.src.indexOf("me-clould-font-cache") < 0){
                 this.props.normalStyle.fontFamily = this.props.data.fontName;
             }
-            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeText" dangerouslySetInnerHTML={{__html:this.props.data.content}}></div>);
+            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} dangerouslySetInnerHTML={{__html:this.props.data.content}}></div>);
         },
         componentDidMount: function () {
         }

@@ -17,6 +17,7 @@ define("MeMap", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeLongPress";
             return {};
         },
         mixins:[MeComponentMixin, MeCommandMixin],
@@ -48,7 +49,7 @@ define("MeMap", function () {
             height = parseInt(height);
             var src = "http://api.map.baidu.com/staticimage/v2?ak=VzFAGGC7tDTFzqKKIsTI7GRV&copyright=1&center=" + this.props.data.lng + "," + this.props.data.lat + "&zoom=" + this.props.data.zoom + "&markers="
                 + this.props.data.lng + "," + this.props.data.lat + "&width=" + width + "&height=" + height;
-            return (<img onClick={this.clickHandle} src={src} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeMap"/>);
+            return (<img onClick={this.clickHandle} src={src} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} />);
         },
         componentDidMount: function () {
 

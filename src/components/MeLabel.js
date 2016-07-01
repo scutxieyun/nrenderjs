@@ -16,6 +16,7 @@ define("MeLabel", function () {
             }
         },
         getInitialState : function(){
+            this.myRef = "myMeLabel";
             return {};
         },
         mixins:[MeComponentMixin],
@@ -81,7 +82,7 @@ define("MeLabel", function () {
 
         },
         render: function () {
-            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref="myMeLabel" dangerouslySetInnerHTML={{__html:this.createLabel()}}></div>);
+            return (<div style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} dangerouslySetInnerHTML={{__html:this.createLabel()}}></div>);
         },
         componentDidMount: function () {
 
