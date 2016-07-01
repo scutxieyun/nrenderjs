@@ -207,11 +207,17 @@ body{
 	<div id="magazine" class="ui_view_transitioning ui_page">
 		<div id="magazine-container" style='height:100%;width:100%'>
 		</div>
+        <div id="852"></div>
 	</div>
-	<div style="position:absolute; left:20px; top:200px;font-size:30px" > <input type="checkbox" id="autoplay" checked="checked" onclick="changeMagazine(this);">自动播放</input></div>
     <div id="popup-iframe" class="popupIframe">
         <div class="closeBtn"></div>
-
+    </div>
+    <!---目录-->
+    <div id="magazine-view-ports" class="screen-button-active">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAcCAYAAACZOmSXAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsSAAALEgHS3X78AAAAMUlEQVRIx+3VoQEAIADDsJX/fx4GPgAMjZyZLG2bJABZ9nbbeHEiSXoKwyJJOunfsEybpRf+wc8dBgAAAABJRU5ErkJggg==">
+    </div>
+    <div id="magazine-switch-play">
+        <div class="switch-play play-magazine" id="switch-play"></div>
     </div>
 </div>
 
@@ -247,9 +253,9 @@ body{
 				globalLoadTid(_xparam[1],function(mag){
 					if(mag != undefined && renderjs != undefined){
 						renderjs.helper.load(mag);
-                        //todo设置自动播放
+                        //todo 根据数据来设置自动播放
                         setTimeout(function(){
-                            if(document.getElementById("autoplay").checked){
+                            if(magazinePlaying){
                                 playMagazine();
                             }
                         }, 10);
@@ -261,8 +267,9 @@ body{
 		require([magUrl],function(mag_1){
 			if(mag_1 != undefined && renderjs != undefined){
 				renderjs.helper.load(mag_1);
+                //todo 根据数据来设置自动播放
                 setTimeout(function(){
-                    if(document.getElementById("autoplay").checked){
+                    if(magazinePlaying){
                         playMagazine();
                     }
                 }, 10);
@@ -273,10 +280,13 @@ body{
 		$("#test").click(function(){
 			renderjs.helper.gotoPos(0,2);
 		});
+
+        $("#magazine-switch-play").click(changeMagazine);
+        $("#magazine-view-ports").click(showDirectory);
 	});
 
     function changeMagazine(e){
-        if(e.checked){
+        if(!magazinePlaying){
             playMagazine();
         }else{
             pauseMagazine();
@@ -289,6 +299,7 @@ body{
         magazinePlaying = true;
         magazineInterval = defaultInterval;
         playMagazineHandle();
+        $("#switch-play")[0].className = "switch-play pause-magazine";
     }
     function playMagazineHandle(){
         playTimer = setTimeout(function(){
@@ -302,11 +313,8 @@ body{
             playMagazineHandle();
         },magazineInterval);
     }
-    function pauseMagazine(){
-        magazinePlaying = false;
-        if(playTimer){
-            window.clearTimeout(playTimer);
-        }
+    function showDirectory(){
+        renderjs.helper.showDirectory();
     }
 	function globalLoadTid(tid,cb){
 		var magUrl = "jsx?tid=" + tid;
@@ -350,7 +358,7 @@ body{
             customerData.save(null, {
                 success: function(obj) {
                     //消息提示框
-                    renderjs.helper.getEE().emitEvent("show:message:box",[{msg:"感谢您的参与",btn:"确定"}]);
+                    renderjs.helper.showMessageBox("感谢您的参与","确定");
                     console.log(obj);
                 },
                 error: function(obj, error) {

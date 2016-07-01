@@ -32,6 +32,7 @@ var MePanorama = require("../dist/MePanorama.js");
 var MeVote = require("../dist/MeVote.js");
 var MeMessageBox = require("../dist/MeMessageBox.js");
 var MePageNum = require("../dist/MePageNum.js");
+var MeDirectory = require("../dist/MeDirectory.js");
 
 var EventEmitter = require("wolfy87-eventemitter");
 var React = require("react");
@@ -73,6 +74,7 @@ module.exports = function(){
     MeVote:MeVote,
     MeMessageBox:MeMessageBox,
     MePageNum:MePageNum,
+    MeDirectory:MeDirectory,
 	ee:new EventEmitter(),	//因为需要ee建立，容器，Pads和作品之间的联系，所以在这里创建ee
 	React:React,
 	ReactDOM:ReactDOM,
@@ -105,6 +107,19 @@ module.exports = function(){
 				cfg.article = _article;
 				_article.getCxt().system = myself;
 				pads = ReactDOM.render(React.createElement(MeVPads,cfg), elem);
+                //添加全局的目录组件
+                if(elem.parentNode != null){
+                    //预防多次重启的情况下，会添加多个目录全局组件的容器。
+                    if(elem.parentNode.children.length > 1){
+                        var tempDiv = elem.parentNode.children[elem.parentNode.children.length - 1];
+                        elem.parentNode.removeChild(tempDiv);
+                    }
+                    var d = document.createElement("div");
+                    d.style.width = "100%";
+                    d.style.height = "100%";
+                    elem.parentNode.appendChild(d);
+                    ReactDOM.render(_article.getDirectory(), d);
+                }
 			}
 		}
 		function _unload(){
@@ -171,6 +186,22 @@ module.exports = function(){
                 if(elem == null) return;
                 if(globalSubmitDataToCloud == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
                 globalSubmitDataToCloud(data,type);
+            },
+            /**
+             * 显示目录组件
+             */
+            showMessageBox : function(msg, btn){
+                myself.ee.emitEvent("show:message:box",[{msg:msg,btn:btn}]);
+            },
+            /**
+             * 显示目录组件
+             */
+            showDirectory : function(){
+                //获取当前的组序号
+                if(pads != null){
+                    var pos = pads.getPos();
+                    myself.ee.emitEvent("show:directory", [{isShow:true, currentX: pos.x}]);
+                }
             }
 		};
 		}()

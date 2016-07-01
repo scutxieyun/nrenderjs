@@ -10267,7 +10267,6 @@ input::-webkit-inner-spin-button {
   right: 32px;
   width: 64px;
   height: 64px;
-  display: none;
   border-radius: 100%;
   background: rgba(0, 0, 0, 0.6);
   box-sizing: border-box;
@@ -14911,9 +14910,9 @@ input[type="range"].font-align::-webkit-slider-thumb {
 .genericon-zoom:before {
   content: "\f402"; }
 
-/*��ʽ
-*ptr ���޸�
-*loading ���޸� ptr-pull-loading
+/*��ʽ
+*ptr ���޸�
+*loading ���޸� ptr-pull-loading
 *11 , 12, 13, ptr-pull-11, 12, 13
 *
 */
@@ -23647,3 +23646,117 @@ input[type="range"]::-webkit-slider-thumb {
   top: 48%; }
 
 /*************************************滑杆样式end***************************************/
+/*
+* 以下为针对ME期刊来创建的样式
+*/
+#magazine-view-ports{
+	position: absolute;
+	z-index: 2;
+	bottom: 50px;
+	right: 156px;
+	width: 64px;
+	height: 64px;
+	border-radius: 100%;
+	background: rgba(0, 0, 0, 0.6);
+	color: #fff;
+	line-height: 60px;
+	font-size: 24px;
+	text-align: center;
+}
+#magazine-view-ports img{
+	margin-top: 16px;
+}
+
+/*目录按钮出现动画*/
+.operation-view-ports-show{
+	opacity:0;
+	transform:translate3d(0,100%,0);
+	-webkit-transform:translate3d(0,100%,0);
+	-webkit-animation-name: operationButtonShowAnimation;
+	animation-name: operationButtonShowAnimation;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-animation-duration:1s;
+	-webkit-animation-delay:.6s;
+	-webkti-animation-timing-function: cubic-bezier(0, 0, 0.8, 0.8);
+}
+
+/*目录按钮隐藏动画*/
+.operation-view-ports-hide{
+	opacity:1;
+	transform:translate3d(0,0,0);
+	-webkit-transform:translate3d(0,0,0);
+	-webkit-animation-name: operationButtonHideAnimation;
+	animation-name: operationButtonHideAnimation;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-animation-duration:1s;
+	-webkit-animation-delay:.3s;
+	-webkti-animation-timing-function:linear;
+}
+
+
+/*************************
+* 以下为ME期刊所需要的样式
+**************************/
+.item-white-view-port-li {
+	background: #dddddd; }
+
+.item-black-view-port-li {
+	background: rgba(255, 255, 255, 0.3); }
+
+.item-double-view-port-img {
+	border: 4px solid #3cb034; }
+
+/***************************
+* 目录上下出现或者隐藏的样式
+****************************/
+.slideInFromBottom {
+	-webkit-animation-name: slideInFromBottom;
+	animation-name: slideInFromBottom;
+	-webkit-animation-duration: .5s;
+	animation-duration: .5s;
+	-webkit-animation-fill-mode: forwards;
+	animation-fill-mode: forwards; }
+
+@-webkit-keyframes slideInFromBottom {
+	0% {
+		-webkit-transform: translate3d(0, 100%, 0);
+		transform: translate3d(0, 100%, 0);
+		visibility: visible; }
+	to {
+		-webkit-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0); } }
+
+@keyframes slideInFromBottom {
+	0% {
+		-webkit-transform: translate3d(0, 100%, 0);
+		transform: translate3d(0, 100%, 0);
+		visibility: visible; }
+	to {
+		-webkit-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0); } }
+
+.slideOutToBottom {
+	-webkit-animation-name: slideOutToBottom;
+	animation-name: slideOutToBottom;
+	-webkit-animation-duration: .5s;
+	animation-duration: .5s;
+	-webkit-animation-fill-mode: forwards;
+	animation-fill-mode: forwards; }
+
+@-webkit-keyframes slideOutToBottom {
+	0% {
+		-webkit-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0); }
+	to {
+		-webkit-transform: translate3d(0, 100%, 0);
+		tansform: translate3d(0, 100%, 0);
+		visibility: hidden; } }
+
+@keyframes slideOutToBottom {
+	0% {
+		-webkit-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0); }
+	to {
+		-webkit-transform: translate3d(0, 100%, 0);
+		tansform: translate3d(0, 100%, 0);
+		visibility: hidden; } }

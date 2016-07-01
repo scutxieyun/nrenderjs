@@ -100,5 +100,13 @@ define("MeArtical",[],function(){
     MeArticle.prototype.getPageNumWidget = function(){
         return this.article.pageNum;
     }
+
+    /**
+     * 增加全局的目录组件
+     * @returns {*}
+     */
+    MeArticle.prototype.getDirectory = function(){
+        return this.article.directory;
+    }
 	return MeArticle;
 });

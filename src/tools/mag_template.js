@@ -35,6 +35,7 @@ define([], function () {
     //以下为全局组件
     var MeMessageBox = Renderjs.MeMessageBox;
     var MePageNum = Renderjs.MePageNum;
+    var MeDirectory = Renderjs.MeDirectory;
     var pageMgr = new MePageMgr(5);	//4 is the number of page
     var cxt = {
         pageMgr        : pageMgr,//作品范围的事件订阅器
@@ -50,6 +51,7 @@ define([], function () {
         </MeToolBar>,
         "msgBox" : <MeMessageBox cxt={cxt}></MeMessageBox>,
         "pageNum" : <MePageNum cxt={cxt} pageNumType={<%= pageStyle %>} normalStyle={<%= normalStyle%>} initPageLength={<%= initPageLength%>}></MePageNum>,
+        "directory" : <MeDirectory cxt={cxt} data={<%= data%>}></MeDirectory>,
 		"cxt"   : cxt
 	};
 	return article;

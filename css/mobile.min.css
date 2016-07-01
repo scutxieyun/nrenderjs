@@ -417,7 +417,6 @@ li>a {
 	right: 32px;
 	width: 64px;
 	height: 64px;
-	display: none;
 	/*float: right;*/
 	/*margin-right: 32px;*/
 	border-radius: 100%;
@@ -915,7 +914,6 @@ li>a {
 	border-radius: 100%;
 	background: rgba(0, 0, 0, 0.6);
 	color: #fff;
-	display: none;
 	line-height: 60px;
 	font-size: 24px;
 	text-align: center;

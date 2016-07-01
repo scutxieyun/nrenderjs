@@ -126,13 +126,35 @@ function main(tpl, magObj, callback) {
         numStyle.columnGap = "0px";
     }
     numStyle = JSON.stringify(numStyle);
+    //以下为设置目录样式
+    var directoryType = 1;
+    var directoryData = {};
+    if(tplObj.list_style){
+        directoryType = tplObj.list_style;
+    }
+    directoryData.directoryType = directoryType;
+    var imgData = [];
+    for(var i = 0; i < (mag.groups).length; i++ ){
+        if((mag.groups)[i].pages.length < 1 ){
+            //TODO 可能第一大组没有作品
+            continue;
+        }else{
+            var tempData = {};
+            tempData.img = (mag.groups)[i].f_cover + "?imageView2/2/w/170";
+            tempData.name = (mag.groups)[i].f_name;
+            imgData.push(tempData);
+        }
+    }
+    directoryData.imgData = imgData;
+    directoryData = JSON.stringify(directoryData);
     pageTemp = (_.template(tpl))({pages: pagesContentTemp, 
 									layout: JSON.stringify(index),
 									music_src: tplObj.tpl_music,
 									music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false",
                                     pageStyle : _pageStyle,
                                     normalStyle : numStyle,
-                                    initPageLength : initPageLength
+                                    initPageLength : initPageLength,
+                                    data : directoryData
                                   });
     //循环下载云字体
     loop(callback);
@@ -927,7 +949,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
                         music_autoplay: (!!tplObj.tpl_music_autoplay) ? "true":"false",
                         pageStyle : _pageStyle,
                         normalStyle : numStyle,
-                        initPageLength : initPageLength});
+                        initPageLength : initPageLength,
+                        data : directoryData});
                 }
                 cb();
             }).on("error", function () {
