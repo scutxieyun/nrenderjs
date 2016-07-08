@@ -72,10 +72,14 @@ function main(tpl, magObj, callback) {
             }
         ];
     }
+    var animationMode = {};     //用于储存作品页动画，和延迟时间、锁定等信息
+    animationMode.tplMode = tplObj.animation_mode || "";
+    var pageMode = [];
     var initPageLength = 1;     //初始页长度，第一组的页长度。用于计算页码用
     var pageNum = 0;
     for (grpIdx = 0; grpIdx < mag.groups.length; grpIdx++) {
         var pages = mag.groups[grpIdx].pages;
+        var groupPageMode = [];     //用于存储每组页的动画参数
         pages = getPages(pages);
         var subIndex = [];
         subIndex.push(-1);
@@ -84,6 +88,7 @@ function main(tpl, magObj, callback) {
             pageContent.push(renderPage(pages[i]));
             subIndex.push(i + pageNum);
             //index.push(i+pageNum);
+            groupPageMode.push(pages[i].page_animation || "");
         }
         subIndex.push(-1);
         index.push(subIndex);
@@ -91,7 +96,10 @@ function main(tpl, magObj, callback) {
         if(grpIdx == 0){
             initPageLength = pageNum;
         }
+        pageMode.push(groupPageMode);   //按照组来存储页的动画参数
     }
+    animationMode.pageMode = pageMode;  //存储页的动画参数
+    animationMode = JSON.stringify(animationMode);
     index.push(-1);
     pagesContentTemp = pageContent.join(",");
     //以下为设置页码属性
@@ -101,10 +109,10 @@ function main(tpl, magObj, callback) {
     var numStyle = {};
     numStyle.color = "#000";
     if(page_num_style == undefined){        //没有值的情况
-        _pageStyle = tplObj.page_style;   //页码样式
+        _pageStyle = tplObj.page_style || 0;   //页码样式
     }else{
         page_num_style = JSON.parse(page_num_style);
-        _pageStyle = page_num_style.style;
+        _pageStyle = page_num_style.style || 0;
         numStyle.color = page_num_style.color;
     }
     if(_pageStyle == 1){
@@ -154,7 +162,8 @@ function main(tpl, magObj, callback) {
                                     pageStyle : _pageStyle,
                                     normalStyle : numStyle,
                                     initPageLength : initPageLength,
-                                    data : directoryData
+                                    data : directoryData,
+                                    animationMode : animationMode
                                   });
     //循环下载云字体
     loop(callback);
@@ -716,7 +725,7 @@ function musicRenderItem(page,item,_style,content,hasWrap){
         var src = item.item_href;
         if(src.indexOf("iframe") > -1){
             var tempSrcArr = src.split('src="');
-            src = tempSrcArr[1].split('"')[0];
+            src = tempSrcArr[1]&&tempSrcArr[1].split('"')[0];
             var tempHeightArr = item.item_href.split('height=');
             var iframeHeight = tempHeightArr[1].split(' ')[0];
 			//var iframeHeight = extractIframe("height");
@@ -950,7 +959,8 @@ function musicRenderItem(page,item,_style,content,hasWrap){
                         pageStyle : _pageStyle,
                         normalStyle : numStyle,
                         initPageLength : initPageLength,
-                        data : directoryData});
+                        data : directoryData,
+                        animationMode : animationMode});
                 }
                 cb();
             }).on("error", function () {

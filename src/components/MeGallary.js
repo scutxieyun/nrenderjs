@@ -73,7 +73,7 @@ var MeGallary  = React.createClass({
 	pageDeactive:function(){
 		this.componentPageDeactive();
 		if(this.timer != null){
-			Window.clearInterval(this.timer);
+			window.clearInterval(this.timer);
 			this.timer = null;
 		}
 		this.detectionActive(false);

@@ -354,6 +354,8 @@ var MeVPads = React.createClass({
 		}
         //TODO 派发修改页码的事件
         this.props.ee.emitEvent("show:page:num",[{isShow:true,pageIndex:y, pageLength: this.props.article.getL2Num(x)}]);
+        //滑动翻组的事件
+        this.props.ee.emitEvent("slide:end",[{groupIndex:x,pageIndex:y, pageLength: this.props.article.getL2Num(x)}]);
 	},
 	moveXNext:function(){
 		if(this.props.article.getPageIdxInLayout(this.posXIdx + 1,0) == -1) return -1;//翻到尽头
@@ -366,6 +368,10 @@ var MeVPads = React.createClass({
 			this.posXIdx = tempX;
 			this.posYIdx = tempY;
 		}
+        //滑动翻组结束的事件
+        this.props.ee.emitEvent("slide:group:end",[{groupIndex:tempX,pageIndex:tempY, pageLength: this.props.article.getL2Num(tempX)}]);
+        //滑动结束的事件
+        this.props.ee.emitEvent("slide:end",[{groupIndex:tempX,pageIndex:tempY, pageLength: this.props.article.getL2Num(tempX)}]);
 		return this.posXIdx;
 	},
 	moveXPrev:function(){
@@ -379,7 +385,10 @@ var MeVPads = React.createClass({
 			this.posXIdx = tempX;
 			this.posYIdx = tempY;
 		}
-
+        //滑动翻组结束的事件
+        this.props.ee.emitEvent("slide:group:end",[{groupIndex:tempX,pageIndex:tempY, pageLength: this.props.article.getL2Num(tempX)}]);
+        //滑动结束的事件
+        this.props.ee.emitEvent("slide:end",[{groupIndex:tempX,pageIndex:tempY, pageLength: this.props.article.getL2Num(tempX)}]);
 		return this.posXIdx;
 	},
 	moveYNext:function(){
@@ -392,6 +401,10 @@ var MeVPads = React.createClass({
 			this.posYIdx = tempY;
 			this._pageRecorder[this.posXIdx] = this.posYIdx;
 		}
+        //滑动翻页结束的事件
+        this.props.ee.emitEvent("slide:page:end",[{groupIndex:this.posXIdx,pageIndex:tempY, pageLength: this.props.article.getL2Num(this.posXIdx)}]);
+        //滑动结束的事件
+        this.props.ee.emitEvent("slide:end",[{groupIndex:this.posXIdx,pageIndex:tempY, pageLength: this.props.article.getL2Num(this.posXIdx)}]);
 		return this.posYIdx;
 	},
 	moveYPrev:function(){
@@ -404,7 +417,10 @@ var MeVPads = React.createClass({
 			this.posYIdx = tempY;
 			this._pageRecorder[this.posXIdx] = this.posYIdx;
 		}
-
+        //滑动翻页结束的事件
+        this.props.ee.emitEvent("slide:page:end",[{groupIndex:this.posXIdx,pageIndex:tempY, pageLength: this.props.article.getL2Num(this.posXIdx)}]);
+        //滑动结束的事件
+        this.props.ee.emitEvent("slide:end",[{groupIndex:this.posXIdx,pageIndex:tempY, pageLength: this.props.article.getL2Num(this.posXIdx)}]);
 		return this.posYIdx;
 	},
 	getPos:function(){

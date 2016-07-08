@@ -47,9 +47,12 @@ define("MeDirectory", function () {
                 }
             }
         },
-        showDirectoryHandle : function(data){
+        showDirectoryHandler : function(data){
             this.setState(data);
             this.resetStatus();
+        },
+        hideDirectoryHandler : function(data){
+            this.setState(data);
         },
         createDirectoryItem : function(liHeight, commonTitleColor, commonBorder){
             var self = this;
@@ -146,8 +149,9 @@ define("MeDirectory", function () {
             return res;
         },
         componentDidMount: function () {
-            //TODO 监听自定义事件,显示或者隐藏
-            this.props.cxt.ee.addListener("show:directory",this.showDirectoryHandle);
+            //监听自定义事件,显示或者隐藏
+            this.props.cxt.ee.addListener("show:directory",this.showDirectoryHandler);
+            this.props.cxt.ee.addListener("hide:directory",this.hideDirectoryHandler);
             if(this.state.isShow){
                 this.resetStatus();
             }

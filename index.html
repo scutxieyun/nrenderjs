@@ -110,7 +110,7 @@ body{
 	background-repeat:no-repeat;
 	-moz-background-size:100% 100%;
 	background-size:cover;
-	overflow:"hidden"
+	overflow:hidden
 }
 .me-toolbar{
 	float:right;
@@ -131,7 +131,7 @@ body{
 	transform:translate(720px,0px);
 	z-index:0;
 }
-.page_container.middle:{
+.page_container.middle{
 	transform:translate(0px,0px);
 }
 .page_container.none{
@@ -227,6 +227,17 @@ body{
     var magazineInterval = 0;   //默认初始的时间为10s
     var playTimer = null;       //自动播放的控制timer
     var magazinePlaying = false;
+    var allPageLengths = 0;     //所有页数
+    var groupLength = 0;        //组长度
+    var _animationMode = {
+        "name":"scrollY",
+        "autoplay":false,
+        "interval":defaultInterval,
+        "direction":1,
+        "lock":false
+    };
+    var animationMode = null;
+
     $(function(){
 		$('#pageContent').bind('mousewheel', function(e){
 			if(e.originalEvent.wheelDelta /120 > 0) {
@@ -265,8 +276,33 @@ body{
 			}
 		}
 		require([magUrl],function(mag_1){
+            console.log(mag_1);
 			if(mag_1 != undefined && renderjs != undefined){
+                //如需要添加尾页的先追加尾页，再去load数据
+                appendPage(mag_1);
 				renderjs.helper.load(mag_1);
+                //接口必须在load之后才调用
+                //获取当前页的当前组的序号renderjs.helper.getPos()
+                console.log(renderjs.helper.getPos(), 8888);
+                //获取当前组的总页数renderjs.helper.getCurrentGroupPageLength()
+                console.log(renderjs.helper.getCurrentGroupPageLength(), 93333);
+                //获取组长度renderjs.helper.getGroupLength()
+                console.log(renderjs.helper.getGroupLength(), 752);
+                groupLength = renderjs.helper.getGroupLength();
+                //获取总页数renderjs.helper.getAllPageLengths()
+                console.log(renderjs.helper.getAllPageLengths(), 753288999);
+                //获取每一页的动画信息
+//                console.log(renderjs.helper.getAnimationMode(), 22222222222222);
+                animationMode = renderjs.helper.getAnimationMode();
+                _parseData(animationMode);
+                //获取当前的上下文
+                var ee = renderjs.helper.getEE();
+                //页滑动结束事件
+                ee.addListener("slide:page:end",onSlidePageEndHandler);
+                //组滑动结束事件
+                ee.addListener("slide:group:end",onSlideGroupEndHandler);
+                //所有页滑动结束事件
+                ee.addListener("slide:end",onSlideEndHandler);
                 //todo 根据数据来设置自动播放
                 setTimeout(function(){
                     if(magazinePlaying){
@@ -284,6 +320,57 @@ body{
         $("#magazine-switch-play").click(changeMagazine);
         $("#magazine-view-ports").click(showDirectory);
 	});
+    /**
+     * 上下翻页结束事件
+     * @param data 返回的数据 如 object{groupIndex: 0, pageIndex: 2, pageLength: 6}
+     */
+    function onSlidePageEndHandler(data){
+        console.log(data, "-----page--------");
+    }
+    function onSlideGroupEndHandler(data){
+        console.log(data, "-----group--------");
+
+    }
+    function onSlideEndHandler(data){
+        console.log(data, "-----slide end--------");
+        var groupIndex = data.groupIndex;
+        var pageIndex = data.pageIndex;
+        var pageLength = data.pageLength;
+        //最后一组最后一页
+        if(groupIndex == (groupLength - 1) && pageIndex == (pageLength - 1)){
+            console.log("page-end");
+            //如果自动播放了，停止自动播放
+            if (magazinePlaying) {
+                pauseMagazine();
+            }
+        }
+    }
+    /**
+     * 解析动画参数
+     */
+    function _parseData(animationMode) {
+        //重置一些设置
+        if(animationMode.tplMode){
+            var animationMode = JSON.parse(animationMode.tplMode);
+            for(var i in animationMode){
+                _animationMode[i] = animationMode[i];
+            }
+        }
+    }
+    function appendPage (mag){
+        //由于mag是个对象，所有不需要返回值，这就好比传的是指针
+        var len = mag.pages.length;
+        //创建react对象
+        //todo 需要动态替换data ----用户头像地址，用户名称，用户id
+        var endPageObj = renderjs.React.createElement(renderjs.MePage,{idx:len,cxt:mag.cxt,normalStyle:{height:"1008px",width:"640px"}},
+                renderjs.React.createElement(renderjs.MeEndPage,{data:{src:"http://ac-syrskc2g.clouddn.com/e4c01aabc7936b223d87.jpg?imageView/2/w/300/h/300/q/100/format/png", name:"fish", author:"5639b08c60b2c82f3e16c3de"}}));
+        mag.pages.push(endPageObj);
+        //修改layout
+        var layoutLen = mag.layout.length;
+        //获取倒数第二组的内容，由于倒数第一组为-1
+        var endArr = mag.layout[layoutLen - 2];
+        endArr.splice(endArr.length-1,0,len);
+    }
 
     function changeMagazine(e){
         if(!magazinePlaying){
@@ -295,23 +382,58 @@ body{
     function playMagazine(){
         //todo 根据每一页的设置播放时间来改变自动播放的时间,这里获取不到json数据了，怎么获取每页的控制参数
         //获取当前页的自动播放时间
-//        magazineInterval = ???;
+        if(!renderjs) {
+            return;
+        }
+        //1、获取当前页序号信息
+        var pos = renderjs.helper.getPos();
+        var pageAnimation = (animationMode.pageMode)[pos.x][pos.y];
+        if(pageAnimation){
+            try{
+                pageAnimation = JSON.parse(pageAnimation);
+                _animationMode.interval = pageAnimation.interval;
+            }catch(message){
+                console.log(message);
+            }
+        }
         magazinePlaying = true;
-        magazineInterval = defaultInterval;
         playMagazineHandle();
         $("#switch-play")[0].className = "switch-play pause-magazine";
     }
     function playMagazineHandle(){
         playTimer = setTimeout(function(){
             //todo 先获取每页的自动播放时间，没有的话就是默认
-            magazineInterval = defaultInterval;
+            if(!renderjs) {
+                return;
+            }
+            //1、获取当前页序号信息
+            var pos = renderjs.helper.getPos();
+            var pageAnimation = (animationMode.pageMode)[pos.x][pos.y];
+            if(pageAnimation){
+                try{
+                    pageAnimation = JSON.parse(pageAnimation);
+                    _animationMode.interval = pageAnimation.interval;
+                }catch(message){
+                    console.log(message);
+                    _animationMode.interval = defaultInterval;
+                }
+            }else{
+                _animationMode.interval = defaultInterval;
+            }
             if(magazinePlaying){
                 if(renderjs){
                     renderjs.helper.gotoNext();
                 }
             }
             playMagazineHandle();
-        },magazineInterval);
+        },_animationMode.interval);
+    }
+    function pauseMagazine(){
+        magazinePlaying = false;
+        $("#switch-play")[0].className = "switch-play play-magazine";
+        if(playTimer){
+            window.clearTimeout(playTimer);
+        }
     }
     function showDirectory(){
         renderjs.helper.showDirectory();
@@ -319,9 +441,9 @@ body{
 	function globalLoadTid(tid,cb){
 		var magUrl = "jsx?tid=" + tid;
 		setTimeout(function(){
-		require([magUrl],function(mag){
-			cb(mag);
-		})
+            require([magUrl],function(mag){
+                cb(mag);
+            });
 		},0);
 	}
 

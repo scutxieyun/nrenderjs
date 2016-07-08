@@ -58,7 +58,7 @@ function kickoffConvert(tpl,jsonData,cb){
 }
 function convertEntry(req,res,next){
 	try{
-		console.log(req.query.mag);
+		console.log(req.query.mag, req.query);
 		if(req.query.tid != null){
 			downloadArticleWithTid(res,req.query.tid,next);
 		}
@@ -89,7 +89,12 @@ function parseData(data,cb){
 }
 
 function downloadArticleWithTid(res,tid,next){
-	AV.initialize("hf3jpecovudrg8t7phw3xbt1osqfrmfhnwu22xs8jo1ia3hn", "b9nndoind1e7tjrhj7owyg4m55d9uyymcqprklb5w9qxo9rr");
+    //正式服
+//	AV.initialize("hf3jpecovudrg8t7phw3xbt1osqfrmfhnwu22xs8jo1ia3hn", "b9nndoind1e7tjrhj7owyg4m55d9uyymcqprklb5w9qxo9rr");  //正式服获取数据
+//    var fileUrlConf = "http://ac-hf3jpeco.clouddn.com/";    //正式服的jsonurl域名
+    //测试服
+    AV.initialize("syrskc2gecvz24qjemgzqk8me6yenon2layp11tdnskosxg9", "c56r8qz274bct8jlb924v2b05xaysxytfmt2ff0vfgulmks7");  //测试服获取数据
+    var fileUrlConf = "http://ac-syrskc2g.clouddn.com/";    //测试服的jsonurl域名
 		var query = new AV.Query('tplobj');
         query.equalTo('tpl_id', tid);
         query.first().then(function(results) {
@@ -102,9 +107,9 @@ function downloadArticleWithTid(res,tid,next){
                 if (isJsonObject(jsonurl)) {
                     jsonurl = JSON.parse(jsonurl);
                     var postfix = jsonurl.postfix || "";
-                    url = "http://ac-hf3jpeco.clouddn.com/"+ jsonurl.key + postfix + "?" + Date.now();
+                    url = fileUrlConf + jsonurl.key + postfix + "?" + Date.now();
                 } else {
-                    url = "http://ac-hf3jpeco.clouddn.com/" + jsonurl + ".json?" + Date.now();
+                    url = fileUrlConf + jsonurl + ".json?" + Date.now();
                 }
                 return downloadJson(url,function(data){
 					parseData(data,function(_js){

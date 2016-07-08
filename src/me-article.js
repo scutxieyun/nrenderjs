@@ -67,7 +67,6 @@ define("MeArtical",[],function(){
 	}
 	MeArticle.prototype.getL2Num = function(L1Idx){
 		var innerIdx = L1Idx + 1;				//避免边界检查
-        console.log(innerIdx);
 		if(innerIdx <= 0 || innerIdx >= this.article.layout.length) return -1;//超出边界
 		if(this.article.layout[innerIdx] instanceof Array){
 			return this.article.layout[innerIdx].length - 2 ;   //必须去掉两端的-1
@@ -107,6 +106,13 @@ define("MeArtical",[],function(){
      */
     MeArticle.prototype.getDirectory = function(){
         return this.article.directory;
+    },
+    /**
+     * 获取作品页动画，和延迟时间、锁定等信息
+     * @returns {*}
+     */
+    MeArticle.prototype.getAnimationMode = function(){
+        return this.article.animationMode;
     }
 	return MeArticle;
 });
