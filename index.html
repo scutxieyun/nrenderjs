@@ -14,6 +14,8 @@ var fmawr = "999";</script>
 <script src="lib/fmacapi.interface.min.js"></script>
 <script type="text/javascript" src="lib/require.js"></script>
 <script type="text/javascript" src="lib/renderjs.js"></script>
+<!--用于测试转换数据用-->
+<script type="text/javascript" src="lib/testjson.js"></script>
 <!--<script type="text/javascript" src="lib/log4javascript.js"></script>-->
 <!--<script src="cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js"></script>
 <script src="cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js"></script>-->
@@ -255,8 +257,9 @@ var _animationMode = {
     "lock": false
 };
 var animationMode = null;
-
+//var tid = "155ba552510a49ed";   //和testjson 中的数据一致的  测试ID
 $(function () {
+
     $('#pageContent').bind('mousewheel', function (e) {
         if (e.originalEvent.wheelDelta / 120 > 0) {
             renderjs.helper.gotoPrev();
@@ -267,10 +270,16 @@ $(function () {
     });
     $("#magazine-switch-play").click(changeMagazine);
     $("#magazine-view-ports").click(showDirectory);
+    renderjs.helper.init(document.getElementById("magazine-container"), {});
+    //测试整个json数据转换成jsx
+    convertJsonData(testData, function(mag){
+        console.log(mag);
+        renderJsOperation(mag);
+    });
+    return;
     var article_file = "mag_lf.js"
     var _xparam = /article=([^&]+)/.exec(location.href);
     var magUrl = 'dist/mag_1.js';
-    renderjs.helper.init(document.getElementById("magazine-container"), {});
     if (_xparam != null) {
         if (_xparam[1].search(/http/) != -1) {
             magUrl = 'jsx?mag=' + escape(_xparam[1]);
@@ -282,71 +291,51 @@ $(function () {
         if (_xparam != null) {
             //服务端加载
             globalLoadTid(_xparam[1], function (mag) {
-                if (mag != undefined && renderjs != undefined) {
-                    //如需要添加尾页的先追加尾页，再去load数据
-                    appendPage(mag);
-                    renderjs.helper.load(mag);
-                    //接口必须在load之后才调用
-                    //获取当前页的当前组的序号renderjs.helper.getPos()
-                    //获取当前组的总页数renderjs.helper.getCurrentGroupPageLength()
-                    //获取组长度renderjs.helper.getGroupLength()
-                    groupLength = renderjs.helper.getGroupLength();
-                    //获取总页数renderjs.helper.getAllPageLengths()
-                    //获取每一页的动画信息
-                    animationMode = renderjs.helper.getAnimationMode();
-                    //解析动画参数
-                    _parseData(animationMode);
-                    //获取当前的上下文
-                    var ee = renderjs.helper.getEE();
-                    //页滑动结束事件
-                    ee.addListener("slide:page:end", onSlidePageEndHandler);
-                    //组滑动结束事件
-                    ee.addListener("slide:group:end", onSlideGroupEndHandler);
-                    //所有页滑动结束事件
-                    ee.addListener("slide:end", onSlideEndHandler);
-                    //todo 根据数据来设置自动播放
-                    setTimeout(function () {
-                        if (magazinePlaying) {
-                            playMagazine();
-                        }
-                    }, 10);
-                }
+                console.log(mag);
+                renderJsOperation(mag);
             });
             return;
         }
     }
     require([magUrl], function (mag_1) {
         console.log(mag_1);
-        if (mag_1 != undefined && renderjs != undefined) {
-            //如需要添加尾页的先追加尾页，再去load数据
-            appendPage(mag_1);
-            renderjs.helper.load(mag_1);
-            //接口必须在load之后才调用
-            //获取当前页的当前组的序号renderjs.helper.getPos()
-            //获取当前组的总页数renderjs.helper.getCurrentGroupPageLength()
-            //获取组长度renderjs.helper.getGroupLength()
-            groupLength = renderjs.helper.getGroupLength();
-            //获取总页数renderjs.helper.getAllPageLengths()
-            //获取每一页的动画信息
-            animationMode = renderjs.helper.getAnimationMode();
-            _parseData(animationMode);
-            //获取当前的上下文
-            var ee = renderjs.helper.getEE();
-            //页滑动结束事件
-            ee.addListener("slide:page:end", onSlidePageEndHandler);
-            //组滑动结束事件
-            ee.addListener("slide:group:end", onSlideGroupEndHandler);
-            //所有页滑动结束事件
-            ee.addListener("slide:end", onSlideEndHandler);
-            //todo 根据数据来设置自动播放
-            setTimeout(function () {
-                if (magazinePlaying) {
-                    playMagazine();
-                }
-            }, 10);
-        }
+        renderJsOperation(mag_1);
     });
+
 });
+
+function renderJsOperation (mag){
+    console.log(mag);
+    if (mag != undefined && renderjs != undefined) {
+        //如需要添加尾页的先追加尾页，再去load数据
+        appendPage(mag);
+        renderjs.helper.load(mag);
+        //接口必须在load之后才调用
+        //获取当前页的当前组的序号renderjs.helper.getPos()
+        //获取当前组的总页数renderjs.helper.getCurrentGroupPageLength()
+        //获取组长度renderjs.helper.getGroupLength()
+        groupLength = renderjs.helper.getGroupLength();
+        //获取总页数renderjs.helper.getAllPageLengths()
+        //获取每一页的动画信息
+        animationMode = renderjs.helper.getAnimationMode();
+        //解析动画参数
+        _parseData(animationMode);
+        //获取当前的上下文
+        var ee = renderjs.helper.getEE();
+        //页滑动结束事件
+        ee.addListener("slide:page:end", onSlidePageEndHandler);
+        //组滑动结束事件
+        ee.addListener("slide:group:end", onSlideGroupEndHandler);
+        //所有页滑动结束事件
+        ee.addListener("slide:end", onSlideEndHandler);
+        //todo 根据数据来设置自动播放
+        setTimeout(function () {
+            if (magazinePlaying) {
+                playMagazine();
+            }
+        }, 10);
+    }
+}
 /**
  * 上下翻页结束事件
  * @param data 返回的数据 如 object{groupIndex: 0, pageIndex: 2, pageLength: 6}
@@ -540,6 +529,13 @@ function globalSubmitDataToCloud(data, type) {
         });
     }
 }
-
+/**
+ * 转换静态的json文件为jsx
+ * @param data
+ * @param cb
+ */
+function convertJsonData(data, cb) {
+    $.post("/jsx", data, cb);
+}
 </script>
 </html>

@@ -5,8 +5,11 @@ var http = require('http');
 var _ = require("underscore");
 var babel = require("babel-core");
 var AV = require("avoscloud-sdk");
+var bodyParser = require("body-parser");
 
 var server = express();
+server.use(bodyParser.json({limit: '50mb'}));
+server.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit:50000}));
 
 var tpl = (fs.readFileSync('./src/tools/mag_template.js', {encoding: 'utf8', flag: 'r'}));
 if (tpl == null) {
@@ -38,6 +41,27 @@ function downloadJson(url, cb) {
 }
 
 
+/**
+ * json字符串转对象
+ * @since ver 1.0
+ * @param {object} json 待转换的json字符串
+ * @returns {object} 转换后的对象
+ */
+function json2object(json) {
+    // 类型为对象时，不转换
+    if (typeof(json) === "object") {
+        return json;
+    }
+    // 其他情况，转为对象
+    else {
+        try {
+            return JSON.parse(json);
+        } catch (err) {
+            return json;
+        }
+    }
+}
+
 function kickoffConvert(tpl, jsonData, cb) {
     var jsStatement = "(function(){return " + jsonData + ";})();";
     var jsonData = null;
@@ -50,10 +74,10 @@ function kickoffConvert(tpl, jsonData, cb) {
     if (jsonData == null) console.log("数据错误");
     convFunc(tpl, jsonData, function (data) {
         if (data != null) {
-            cb(babel.transform(data, {
+            cb(json2object(babel.transform(data, {
                 plugins: ["transform-react-jsx"],
                 compact: false
-            }).code);
+            }).code));
         }
     });
 }
@@ -78,6 +102,16 @@ function convertEntry(req, res, next) {
         next();
     }
     //next();
+}
+function convertJsonData(req, res, next) {
+    // 将json字符串转为对象
+    var body = req.body;
+    //接收的地方为json string
+    body = JSON.stringify(body);
+    parseData(body,function(_js){
+        res.send(_js);
+        next();
+    });
 }
 
 function parseData(data, cb) {
@@ -146,6 +180,7 @@ server.get('/jsx', convertEntry);
 server.get('/test', function (req, res) {
     res.send("asdfdfsd");
 });
+server.post('/jsx', convertJsonData);
 
 
 process.on('uncaughtException', function (err) {

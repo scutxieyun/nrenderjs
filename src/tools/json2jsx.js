@@ -56,7 +56,7 @@ function main(tpl, magObj, callback) {
     var mag = magObj.tplData;
     //获取临时存储的变量，后续红包和打赏等元素需要
     var tplObj = magObj.tplObj;
-    var tplId = tplObj.tpl_id;  //作品ID
+    var tplId = tplObj.tpl_id || "";  //作品ID
     var userId = tplObj.author || ""; //用户ID
     var userHeaderSrc = tplObj.author_img || ""; //用户头像
     var userName = tplObj.author_name || "";    //用户名称
