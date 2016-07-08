@@ -216,13 +216,15 @@ module.exports = function () {
                  * 隐藏目录组件
                  */
                 hideDirectory: function () {
-                    myself.ee.emitEvent("hide:directory", [{isShow: false}]);
+                    myself.ee.emitEvent("hide:directory", [
+                        {isShow: false}
+                    ]);
                 },
                 /**
                  * 获取页的上下文
                  */
-                getCxt : function(){
-                    if(cfg.article != null ){
+                getCxt: function () {
+                    if (cfg.article != null) {
                         return cfg.article.getCxt();
                     }
                     return null;
@@ -230,9 +232,9 @@ module.exports = function () {
                 /**
                  * 获取当前，x，序号，y序号
                  */
-                getPos : function(){
+                getPos: function () {
                     if (pads != null) {
-                       var pos =  pads.getPos();
+                        var pos = pads.getPos();
                         return pos;
                     }
                     return null;
@@ -240,8 +242,8 @@ module.exports = function () {
                 /**
                  * 获取所有组的长度
                  */
-                getGroupLength : function(){
-                    if(cfg.article != null ){
+                getGroupLength: function () {
+                    if (cfg.article != null) {
                         return cfg.article.getL1Num();
                     }
                     return 0;
@@ -249,10 +251,10 @@ module.exports = function () {
                 /**
                  * 获取当前组的总页数
                  */
-                getCurrentGroupPageLength : function(){
+                getCurrentGroupPageLength: function () {
                     if (pads != null) {
-                        var pos =  pads.getPos();
-                        if(cfg.article != null ){
+                        var pos = pads.getPos();
+                        if (cfg.article != null) {
                             return cfg.article.getL2Num(pos.x);
                         }
                     }
@@ -261,8 +263,8 @@ module.exports = function () {
                 /**
                  * 获取当前组的总页数
                  */
-                getAllPageLengths : function(){
-                    if(cfg.article != null ){
+                getAllPageLengths: function () {
+                    if (cfg.article != null) {
                         return cfg.article.getNumOfPage();
                     }
                     return 0;
@@ -272,8 +274,8 @@ module.exports = function () {
                  * {tplMode:'{}', pageMode:[['{}'],['{}',.....],......]}
                  * @returns {*}
                  */
-                getAnimationMode : function(){
-                    if(cfg.article != null ){
+                getAnimationMode: function () {
+                    if (cfg.article != null) {
                         return cfg.article.getAnimationMode();
                     }
                     return null;
