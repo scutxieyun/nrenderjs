@@ -12,6 +12,7 @@ var webpack = require('gulp-webpack');
 var watch=require("gulp-watch");
 var rename = require("gulp-rename");
 const exec = require('child_process').exec;
+var gulpSequence = require('gulp-sequence');
 
 var dest_dir = "dist";
 var obfuscate_tag = true;
@@ -35,6 +36,15 @@ gulp.task("pack",["babel"],function(){
 	.pipe(webpack(require("./webpack.config.js")))
 	.pipe(gulp.dest("lib"));
 });
+
+gulp.task("concat", function(){
+    return gulp.src(["lib/renderjs.js", "lib/comment.min.js"])
+        .pipe(concat("render.js"))
+        .pipe(uglify())
+        .pipe(gulp.dest("lib"));
+});
+
+gulp.task('release', gulpSequence('pack', ['concat']));
 
 gulp.task("default",["pack"],function(){
 

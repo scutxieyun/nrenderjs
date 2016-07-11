@@ -332,6 +332,7 @@ li>a {
 	top: 0;
 	left: 0;
 	background: url(../images/mobile/end_node_wrapper.jpg) center no-repeat;
+	background-size: cover;
 }
 .end-node-face{
 	width: 100%;
@@ -378,17 +379,12 @@ li>a {
 	bottom: 0;
 	left: 0;
 }
-.end-node-btn-background1{
+.end-node-btn-background{
 	background: url(../images/mobile/end-node-button1.gif) center 0 no-repeat;
-}
-
-.end-node-btn-background2{
-	background: url(../images/mobile/end-node-button2.gif) center 0 no-repeat;
 }
 #end-node-btn{
 	width: 442px;
-	margin: 0 auto;
-	margin-top: 14px;
+	margin: 14px auto 0;
 	height: 88px;
 	border-radius: 88px;
 }
