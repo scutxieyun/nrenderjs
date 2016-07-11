@@ -272,11 +272,11 @@ $(function () {
     $("#magazine-view-ports").click(showDirectory);
     renderjs.helper.init(document.getElementById("magazine-container"), {});
     //测试整个json数据转换成jsx
-    convertJsonData(testData, function(mag){
-        console.log(mag);
-        renderJsOperation(mag);
-    });
-    return;
+//    convertJsonData(testData, function(mag){
+//        console.log(mag);
+//        renderJsOperation(mag);
+//    });
+//    return;
     var article_file = "mag_lf.js"
     var _xparam = /article=([^&]+)/.exec(location.href);
     var magUrl = 'dist/mag_1.js';
@@ -455,7 +455,9 @@ function showDirectory() {
     renderjs.helper.showDirectory();
 }
 function globalLoadTid(tid, cb) {
-    var magUrl = "http://192.168.6.224/jsx?tid=" + tid + "&fmawr=" + fmawr;
+//    var host = window.location.host;
+    var hostName = window.location.hostname;
+    var magUrl = "http://" + hostName + "/jsx?tid=" + tid + "&fmawr=" + fmawr;
     setTimeout(function () {
         require([magUrl], function (mag) {
             cb(mag);
@@ -535,7 +537,9 @@ function globalSubmitDataToCloud(data, type) {
  * @param cb
  */
 function convertJsonData(data, cb) {
-    $.post("/jsx", data, cb);
+    var hostName = window.location.hostname;
+    var _url = "http://" + hostName + "/jsx";
+    $.post(_url, data, cb);
 }
 </script>
 </html>

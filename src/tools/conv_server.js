@@ -74,10 +74,10 @@ function kickoffConvert(tpl, jsonData, cb) {
     if (jsonData == null) console.log("数据错误");
     convFunc(tpl, jsonData, function (data) {
         if (data != null) {
-            cb(json2object(babel.transform(data, {
+            cb(babel.transform(data, {
                 plugins: ["transform-react-jsx"],
                 compact: false
-            }).code));
+            }).code);
         }
     });
 }
