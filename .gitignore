@@ -4,6 +4,7 @@ test.js
 .idea/
 .git/
 lib/renderjs.js
+lib/render.js
 __temp.jsx
 test_index.html
 src/tools/json2jsx.js.bak

@@ -26,18 +26,22 @@ define("MeMusic", function () {
             this.refs.mediaPlay.pause();
         },
         render: function () {
-            var spinClass = this.state.isPlay ? "spin" : "";
-            var noteClass = this.state.isPlay ? "note" : "";
-            var spanTxt = this.state.isPlay ? "开启音乐" : "关闭音乐";
-            return(
-                <div className="magazine-music-wrapper" style={{display: "block"}} ref={this.myRef}>
-                    <span >{spanTxt}</span>
-                    <audio src={this.props.src} preload="none" loop="loop" autoplay ref="mediaPlay" ></audio>
-                    <div className={"fly-note1 " + noteClass}></div>
-                    <div className={"fly-note2 " + noteClass}></div>
-                    <menu onClick={this.togglePlay} id={this.props.id} className={spinClass + " magazine-music"}></menu>
-                </div>
-                )
+            var res = null;
+            if(this.props.src){
+                var spinClass = this.state.isPlay ? "spin" : "";
+                var noteClass = this.state.isPlay ? "note" : "";
+                var spanTxt = this.state.isPlay ? "开启音乐" : "关闭音乐";
+                res = (
+                    <div className="magazine-music-wrapper" style={{display: "block"}} ref={this.myRef}>
+                        <span >{spanTxt}</span>
+                        <audio src={this.props.src} preload="none" loop="loop" autoplay ref="mediaPlay" ></audio>
+                        <div className={"fly-note1 " + noteClass}></div>
+                        <div className={"fly-note2 " + noteClass}></div>
+                        <menu onClick={this.togglePlay} id={this.props.id} className={spinClass + " magazine-music"}></menu>
+                    </div>
+                    );
+            }
+            return res;
         }
     });
     return MeMusic;

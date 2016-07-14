@@ -113,11 +113,16 @@ module.exports = function () {
                     //添加全局的目录组件
                     if (elem.parentNode != null) {
                         //预防多次重启的情况下，会添加多个目录全局组件的容器。
-                        if (elem.parentNode.children.length > 1) {
-                            var tempDiv = elem.parentNode.children[elem.parentNode.children.length - 1];
-                            elem.parentNode.removeChild(tempDiv);
+                        var directoryContainer = document.getElementById("me-directory-container");
+                        if(directoryContainer) {
+                            elem.parentNode.removeChild(directoryContainer);
                         }
+//                        if (elem.parentNode.children.length > 1) {
+//                            var tempDiv = elem.parentNode.children[elem.parentNode.children.length - 1];
+//                            elem.parentNode.removeChild(tempDiv);
+//                        }
                         var d = document.createElement("div");
+                        d.id = "me-directory-container";
                         d.style.width = "100%";
                         d.style.height = "100%";
                         elem.parentNode.appendChild(d);
