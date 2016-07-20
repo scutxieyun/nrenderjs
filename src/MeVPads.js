@@ -121,15 +121,17 @@ var PadBuffer = React.createClass({
 /***
 对hammer进行扩展，在一个大的Touch Div下，处理事件的propogation prevent
 **/
-var MeHammer = function(hammer,default_handler){
+var MeHammer = function(hammer,default_handler, ee){
 	var self = this;
 	this.hammer = hammer;
 	this.defaultHandler = default_handler;
 	this.listeners = {};
+    this.ee = ee;
 	//this.hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL }); it doesn't work???
 	this.hammer.on("swipeleft swiperight swipeup swipedown pan tap",function(evt){self.handleHammerEvent(evt);});
 }
 MeHammer.prototype.handleHammerEvent = function(evt){
+    var isElementTap = false;
 	if(this.listeners.hasOwnProperty(evt.type)){
 		var evt_listeners = this.listeners[evt.type];
 		var curElm = evt.target;
@@ -137,6 +139,7 @@ MeHammer.prototype.handleHammerEvent = function(evt){
 		while(curElm != null && curElm != this.hammer.element){
 			for(var i = 0;i < evt_listeners.length;i ++){
 				if(evt_listeners[i].id == curElm.id){//没能理解apply的机制，按道理，1st参数应该对应this，但不是，严谨的做法应该用bind
+                    isElementTap = true;
 					if(evt_listeners[i].func.apply(null,[evt]) == false) return;
 				}
 			}
@@ -146,6 +149,10 @@ MeHammer.prototype.handleHammerEvent = function(evt){
 	if(this.defaultHandler.hasOwnProperty(evt.type)){
 		this.defaultHandler[evt.type].apply(null,[evt]);
 	}
+    if(!isElementTap){  //此处为没有元素绑定事件的
+        //todo 派发全局的tap事件
+        this.ee.emitEvent("hammer:global:tap");
+    }
 }
 /***
 停止当前的session，主要给Pan操作使用
@@ -470,13 +477,14 @@ var MeVPads = React.createClass({
 	},
 	_registerHammer:function(ref){
 		//this.hammer = ref;
+        console.log(ref);
 		if(ref != null)//控件创建过程
 		{
 			this.props.article.getCxt().interactHandler = 
 					new MeHammer(ref.hammer,{"swipeleft":this.moveXNext,"swiperight":this.moveXPrev,
 											"swipedown":this.moveYPrev,"swipeup":this.moveYNext,
 											"pan":this.handlePan,
-											"tap":this.handleTap});
+											"tap":this.handleTap}, this.props.ee);
 		}else{
 		//控件消除
 		}

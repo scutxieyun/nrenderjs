@@ -133,6 +133,8 @@ function renderJsOperation (mag){
                 playMagazine();
             }
         }, 10);
+
+        ee.addListener("hammer:global:tap", onGlobalTapHandler);
     }
 }
 /**
@@ -159,6 +161,10 @@ function onSlideEndHandler(data) {
             pauseMagazine();
         }
     }
+}
+function onGlobalTapHandler() {
+        console.log("-----onGlobalTapHandler--------");
+
 }
 /**
  * 解析动画参数
