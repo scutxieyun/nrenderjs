@@ -6,12 +6,14 @@
  */
 define("MeEndPage", function () {
     var React = require("react");
+    var MeComponentMixin = require("../src/MeComponentMixin");
     var MeEndPage = React.createClass({
         getDefaultProps:function(){
             return {
                 commonStyle : {}
             }
         },
+        mixins:[MeComponentMixin],
         getInitialState : function(){
             this.myRef = "myMeEndPage";
             this.device = this.judgePlatform();
@@ -27,6 +29,8 @@ define("MeEndPage", function () {
         clickHeaderHandle : function(e){
             e.preventDefault();
             e.stopPropagation();
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
             if(this.props.data && this.props.data.author){
                 location.href = "http://www.agoodme.com/views/share/index.html?id=" + this.props.data.author;
             }
@@ -38,6 +42,8 @@ define("MeEndPage", function () {
         clickAttentionHandle : function(e){
             e.preventDefault();
             e.stopPropagation();
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
             if(this.props.data && this.props.data.author){
                 location.href = "http://me.agoodme.com/index.html?userId=" + this.props.data.author;
             }
@@ -49,6 +55,8 @@ define("MeEndPage", function () {
         clickDownloadHandle : function(e){
             e.preventDefault();
             e.stopPropagation();
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
             var _url = "";
             if (this.device == "android") {	//android设备
                 _url = "http://a.app.qq.com/o/simple.jsp?pkgname=com.gli.cn.me";
@@ -62,15 +70,26 @@ define("MeEndPage", function () {
             location.href = _url;
         },
         render: function () {
+            //为了增加兼容PC和phone端。
+            var clickDown, header, guanZhu;
+            if(this.isPC()){
+                clickDown = <div id="end-node-btn" onMouseDown={this.clickDownloadHandle}></div>;
+                guanZhu = <div id="end-node-guanzhu" onMouseDown="end-node-guanzhu" onMouseDown={this.clickAttentionHandle} ></div>;
+                header =   <img id="end-node-face" src={this.props.data.src} onMouseDown={this.clickHeaderHandle} />;
+            }else{
+                clickDown = <div id="end-node-btn" onTouchStart={this.clickDownloadHandle}></div>;
+                guanZhu = <div id="end-node-guanzhu" className="end-node-guanzhu" onTouchStart={this.clickAttentionHandle} ></div>;
+                header = <img id="end-node-face" src={this.props.data.src} onTouchStart={this.clickHeaderHandle} />;
+            }
             var res = null;
             res = (<div ref={this.myRef}  id="end-node-wrapper">
                 <div className="end-node-face">
-                    <img id="end-node-face" src={this.props.data.src} onClick={this.clickHeaderHandle} />
+                    {header}
                 </div>
                 <div id="end-node-nick" className="end-node-nick">{this.props.data.name}</div>
-                <div id="end-node-guanzhu" className="end-node-guanzhu" onClick={this.clickAttentionHandle} ></div>
+                    {guanZhu}
                 <div className="end-node-btn end-node-btn-background" >
-                    <div id="end-node-btn" onClick={this.clickDownloadHandle} ></div>
+                    {clickDown}
                 </div>
             </div>);
             return res;

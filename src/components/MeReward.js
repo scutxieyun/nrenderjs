@@ -36,7 +36,10 @@ define("MeReward", function () {
 
         },
         clickHandle : function(ev){
-            console.log("MeReward");
+            ev.preventDefault();
+            ev.stopPropagation();
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
             var self = this;
             var target = self.props.data.target;
             if(!target) return;
@@ -60,7 +63,7 @@ define("MeReward", function () {
             if (userAgent.indexOf("micromessenger") > 0) { //微信里面
                 var content = this.props.data.content || "";
                 this.props.normalStyle.lineHeight = this.props.data.lineHeight;
-                res = (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>{content}</div>);
+                res = (<div onTouchStart={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>{content}</div>);
             }
             return res;
         },

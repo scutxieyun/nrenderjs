@@ -39,7 +39,11 @@ define("MeVote", function () {
         componentWillMount: function () {
             this.setState({voteNum:this.props.data.voteNum});
         },
-        clickHandle : function(){
+        clickHandle : function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
             if(this._isVote){
                 this.setState({voteNum:this.state.voteNum+1});
                 //TODO 保存数据库修改数据库数据根据页  ID  this.props.data.pageId,同时需要更改静态文件
@@ -55,7 +59,13 @@ define("MeVote", function () {
             //更换云字体样式,有云字体的时候
             var voteNum = this.state.voteNum;
             this.props.normalStyle.fontFamily = "";
-            return (<div onClick={this.clickHandle} data-vote={this.props.data.content} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} >{voteNum}</div>);
+            var res = null;
+            if(this.isPC()){
+                res = (<div onMouseDown={this.clickHandle} data-vote={this.props.data.content} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} >{voteNum}</div>);
+            }else{
+                res = (<div onTouchStart={this.clickHandle} data-vote={this.props.data.content} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} >{voteNum}</div>);
+            }
+            return res;
         },
         componentDidMount: function () {
         }

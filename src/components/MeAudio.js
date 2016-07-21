@@ -40,11 +40,21 @@ define("MeAudio", function () {
 			var playingClass = this.state.isPlay ? "" : "playing";
             this.props.normalStyle.borderRadius = "";   //预防和class里面的样式冲突
             var pausedImg = this.state.isPlay ? "pausedAudio" : "";  //暂停的时候更换背景图片
-            return (<div className={"audioWrapper " + pausedImg}  onClick={this.togglePlay} ref={this.myRef} style={this.props.normalStyle}>
-                <audio src={this.props.src} preload="none"
-                       play-status="play-current" ref="mediaPlay"></audio>
-				<div className={"audioBack " + playingClass}></div>
-            </div>)
+            var res = null;
+            if(this.isPC()){
+                res = (<div className={"audioWrapper " + pausedImg}  onMouseDown={this.togglePlay} ref={this.myRef} style={this.props.normalStyle}>
+                    <audio src={this.props.src} preload="none"
+                    play-status="play-current" ref="mediaPlay"></audio>
+                    <div className={"audioBack " + playingClass}></div>
+                </div>);
+            }else{
+                res = (<div className={"audioWrapper " + pausedImg}  onTouchStart={this.togglePlay} ref={this.myRef} style={this.props.normalStyle}>
+                    <audio src={this.props.src} preload="none"
+                    play-status="play-current" ref="mediaPlay"></audio>
+                    <div className={"audioBack " + playingClass}></div>
+                </div>);
+            }
+            return res;
         },
         componentDidMount: function () {
             this.audioEndHandle();

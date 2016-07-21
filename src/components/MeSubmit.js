@@ -36,7 +36,9 @@ define("MeSubmit", function () {
         clickHandle : function(ev){
             ev.preventDefault();
             ev.stopPropagation();
-            console.log("submit");
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
+//            console.log("submit");
             //todo 获取当前页的所有表单数据，保存数据到数据库
             var inst = this.getPageInstance();
             var container = inst.container;
@@ -191,7 +193,13 @@ define("MeSubmit", function () {
             }else{
                 content = this.props.data.content;
             }
-            return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>{content}</div>);
+            var res = null;
+            if(this.isPC()){
+                res =  <div onMouseDown={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>{content}</div>;
+            }else{
+                res =  <div onTouchStart={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>{content}</div>;
+            }
+            return (res);
         },
         componentDidMount: function () {
 
