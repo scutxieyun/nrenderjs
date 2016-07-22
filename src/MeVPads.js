@@ -148,7 +148,7 @@ MeHammer.prototype.handleHammerEvent = function(evt){
 	}
     if(!window.IsMeElementTap){  //此处为没有元素绑定事件的
         //todo 派发全局的tap事件
-        if(evt.type == "tap"){  
+        if(evt.type == "tap" && (evt.target.nodeName != "INPUT" && evt.target.nodeName != "LABEL" && evt.target.nodeName != "A")){
             this.ee.emitEvent("hammer:global:tap");
         }
     }

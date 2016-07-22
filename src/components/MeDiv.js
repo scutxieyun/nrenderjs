@@ -18,9 +18,9 @@ var MeDiv  = React.createClass({
 		this.componentPageDeactive();
 	},
 	render:function(){
-		var _style = _assign(this.props.normalStyle);
+		var _style = _assign({}, this.props.normalStyle);
 		this.updateStyleForDisplay(_style);
-		return <div id={this.props.id} style={_assign(_style)}>{this.props.children}</div>
+		return <div id={this.props.id} style={_assign({}, _style)}>{this.props.children}</div>
 	}
 });
 return MeDiv;
