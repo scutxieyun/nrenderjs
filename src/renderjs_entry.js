@@ -39,7 +39,7 @@ var EventEmitter = require("wolfy87-eventemitter");
 var React = require("react");
 var ReactDOM = require("react-dom");
 
-module.exports = function () {
+var renderjs = function () {
     var myself = {
         MePage: MePage,
         MeAnimation: MeAnimation,
@@ -86,6 +86,7 @@ module.exports = function () {
             var cfg = {};
 
             function _init(_elem, options) {
+                window.IsMeElementTap = false;  //用于判断，是否派发全局的点击事件
                 var _assign = require("object-assign");
                 var _default = {
                     containerHeight: _elem.offsetHeight,
@@ -151,12 +152,21 @@ module.exports = function () {
                         pads.gotoPos(x, y);
                     }
                 },
+                /**
+                 * 加载tid的回调方法
+                 * @param mag
+                 */
+                loadTidCallBack : function(mag) {
+                    myself.helper.load(mag);
+                },
                 loadTid: function (tid) {
                     if (elem == null) return;
-                    if (globalLoadTid == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
-                    globalLoadTid(tid, function (mag) {
-                        myself.helper.load(mag);
-                    });
+//                    if (globalLoadTid == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
+//                    globalLoadTid(tid, function (mag) {
+//                        myself.helper.load(mag);
+//                    });
+                    //由于在容器端，会出现全局方法找不到情况，这里做改动为派发事件
+                    myself.ee.emitEvent("global:load:tid", [tid, myself.helper.loadTidCallBack]);
                 },
                 gotoNext: function () {
                     if (pads != null) {
@@ -184,8 +194,10 @@ module.exports = function () {
                  */
                 openWithInnerBrowse: function (target, height) {
                     if (elem == null) return;
-                    if (globalOpenWithInnerBrowse == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
-                    globalOpenWithInnerBrowse(target, height);
+//                    if (globalOpenWithInnerBrowse == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
+//                    globalOpenWithInnerBrowse(target, height);
+                    //由于在容器端，会出现全局方法找不到情况，这里做改动为派发事件
+                    myself.ee.emitEvent("global:open:with:inner:browse", [target, height]);
                 },
                 /**
                  * 这里调用外部的保存数据
@@ -194,8 +206,10 @@ module.exports = function () {
                  */
                 submitDataToCloud: function (data, type) {
                     if (elem == null) return;
-                    if (globalSubmitDataToCloud == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
-                    globalSubmitDataToCloud(data, type);
+//                    if (globalSubmitDataToCloud == undefined) return;//globalLoadTid是外部提供的一个函数，通过tid，获得作品数据
+//                    globalSubmitDataToCloud(data, type);
+                    //由于在容器端，会出现全局方法找不到情况，这里做改动为派发事件
+                    myself.ee.emitEvent("global:submit:data:to:cloud", [data, type]);
                 },
                 /**
                  * 显示消息框组件
@@ -291,3 +305,5 @@ module.exports = function () {
 
     return myself;
 }();
+window.renderjs = renderjs;
+module.exports = renderjs;

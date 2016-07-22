@@ -42,6 +42,10 @@ define("MeIFrameVideo", function () {
          * @param ev
          */
         clickHandle : function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
             var src = this.props.data.src;
             //iframe的时候点击，外部打开iframe视频
             //停止其他的音视频
@@ -56,7 +60,19 @@ define("MeIFrameVideo", function () {
             if(poster){
                 this.props.normalStyle.backgroundImage = "url("+poster+")";
             }
-            return (<div onClick={this.clickHandle} ref={this.myRef} style={_assign(this.props.normalStyle,this.props.commonStyle)}><div className={"video-player-btn"} ></div> <div style={this.props.animationStyle}></div></div>);
+            var res = null;
+            if(this.isPC()){
+                res = (<div onMouseDown={this.clickHandle} ref={this.myRef} style={_assign(this.props.normalStyle,this.props.commonStyle)}>
+                    <div className={"video-player-btn"} ></div>
+                    <div style={this.props.animationStyle}></div>
+                </div>);
+            }else{
+                res = (<div onTouchStart={this.clickHandle} ref={this.myRef} style={_assign(this.props.normalStyle,this.props.commonStyle)}>
+                    <div className={"video-player-btn"} ></div>
+                    <div style={this.props.animationStyle}></div>
+                </div>);
+            }
+            return res;
         }
     });
     return MeIFrameVideo;

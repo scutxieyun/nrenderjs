@@ -37,7 +37,11 @@ define("MeMap", function () {
 
         },
         clickHandle : function(ev){
-            console.log("map");
+            ev.preventDefault();
+            ev.stopPropagation();
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
+//            console.log("map");
             var src = "http://www.agoodme.com/views/map.html?lng=" + this.props.data.lng + "&lat=" + this.props.data.lat + "&zoom=" + this.props.data.zoom;
             var action = "openWithIFrame(" + src+")";
             this._handleCmd(action);
@@ -49,7 +53,13 @@ define("MeMap", function () {
             height = parseInt(height);
             var src = "http://api.map.baidu.com/staticimage/v2?ak=VzFAGGC7tDTFzqKKIsTI7GRV&copyright=1&center=" + this.props.data.lng + "," + this.props.data.lat + "&zoom=" + this.props.data.zoom + "&markers="
                 + this.props.data.lng + "," + this.props.data.lat + "&width=" + width + "&height=" + height;
-            return (<img onClick={this.clickHandle} src={src} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} />);
+            var res = null;
+            if(this.isPC()){
+                res = (<img onMouseDown={this.clickHandle} src={src} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} />);
+            }else{
+                res = (<img onTouchStart={this.clickHandle} src={src} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} />);
+            }
+            return res;
         },
         componentDidMount: function () {
 

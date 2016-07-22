@@ -194,7 +194,7 @@ var _assign = require("object-assign");
 		},
 		render:function(){
 			var  transform = "translate3d(" + this.state.x_offset +"px," + this.state.y_offset + "px,0px)";
-			var _style = _assign(this.props.normalStyle,{transform:transform});
+			var _style = _assign({},this.props.normalStyle,{transform:transform});  //会出现warning, 由于this.props.normalStyle 是个动态值，提前克隆了
 			//y_offset由0变为非0,总会出现警告：`div` was passed a style object that has previously been mutated.， 不能理解
 			return <div className="me-page" id={this.getId()} style={_style} >{this.props.children}</div>;
 		}});

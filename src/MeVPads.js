@@ -106,7 +106,7 @@ var PadBuffer = React.createClass({
 			//console.log("react page update with ",this.state);
 		}
 	},
-
+	
 	render:function(){
 		var className = this.state.state == "active" ? "active":"deactive";
 		//var zIndex = this.state.state == "active" ? 1 : 0;
@@ -148,7 +148,7 @@ MeHammer.prototype.handleHammerEvent = function(evt){
 	}
     if(!window.IsMeElementTap){  //此处为没有元素绑定事件的
         //todo 派发全局的tap事件
-        if(evt.type == "tap"){
+        if(evt.type == "tap"){  
             this.ee.emitEvent("hammer:global:tap");
         }
     }
@@ -215,7 +215,7 @@ var MeVPads = React.createClass({
 			containerWidth:720,
 		};
 	},
-
+	
 	componentWillMount:function(){
 		this.pageCacheIdx = Array(this.props.article.getNumOfPage());	//为了方便定义每个page的Cache
 		for(var i = 0;i < this.pageCacheIdx.length;i ++){
@@ -246,7 +246,7 @@ var MeVPads = React.createClass({
 		return found;	//@todo 加错误检查,应该获得一个空闲的page
 	},
 	_cachePage:function(pageIdx,state,loc){
-
+		
 		var myself = this;
 		if(pageIdx < 0 || pageIdx > this.pageCacheIdx.length) return;
 		var cacheIdx = this.pageCacheIdx[pageIdx];
@@ -260,7 +260,7 @@ var MeVPads = React.createClass({
 			/*if(this.pageCache[cacheIdx].reactInstance != null){
 				ReactDOM.unmountComponentAtNode(ReactDOM.findDOMNode(this.pageCache[cacheIdx].reactInstance));
 			}*/
-
+			
 			this.pageCacheIdx[pageIdx] = cacheIdx;
 		}
 		var cache = this.pageCache[cacheIdx];
@@ -286,7 +286,7 @@ var MeVPads = React.createClass({
 				myself._pendingBufferUpdate --;
 			});
 		}
-
+		
 	},
 	_preLoadPage:function(idx,loc,remainders){
 		if(idx == -1)return;
@@ -302,15 +302,15 @@ var MeVPads = React.createClass({
 		var candidatePages = [];
 		var article = this.props.article;
 		var pageIdx = article.getPageIdxInLayout(posXIdx,posYIdx);
-
+		
 		if(pageIdx < 0 || pageIdx > this.pageCacheIdx.length) return -1;
-
+		
 		var up = article.getNbrPageIdx("L2Prev",posXIdx,posYIdx);
 		this._preLoadPage(up,"up",candidatePages);
 
 		var down = article.getNbrPageIdx("L2Next",posXIdx,posYIdx);
 		this._preLoadPage(down,"down",candidatePages);
-
+		
 		var left = -1;
 		if(posXIdx - 1 > 0 && this._pageRecorder[posXIdx - 1] != undefined){
 			left = article.getPageIdxInLayout(posXIdx - 1,this._pageRecorder[posXIdx - 1]);
@@ -318,21 +318,21 @@ var MeVPads = React.createClass({
 			left = article.getNbrPageIdx("L1Prev",posXIdx,posYIdx);
 		}
 		this._preLoadPage(left,"left",candidatePages);
-
+		
 		var right = -1;
 		if(posXIdx + 1 < this._pageRecorder.length && this._pageRecorder[posXIdx + 1] != undefined){
 			right =  article.getPageIdxInLayout(posXIdx + 1,this._pageRecorder[posXIdx + 1]);
 		}else article.getNbrPageIdx("L1Next",posXIdx,posYIdx);
 		this._preLoadPage(right,"right",candidatePages);
-
+		
 		this._cachePage(pageIdx,"active","middle"); //最后再激活
-
+		
 		for(var i = 0;i < candidatePages.length;i ++){
 			 this._cachePage(candidatePages[i].pageIdx,"standby",candidatePages[i].loc);
 		}
 
 		//console.log(pageIdx,up,down,left,right,candidatePages);
-
+		
 		for(var i = 0;i < this.pageCache.length;i ++){
 			var cache = this.pageCache[i];
 			if(!cache.lock){
@@ -349,7 +349,7 @@ var MeVPads = React.createClass({
 		}
 		return pageIdx;
 		//console.log(this.pageCache);
-
+		
 	},
 	gotoPos:function(x,y){
 		if(x == -1){
@@ -466,7 +466,7 @@ var MeVPads = React.createClass({
 				if(this.posYIdx > 0) return;
 			}
 			this.setState({
-				yOffset:Math.abs(evt.deltaY) < this.props.containerHeight / 2 ? evt.deltaY : Math.sign(evt.deltaY) * this.props.containerHeight / 2
+				yOffset:Math.abs(evt.deltaY) < this.props.containerHeight / 2 ? evt.deltaY : Math.sign(evt.deltaY) * this.props.containerHeight / 2 
 			});
 //            console.log("pan up down", this.posXIdx,this.posYIdx);
 			return;

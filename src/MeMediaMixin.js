@@ -10,6 +10,7 @@ define("MeMediaMixin",function(){
 			}
 		},
 		play:function(){
+
 			if(this.props.cxt == undefined) return;
 			this.props.cxt.mediaMgr.pause();
 			if(this.refs.mediaPlay){
@@ -30,6 +31,8 @@ define("MeMediaMixin",function(){
 			})
 		},
 		togglePlay:function(){
+            //用于判断，是否派发全局的点击事件
+            window.IsMeElementTap = true;
 			if((!!this.props.src) == false) return;//不存在数据就不enable togglePlay
 			if (this.state.isPlay) {
 				this.pause()
