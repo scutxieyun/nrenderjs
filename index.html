@@ -13,7 +13,7 @@
 var fmawr = "999";</script>
 <script src="lib/fmacapi.interface.min.js"></script>
 <script type="text/javascript" src="lib/require.js"></script>
-<script type="text/javascript" src="lib/render.js"></script>
+<script type="text/javascript" src="lib/renderjs.js"></script>
 <!--用于测试转换数据用-->
 <script type="text/javascript" src="lib/testjson.js"></script>
 <script type="text/javascript">
@@ -133,13 +133,8 @@ function renderJsOperation (mag){
                 playMagazine();
             }
         }, 10);
-        /**
-         * 增加一些全局的监听事件
-         */
+
         ee.addListener("hammer:global:tap", onGlobalTapHandler);
-        ee.addListener("global:load:tid", globalLoadTid);   //重新加载作品
-        ee.addListener("global:open:with:inner:browse", globalOpenWithInnerBrowse); //外部打开iframe
-        ee.addListener("global:submit:data:to:cloud", globalSubmitDataToCloud);     //保存数据到云端
     }
 }
 /**
@@ -282,11 +277,7 @@ function globalOpenWithInnerBrowse(target, height) {
     $popupIframe.append($(myIframe));
     $popupIframe.show();
     myIframe.src = target;
-    if (!height){
-        height = "100%";
-    }else{
-        height = height.replace(/\"/g,"");  //去掉双引号
-    }
+    if (!height) height = "100%";
     myIframe.height = height;
     myIframe.width = "100%";
     myIframe.className = "iframeWrapper";

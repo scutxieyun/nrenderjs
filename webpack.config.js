@@ -8,7 +8,7 @@ module.exports = {
     },
 	external:{
 		"react":"React",
-		"react-dom":"ReactDOM"
+		"react-dom":"ReactDOM",
 	},
     module: {
         loaders: [

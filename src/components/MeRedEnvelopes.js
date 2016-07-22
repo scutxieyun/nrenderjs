@@ -36,10 +36,6 @@ define("MeRedEnvelopes", function () {
 
         },
         clickHandle : function(ev){
-            ev.preventDefault();
-            ev.stopPropagation();
-            //用于判断，是否派发全局的点击事件
-            window.IsMeElementTap = true;
             console.log("MeRedEnvelopes");
             var self = this;
             var target = self.props.data.target;
@@ -64,17 +60,9 @@ define("MeRedEnvelopes", function () {
         },
         render: function () {
             var content = this.props.data.content || "";
-            var res = null;
-            if(this.isPC()){
-                res = (<div onMouseDown={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>
-                    <img src={content} style={{width:"100%", height:"100%"}}/>
-                </div>);
-            }else{
-                res = (<div onTouchStart={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>
-                    <img src={content} style={{width:"100%", height:"100%"}}/>
-                </div>);
-            }
-            return res;
+            return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef}>
+                <img src={content} style={{width:"100%", height:"100%"}}/>
+            </div>);
         },
         componentDidMount: function () {
 

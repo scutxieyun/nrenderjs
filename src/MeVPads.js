@@ -45,7 +45,7 @@ var PadBuffer = React.createClass({
 		if(this.state.pageIdx != -1 && this.state.pageIdx != newState.pageIdx && newState.pageIdx != -1 && newState.pageIdx != undefined){
 		//需要delay修改,先使用无效页，将当前的内容清除，然后再置上新页
 			if(this.bufferredState.pageIdx != -1){
-//				console.log("try to update delay loading:",this.bufferredState.pageIdx," with ",newState.pageIdx, " cur state ",this.state.pageIdx);
+				console.log("try to update delay loading:",this.bufferredState.pageIdx," with ",newState.pageIdx, " cur state ",this.state.pageIdx);
 			}
 			this.bufferredState.pageIdx = newState.pageIdx;
 			if(newState.state == "active"){
@@ -54,7 +54,7 @@ var PadBuffer = React.createClass({
 			this.bufferredState.state = newState.state;
 			this.bufferredState.doneCb = done;
 			_toSet.pageIdx = -1;
-//			console.log("delay the page:",this.bufferredState.pageIdx," in buffer ",this.props.id, " own ",this.state.pageIdx);
+			console.log("delay the page:",this.bufferredState.pageIdx," in buffer ",this.props.id, " own ",this.state.pageIdx);
 		}else{
 			if(done != null)done("done");
 		}
@@ -69,7 +69,7 @@ var PadBuffer = React.createClass({
 		var tem = this.bufferredState.pageIdx;
 		this.bufferredState.pageIdx = -1
 		if(tem != -1){
-//			console.log("do actual update for ",tem," in buffer ",this.props.id);
+			console.log("do actual update for ",tem," in buffer ",this.props.id);
 			if(this.bufferredState.doneCb != null)this.bufferredState.doneCb("done");
 			this.bufferredState.doneCb = null;
 			this.setState({pageIdx:tem,
@@ -94,13 +94,13 @@ var PadBuffer = React.createClass({
 		if(react_page != null && old_active != cur_active){
 			react_page.setContainerSize(this.props.pageWidth,this.props.pageHeight);
 			if(cur_active == false){
-//				console.log("buffer ask page ",this.state.pageIdx," deactive after 500ms");
+				console.log("buffer ask page ",this.state.pageIdx," deactive after 500ms");
 				setTimeout(function(){
 					if(myself.state.state != "active") //确认500ms后状态一致
 						react_page.setState({active:false});//延迟page的deactive，这样，就会实现两页间滑动的效果
 				},500);//延迟消失
 			}else{
-//				console.log("buffer ask page ",this.state.pageIdx," active");
+				console.log("buffer ask page ",this.state.pageIdx," active");
 				react_page.setState({active:true});
 			}
 			//console.log("react page update with ",this.state);
@@ -131,6 +131,7 @@ var MeHammer = function(hammer,default_handler, ee){
 	this.hammer.on("swipeleft swiperight swipeup swipedown pan tap",function(evt){self.handleHammerEvent(evt);});
 }
 MeHammer.prototype.handleHammerEvent = function(evt){
+    var isElementTap = false;
 	if(this.listeners.hasOwnProperty(evt.type)){
 		var evt_listeners = this.listeners[evt.type];
 		var curElm = evt.target;
@@ -138,23 +139,20 @@ MeHammer.prototype.handleHammerEvent = function(evt){
 		while(curElm != null && curElm != this.hammer.element){
 			for(var i = 0;i < evt_listeners.length;i ++){
 				if(evt_listeners[i].id == curElm.id){//没能理解apply的机制，按道理，1st参数应该对应this，但不是，严谨的做法应该用bind
-                    //用于判断，是否派发全局的点击事件
-                    window.IsMeElementTap = true;
+                    isElementTap = true;
 					if(evt_listeners[i].func.apply(null,[evt]) == false) return;
 				}
 			}
 			curElm = curElm.parentElement;
 		}
 	}
-    if(!window.IsMeElementTap){  //此处为没有元素绑定事件的
-        //todo 派发全局的tap事件
-        if(evt.type == "tap"){
-            this.ee.emitEvent("hammer:global:tap");
-        }
-    }
 	if(this.defaultHandler.hasOwnProperty(evt.type)){
 		this.defaultHandler[evt.type].apply(null,[evt]);
 	}
+    if(!isElementTap){  //此处为没有元素绑定事件的
+        //todo 派发全局的tap事件
+        this.ee.emitEvent("hammer:global:tap");
+    }
 }
 /***
 停止当前的session，主要给Pan操作使用
@@ -439,9 +437,7 @@ var MeVPads = React.createClass({
 		}
 	},
 	handleTap:function(evt){
-//		console.log("get tap in pad ",evt, window.IsMeElementTap);
-        //点击结束之后重置
-        window.IsMeElementTap = false;
+		console.log("get tap in pad ",evt);
 	},
 	componentDidMount:function(){
 		this.posXIdx = 0;
@@ -454,7 +450,7 @@ var MeVPads = React.createClass({
 	},
 	handlePan:function(evt){
 		if(evt.additionalEvent == "panleft" || evt.additionalEvent == "panright"){
-//            console.log("pan left right", this.posXIdx,this.posYIdx);
+            console.log("pan left right", this.posXIdx,this.posYIdx);
 			if(this.props.article.getL1Num() <= 1) return;
 		}else{
 			if(evt.additionalEvent == "panup"){
@@ -468,7 +464,7 @@ var MeVPads = React.createClass({
 			this.setState({
 				yOffset:Math.abs(evt.deltaY) < this.props.containerHeight / 2 ? evt.deltaY : Math.sign(evt.deltaY) * this.props.containerHeight / 2 
 			});
-//            console.log("pan up down", this.posXIdx,this.posYIdx);
+            console.log("pan up down", this.posXIdx,this.posYIdx);
 			return;
 		}
 	},
@@ -481,7 +477,7 @@ var MeVPads = React.createClass({
 	},
 	_registerHammer:function(ref){
 		//this.hammer = ref;
-//        console.log(ref);
+        console.log(ref);
 		if(ref != null)//控件创建过程
 		{
 			this.props.article.getCxt().interactHandler = 

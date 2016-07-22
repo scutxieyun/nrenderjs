@@ -47,10 +47,6 @@ define("MeInnerVideo", function () {
          * @param ev
          */
         clickHandle : function(ev){
-            ev.preventDefault();
-            ev.stopPropagation();
-            //用于判断，是否派发全局的点击事件
-            window.IsMeElementTap = true;
             var self = this;
             var _videoEndLayer = self.refs.mediaEnd;
             var _videoPauseLayer = self.refs.mediaPause;
@@ -86,25 +82,13 @@ define("MeInnerVideo", function () {
         },
         render: function () {
             this.props.commonPopupStyle.background ="url("+this.props.data.poster+") no-repeat center rgba(0, 0, 0, 0.65098)";
-            var res = null;
-            if(this.isPC()){
-                res = (<div onMouseDown={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} >
-                    <video width={this.props.data.width} height={this.props.data.height} id={"vjs_video_1"} preload={"auto"} controls={"controls"}
+            return (<div onClick={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} >
+                <video width={this.props.data.width} height={this.props.data.height} id={"vjs_video_1"} preload={"auto"} controls={"controls"}
                     ref="mediaPlay" x-webkit-airplay={"true"} webkit-playsinline={"true"} style={{"position":"absolute","zIndex":1}} poster={this.props.data.poster}>
-                        <source type={"video/mp4"} src={this.props.data.src} ></source></video>
-                    <div ref="mediaPause" style={_assign(this.props.commonPopupStyle,{zIndex:2})}><div className={"video-player-btn"}></div></div>
-                    <div ref="mediaEnd" style={_assign(this.props.commonPopupStyle,{zIndex:3})}><span className={"video-player-end"}>重新开始</span></div>
-                </div>);
-            }else{
-                res = (<div onTouchStart={this.clickHandle} style={_assign(this.props.normalStyle,this.props.commonStyle)} ref={this.myRef} >
-                    <video width={this.props.data.width} height={this.props.data.height} id={"vjs_video_1"} preload={"auto"} controls={"controls"}
-                    ref="mediaPlay" x-webkit-airplay={"true"} webkit-playsinline={"true"} style={{"position":"absolute","zIndex":1}} poster={this.props.data.poster}>
-                        <source type={"video/mp4"} src={this.props.data.src} ></source></video>
-                    <div ref="mediaPause" style={_assign(this.props.commonPopupStyle,{zIndex:2})}><div className={"video-player-btn"}></div></div>
-                    <div ref="mediaEnd" style={_assign(this.props.commonPopupStyle,{zIndex:3})}><span className={"video-player-end"}>重新开始</span></div>
-                </div>);
-            }
-            return res;
+                <source type={"video/mp4"} src={this.props.data.src} ></source></video>
+                <div ref="mediaPause" style={_assign(this.props.commonPopupStyle,{zIndex:2})}><div className={"video-player-btn"}></div></div>
+                <div ref="mediaEnd" style={_assign(this.props.commonPopupStyle,{zIndex:3})}><span className={"video-player-end"}>重新开始</span></div>
+            </div>);
         },
         componentDidMount: function () {
             this.videoEndHandle();
